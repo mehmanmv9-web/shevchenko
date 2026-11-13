@@ -18,10 +18,12 @@ modal.addEventListener('click',e=>{if(e.target===modal) modal.classList.remove('
 addEventListener('keydown',e=>{if(e.key==='Escape') modal.classList.remove('show');});
 /* smooth photo zoom (FLIP) */
 const lbx=document.createElement('div'); lbx.className='lbx'; lbx.innerHTML='<div class="lbx-bg"></div><img alt=""><button class="lbx-x" aria-label="Закрыть">×</button><div class="lbx-cap"></div>'; document.body.appendChild(lbx);
-const lbImg=lbx.querySelector('img'), lbCap=lbx.querySelector('.lbx-cap'); let lbSrc=null;
+const lbImg=lbx.querySelector('img'), lbCap=lbx.querySelector('.lbx-cap'); let lbSrc=null, lbTok=0, lbY=0;
 function lbOpen(el){
+  if(lbSrc&&lbSrc!==el){ lbSrc.style.visibility=''; }
+  const tok=++lbTok; lbY=scrollY; lbx.classList.remove('in');
   lbSrc=el; const r=el.getBoundingClientRect(); lbImg.src=el.currentSrc||el.src; lbCap.textContent=el.alt||''; lbImg.style.mixBlendMode='normal'; lbImg.style.filter='none'; lbImg.style.opacity='1'; lbImg.style.background=/img\/(plan|type|var|ep|tex)/.test(lbImg.src)?'#F6F1E7':'';
-  const go=()=>{ const vw=innerWidth*0.9, vh=innerHeight*0.86, ar=lbImg.naturalWidth/lbImg.naturalHeight||r.width/r.height;
+  let started=false; const go=()=>{ if(tok!==lbTok||lbSrc!==el||started) return; started=true; const vw=innerWidth*0.9, vh=innerHeight*0.86, ar=lbImg.naturalWidth/lbImg.naturalHeight||r.width/r.height;
     let w=vw, h=w/ar; if(h>vh){h=vh; w=h*ar;} const tx=(innerWidth-w)/2, ty=(innerHeight-h)/2;
     lbImg.style.transition='none'; lbImg.style.left=r.left+'px'; lbImg.style.top=r.top+'px'; lbImg.style.width=r.width+'px'; lbImg.style.height=r.height+'px'; lbImg.style.objectFit=getComputedStyle(el).objectFit||'cover';
     lbx.classList.add('show'); el.style.visibility='hidden'; lbImg.offsetHeight;
@@ -29,13 +31,18 @@ function lbOpen(el){
     requestAnimationFrame(()=>lbx.classList.add('in')); };
   if(lbImg.complete && lbImg.naturalWidth) go(); else lbImg.onload=go;
   const src=(el.currentSrc||el.src), m=src.match(/img\/(ext-sunset2|park|entrance|aerial|lobby|ext-front|corridor|winter|lobby2|lift-hall|ext-sunset|ph\d\d)\.jpg/);
-  if(m){ const hd=new Image(); hd.onload=()=>{ if(lbSrc===el){ lbImg.onload=null; lbImg.src=hd.src; } }; hd.src=src.replace(/\.jpg(\?.*)?$/,'-4k.jpg'); }   // 4K-версия для полноэкранного просмотра
+  if(m){ const hd=new Image(); hd.onload=()=>{ if(lbSrc===el&&tok===lbTok){ lbImg.onload=started?null:go; lbImg.src=hd.src; } }; hd.src=src.replace(/\.jpg(\?.*)?$/,'-4k.jpg'); }   // 4K-версия для полноэкранного просмотра
 }
-function lbClose(){ if(!lbSrc) return; const el=lbSrc, r=el.getBoundingClientRect(); lbx.classList.remove('in');
+function lbClose(){ if(!lbSrc) return; const el=lbSrc, tok=++lbTok, r=el.getBoundingClientRect(); lbx.classList.remove('in');
   lbImg.style.left=r.left+'px'; lbImg.style.top=r.top+'px'; lbImg.style.width=r.width+'px'; lbImg.style.height=r.height+'px'; lbImg.style.objectFit=getComputedStyle(el).objectFit||'cover';
-  setTimeout(()=>{ lbx.classList.remove('show'); el.style.visibility=''; lbSrc=null; },620); }
+  setTimeout(()=>{ if(tok!==lbTok) return; lbx.classList.remove('show'); el.style.visibility=''; lbSrc=null; },620); }
 lbx.addEventListener('click',lbClose); addEventListener('keydown',e=>{ if(e.key==='Escape') lbClose(); });
-addEventListener('scroll',()=>{ if(lbSrc) lbClose(); },{passive:true});
+let lbAcc=0,lbTy=null; lbx.addEventListener('transitionend',()=>{lbAcc=0});
+addEventListener('wheel',e=>{ if(!lbSrc||!lbx.classList.contains('in')) return; lbAcc+=Math.abs(e.deltaY); if(lbAcc>140){ lbAcc=0; lbClose(); } },{passive:true});
+addEventListener('touchstart',e=>{ lbTy=e.touches[0].clientY; },{passive:true});
+addEventListener('touchmove',e=>{ if(!lbSrc||!lbx.classList.contains('in')||lbTy==null) return; if(Math.abs(e.touches[0].clientY-lbTy)>50){ lbTy=null; lbClose(); } },{passive:true});
+lbx.addEventListener('touchend',e=>{ if(lbSrc&&lbx.classList.contains('in')){ e.preventDefault(); lbClose(); } },{passive:false});
+addEventListener('pagehide',()=>{ if(lbSrc){ lbSrc.style.visibility=''; lbx.classList.remove('show','in'); lbSrc=null; } });
 document.addEventListener('click',e=>{const im=e.target.closest('[data-zoom]'); if(im){ e.preventDefault(); lbOpen(im); }});
 
 /* ---------- hero ---------- */
