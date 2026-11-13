@@ -55,21 +55,44 @@ $('#heroKpis').innerHTML=[
 })();
 /* ---------- walk (cinematic tour) ---------- */
 (function(){
-  const S=[['ext-front','Прибытие','Светлый классический фасад','Камень, бронза и тёплый свет окон — дом выглядит дорого в любое время суток.'],
-   ['entrance','Вход','Парадный портал','Арочные витрины первого этажа и бронзовые двери встречают жителей и гостей.'],
-   ['lobby','Лобби','Двусветное лобби','Консьерж, мягкие кресла и высота 8,7 м — как в хорошем отеле.'],
-   ['lobby2','Ресепшен','Мрамор и консьерж','Каждого гостя встречают; посторонних в доме нет.'],
-   ['lift-hall','Лифтовой холл','Два лифта','Два лифта в бронзе, мраморный пол, тёплая подсветка; по сторонам — ореховые двери квартир.'],
-   ['corridor','Этаж','Холл этажа','Четыре двери квартир из ореха с бронзой, тёплые бра; в торце — дверь на лестницу Н2 с указателем «Выход».'],
-   ['park','Двор','Парк без машин','Аллеи, цветы и фонари — машины остаются в подземном паркинге.'],
-   ['roof-real','Крыша','Сад на крыше','Деревянный настил, газоны и ротонда над городом — для жителей всех четырёх подъездов.'],
-   ['fac-long-night','Вечер','Дом вечером','Тёплый свет окон и витрин вдоль ул. Амангельды.']];
+  const S=[['ext-front-4k','Прибытие','Светлый классический фасад','Камень, бронза и тёплый свет окон — дом выглядит дорого в любое время суток.'],
+   ['ph09-4k','Фасад','Угол дома','Вечерняя улица и мягкий свет окон.'],
+   ['ph08-4k','Фасад','Фасад по ул. Амангельды','Девять этажей светлого камня и кованых балконов.'],
+   ['fac-long-night-4k','Вечер','Дом вечером','Тёплый свет окон и витрин вдоль ул. Амангельды.'],
+   ['entrance-4k','Вход','Парадный портал','Арочные витрины первого этажа и бронзовые двери встречают жителей и гостей.'],
+   ['ph03-4k','Паркинг','Вход и въезд в паркинг','Подземный паркинг на два уровня — машины остаются под домом.'],
+   ['lobby-4k','Внутри','Лобби','Консьерж, мягкие кресла и высота 8,7 м — как в хорошем отеле.'],
+   ['lobby2-4k','Ресепшен','Мрамор и консьерж','Каждого гостя встречают; посторонних в доме нет.'],
+   ['lift-hall-4k','Лифтовой холл','Два лифта','Два лифта в бронзе, мраморный пол, тёплая подсветка; по сторонам — ореховые двери квартир.'],
+   ['corridor-4k','Этаж','Холл этажа','Четыре двери квартир из ореха с бронзой, тёплые бра; в торце — дверь на лестницу Н2 с указателем «Выход».'],
+   ['ph16-4k','Гостиная','Гостиная с кухней-столовой','Высокие окна, светлое дерево и тёплый свет.'],
+   ['ph15-4k','Спальня','Спальня с видом на двор','Мягкий свет, гардеробные и тишина.'],
+   ['ph18-4k','Спальня','Мастер-спальня и ванная','Просторная спальня и ванная в камне.'],
+   ['ph06-4k','Квартира','Гостиная, спальня, кухня','Комнаты квартиры в едином спокойном стиле.'],
+   ['ph07-4k','Квартира','Вечерний свет','Мягкое освещение гостиной и спален.'],
+   ['ph10-4k','Квартира','Утренний свет','Светлые комнаты с видом на двор.'],
+   ['ph17-4k','Квартира','Комнаты квартиры','Гостиная, спальни, кухня и ванная.'],
+   ['ph11-4k','Квартира','Студийная планировка','Свободное пространство для жизни и гостей.'],
+   ['park-4k','Двор','Парк без машин','Аллеи, цветы и фонари — машины остаются в подземном паркинге.'],
+   ['ph14-4k','Двор','Зимний вечер над двором','Двор-сад в снегу и тёплых огнях.']];
   const box=$('#walkbox'), cap=$('#walkcap'), pr=$('#walkprog');
-  const FIT=['ext-front','fac-long-night','fac-long'];
-  box.insertAdjacentHTML('afterbegin',S.map(x=>FIT.includes(x[0])?`<div class="sl fit"><img class="bgb" src="img/${x[0]}.jpg" alt="" loading="lazy"><img class="fg" src="img/${x[0]}.jpg" alt="${x[2]}" loading="lazy"></div>`:`<div class="sl"><img src="img/${x[0]}.jpg" alt="${x[2]}" loading="lazy"></div>`).join(''));
+  const FIT=['ext-front-4k','fac-long-night-4k','ph08-4k','ph06-4k','ph07-4k','ph10-4k','ph11-4k','ph17-4k','ph18-4k'];
+  box.insertAdjacentHTML('afterbegin',S.map(x=>FIT.includes(x[0])?`<div class="sl fit"><img class="bgb" data-src="img/${x[0]}.jpg" alt=""><img class="fg" data-src="img/${x[0]}.jpg" alt="${x[2]}"></div>`:`<div class="sl"><img data-src="img/${x[0]}.jpg" alt="${x[2]}"></div>`).join(''));
   pr.innerHTML=S.map(()=>'<i><b></b></i>').join('');
+  (function(){ const fs=document.createElement('button'); fs.id='walkfs'; fs.type='button'; fs.setAttribute('aria-label','На весь экран');
+    const EX='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>', CO='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>';
+    fs.innerHTML=EX; box.appendChild(fs);
+    const isFs=()=>document.fullscreenElement===box||document.webkitFullscreenElement===box||box.classList.contains('pfs');
+    function sync(){ const on=isFs(); fs.innerHTML=on?CO:EX; fs.setAttribute('aria-label',on?'Свернуть':'На весь экран'); document.documentElement.classList.toggle('walkfs-on',on); }
+    function enter(){ const f=box.requestFullscreen||box.webkitRequestFullscreen; if(f){ try{ const r=f.call(box); if(r&&r.catch) r.catch(()=>{box.classList.add('pfs');sync();}); }catch(e){ box.classList.add('pfs'); } } else box.classList.add('pfs'); sync(); }
+    function leave(){ if(document.fullscreenElement||document.webkitFullscreenElement){ (document.exitFullscreen||document.webkitExitFullscreen).call(document); } box.classList.remove('pfs'); sync(); }
+    fs.onclick=e=>{ e.stopPropagation(); isFs()?leave():enter(); };
+    ['fullscreenchange','webkitfullscreenchange'].forEach(ev=>document.addEventListener(ev,sync));
+    addEventListener('keydown',e=>{ if(e.key==='Escape'&&box.classList.contains('pfs')) leave(); });
+  })();
   const sl=box.querySelectorAll('.sl'), bars=pr.querySelectorAll('i'); let i=-1, timer=null, started=false;
-  function go(k){ i=k%S.length; sl.forEach((e,n)=>{e.classList.toggle('on',n===i); const im=e.querySelector('.fg')||e.querySelector('img'); if(n===i){im.style.animation='none'; im.offsetHeight; im.style.animation='';}});
+  const ld=n=>{ const e=sl[n%S.length]; if(e) e.querySelectorAll('img[data-src]').forEach(im=>{im.src=im.dataset.src; im.removeAttribute('data-src');}); };
+  function go(k){ i=k%S.length; ld(i); ld(i+1); sl.forEach((e,n)=>{e.classList.toggle('on',n===i); const im=e.querySelector('.fg')||e.querySelector('img'); if(n===i){im.style.animation='none'; im.offsetHeight; im.style.animation='';}});
     bars.forEach((b,n)=>{b.classList.toggle('done',n<i); b.classList.remove('on'); if(n===i){b.offsetHeight; b.classList.add('on');}});
     const x=S[i]; cap.innerHTML=`<div class="eyebrow">${String(i+1).padStart(2,'0')} · ${x[1]}</div><h3>${x[2]}</h3><p>${x[3]}</p>`;
     clearTimeout(timer); timer=setTimeout(()=>go(i+1),4500); }
@@ -78,7 +101,7 @@ $('#heroKpis').innerHTML=[
 })();
 
 /* ---------- gallery ---------- */
-const gal=[['fac-long','Фасад по ул. Амангельды','g-a'],['aerial','Двор-парк с высоты','g-b'],['entrance','Главный вход','g-c'],['fac-short','Торец · ул. Жамбыла','g-c'],['lobby','Двусветное лобби','g-c'],['ext-front','Главный фасад','g-d'],['corridor','Поэтажный холл','g-c'],['lift-hall','Лифтовой холл','g-c']];
+const gal=[['fac-long','Фасад по ул. Амангельды','g-a'],['aerial','Двор-парк с высоты','g-b'],['entrance','Главный вход','g-c'],['fac-short','Торец · ул. Жамбыла','g-c'],['lobby','Лобби','g-c'],['ext-front','Главный фасад','g-d'],['corridor','Поэтажный холл','g-c'],['lift-hall','Лифтовой холл','g-c']];
 $('#gallery').innerHTML=gal.map(g=>`<figure class="${g[2]}"><img src="img/${g[0]}.jpg" alt="${g[1]}" loading="lazy" data-zoom><figcaption>${g[1]}</figcaption></figure>`).join('');
 
 /* ---------- types ---------- */

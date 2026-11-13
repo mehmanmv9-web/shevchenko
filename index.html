@@ -727,7 +727,7 @@ nav.top .cxl a{width:34px!important;height:34px!important;padding:0!important;bo
 nav.top .cxl a:hover{background:radial-gradient(120% 160% at 30% 0%,#f4ecd9 0%,#e6d9ba 55%,#d9c9a2 100%)!important;filter:brightness(1.06);transform:translateY(-1px)}
 nav.top .cxl a svg{width:18px;height:18px;display:block;fill:none;filter:drop-shadow(0 1px 0 rgba(255,252,240,.95)) drop-shadow(0 -.6px 0 rgba(90,68,30,.45))}
 @media(max-width:600px){nav.top .cxl a{width:30px!important;height:30px!important}nav.top .cxl a svg{width:16px;height:16px}}
-@media(min-width:901px){nav.top .cxl a.sx1,nav.top .cxl a.sx2{display:none!important}nav.top .cxl{margin-left:0!important;flex:none}nav.top .wrap{max-width:none!important;gap:14px!important}nav.top .links{gap:12px!important;min-width:0}nav.top .links a{white-space:nowrap}}
+@media(min-width:901px){nav.top .cxl{margin-left:0!important;flex:none}nav.top .wrap{max-width:none!important;gap:14px!important}nav.top .links{gap:12px!important;min-width:0}nav.top .links a{white-space:nowrap}}
 </style>
 <style id="sbar">
 nav.top:not(.solid){background:linear-gradient(180deg,rgba(10,16,13,.22),rgba(10,16,13,0))!important}
@@ -740,6 +740,42 @@ nav.top.solid .links a{color:#8F6B2E!important;text-shadow:none}
 nav.top.solid .links a:hover{color:#1F3A2E!important}
 nav.top .pricesw span{display:none!important}
 @media(max-width:1520px){nav.top .links a[href="#market"],nav.top .links a[href="#invest"]{display:none!important}}
+</style>
+<style id="walkfscss">
+#walkfs{position:absolute;right:22px;bottom:22px;z-index:7;width:46px;height:46px;border-radius:50%;border:2px solid #b49a68;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#8a7650;background:radial-gradient(120% 160% at 30% 0%,#f4ecd9 0%,#e6d9ba 55%,#d9c9a2 100%);box-shadow:inset 0 1px 0 #fffaf0,inset 0 -2px 3px rgba(120,92,48,.35),0 0 0 3px #f1e8d2,0 0 0 4px #b49a68,0 6px 16px rgba(0,0,0,.35);padding:0}
+#walkfs svg{width:21px;height:21px;display:block;filter:drop-shadow(0 1px 0 rgba(255,252,240,.95))}
+#walkfs:hover{filter:brightness(1.06)}
+.walk:fullscreen{height:100vh!important;width:100vw}.walk:-webkit-full-screen{height:100vh!important;width:100vw}
+.walk.pfs{position:fixed!important;inset:0;z-index:9999;height:100vh!important;height:100dvh!important;width:100vw}
+.walk:fullscreen .fadein,.walk.pfs .fadein{display:none}
+.walk:fullscreen .cap,.walk.pfs .cap{bottom:16%}.walk:fullscreen .prog,.walk.pfs .prog{bottom:9%}
+html.walkfs-on,html.walkfs-on body{overflow:hidden}
+</style>
+<style id="tblux">
+/* ---- красивые таблицы в стиле сайта ---- */
+.panel{background:linear-gradient(165deg,#fcf8ee 0%,#f3eadb 100%)!important;border:1px solid rgba(168,134,79,.42)!important;box-shadow:0 14px 40px rgba(40,30,10,.12),inset 0 1px 0 rgba(255,255,255,.8)!important}
+.panel h4{font-family:'Manrope',sans-serif;color:#A8864F!important;letter-spacing:.22em!important;font-size:11px!important}
+table.data{border-collapse:separate!important;border-spacing:0;background:linear-gradient(165deg,#fcf8ee 0%,#f3eadb 100%)!important;border:1px solid rgba(168,134,79,.42);border-radius:18px!important;overflow:hidden;box-shadow:0 12px 34px rgba(40,30,10,.08)}
+.panel table.data{background:transparent!important;border:0;box-shadow:none;border-radius:0!important}
+table.data th{background:transparent!important;font-family:'Manrope',sans-serif!important;font-size:10.5px!important;letter-spacing:.2em!important;color:#A8864F!important;font-weight:700!important;border-bottom:1px solid rgba(168,134,79,.55)!important;padding:14px 16px!important}
+table.data td{background:transparent!important;font-family:'Cormorant Garamond',Georgia,serif!important;font-size:18.5px!important;font-weight:500!important;line-height:1.3;color:#1D2A24;font-variant-numeric:lining-nums tabular-nums;padding:11px 16px!important;border-bottom:1px solid rgba(168,134,79,.22)!important}
+table.data td:first-child{font-weight:700!important;color:#1F3A2E;font-size:19px!important}
+table.data tr:last-child td{border-bottom:0!important}
+table.data tr.tot td{background:linear-gradient(90deg,rgba(201,168,108,.28),rgba(201,168,108,.12))!important;font-weight:700!important;color:#1F3A2E;border-top:1px solid rgba(168,134,79,.6)!important}
+table.data tr.sub td{background:rgba(201,168,108,.14)!important;font-weight:700!important;color:#8F6B2E}
+table.data tr:hover td{background:rgba(201,168,108,.12)!important}
+table.data a{color:#8F6B2E;text-decoration-color:rgba(168,134,79,.6);font-family:'Manrope',sans-serif;font-size:12.5px;font-weight:500}
+#contacts td:nth-child(3){color:#7A5A22;font-weight:700!important;white-space:nowrap}
+#contacts td{font-size:17.5px!important}
+#contacts td:nth-child(4){font-family:'Manrope',sans-serif!important;font-size:12.5px!important;font-weight:400!important;color:#555B54}
+#methodComps td:nth-child(2){font-weight:600!important}
+#dev .grid2>div:last-child{background:linear-gradient(165deg,#fcf8ee,#f3eadb);border:1px solid rgba(168,134,79,.42);border-radius:18px;padding:34px 36px;box-shadow:0 12px 34px rgba(40,30,10,.08);align-self:start}
+#dev .grid2>div:last-child h3{font-size:34px;color:#1F3A2E;margin-bottom:14px}
+#dev .grid2>div:last-child p{font-family:'Cormorant Garamond',Georgia,serif;font-size:23px;line-height:1.45;color:#2a352e;font-weight:500}
+#dev .grid2>div:last-child:before{content:"";display:block;width:42px;height:2px;background:#C9A86C;margin-bottom:20px}
+#contacts-sec .small.muted,#method .small{font-family:'Manrope',sans-serif}
+@media(max-width:700px){table.data td{font-size:16.5px!important;padding:9px 12px!important}table.data td:first-child{font-size:17px!important}#dev .grid2>div:last-child{padding:24px 22px}#dev .grid2>div:last-child p{font-size:20px}}
+@media(max-width:1380px){nav.top .links a[href="#myfloor"]{display:none!important}}
 </style>
 </head>
 <body>
@@ -1002,7 +1038,7 @@ nav.top .pricesw span{display:none!important}
   <p class="lead">Основные цифры проекта.</p>
   <div class="grid2" style="margin-top:30px">
     <table class="data num" id="tep"></table>
-    <div><h3 style="margin-bottom:12px">Коротко о проекте</h3><p class="muted">Дом в 9 этажей и 4 подъезда в «золотом квадрате» Алматы, ул. Амангельды, 78 — рядом отель Rixos и городской парк. Светлая классика, двор-парк без машин, клубный первый этаж и подземный паркинг.</p></div>
+    <div><h3 style="margin-bottom:12px">Коротко о проекте</h3><p class="muted">Девять этажей светлого камня в «золотом квадрате» Алматы, рядом отель Rixos и городской парк. Четыре подъезда, 128 резиденций по 117,2 м², закрытый двор-сад без машин, подземный паркинг на 230 мест и сады на крыше.</p></div>
   </div>
 </div></section>
 
