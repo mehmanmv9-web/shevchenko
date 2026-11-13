@@ -82,7 +82,7 @@ const gal=[['fac-long','Фасад по ул. Амангельды','g-a'],['aer
 $('#gallery').innerHTML=gal.map(g=>`<figure class="${g[2]}"><img src="img/${g[0]}.jpg" alt="${g[1]}" loading="lazy" data-zoom><figcaption>${g[1]}</figcaption></figure>`).join('');
 
 /* ---------- types ---------- */
-let MODE=4500;
+let MODE='cmp';
 const PP=()=>M.STATE.price, PS=()=>MODE==='cmp'?M.PRICES.slice():[MODE], J=fn=>PS().map(fn).join(' / ');
 function aptPrice(t){return Math.round(T[t].total*PP());}
 function typeHTML(t){
