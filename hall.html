@@ -1,0 +1,128 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:#000}canvas{display:block}</style>
+<script type="importmap">{"imports":{"three":"./lib/three.module.min.js","three/addons/":"./lib/jsm/"}}</script></head><body>
+<script type="module">
+import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+const q=new URLSearchParams(location.search); const VIEW=q.get('v')||'lifts';
+const Wd=+q.get('w')||2560, Ht=+q.get('h')||1707;
+const R=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true}); R.setSize(Wd,Ht); R.setPixelRatio(1);
+R.toneMapping=THREE.ACESFilmicToneMapping; R.toneMappingExposure=1.05; R.outputColorSpace=THREE.SRGBColorSpace;
+R.shadowMap.enabled=true; R.shadowMap.type=THREE.PCFSoftShadowMap;
+document.body.appendChild(R.domElement);
+const S=new THREE.Scene(); S.background=new THREE.Color(0x1a1714);
+const pm=new THREE.PMREMGenerator(R); S.environment=pm.fromScene(new RoomEnvironment(),0.04).texture; S.environmentIntensity=1.0;
+// холл: x поперёк 0..5.6 (лево—право), z глубина: 0 — стена лифтов, 4.2 — стена лестницы; y вверх
+const HW=5.6, HD=4.2, CH=3.0;
+function canvasTex(w,h,draw,rep=[1,1]){const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(...rep);t.anisotropy=8;return t;}
+function rnd(s){return ()=>{s=(s*16807)%2147483647;return s/2147483647;}}
+// мрамор пола с бордюром
+const floorTex=canvasTex(2240,1680,(g,w,h)=>{
+  const r=rnd(7); g.fillStyle='#efe6d6'; g.fillRect(0,0,w,h);
+  for(let i=0;i<70;i++){g.strokeStyle=`rgba(${150+r()*40|0},${130+r()*30|0},${110+r()*20|0},${0.05+r()*0.12})`;g.lineWidth=0.6+r()*2.2;g.beginPath();let x=r()*w,y=r()*h;g.moveTo(x,y);for(let k=0;k<9;k++){x+=(r()-0.3)*260;y+=(r()-0.5)*160;g.lineTo(x,y);}g.stroke();}
+  const px=w/HW; // плиты 0.8
+  g.strokeStyle='rgba(120,100,80,0.18)';g.lineWidth=2;
+  for(let x=0;x<=HW;x+=0.8){g.beginPath();g.moveTo(x*px,0);g.lineTo(x*px,h);g.stroke();}
+  for(let y=0;y<=HD;y+=0.8){g.beginPath();g.moveTo(0,y*px);g.lineTo(w,y*px);g.stroke();}
+  const b=0.35*px, t=0.12*px; g.fillStyle='#4a3b2e'; // тёмный бордюр-инкрустация
+  g.fillRect(b,b,w-2*b,t);g.fillRect(b,h-b-t,w-2*b,t);g.fillRect(b,b,t,h-2*b);g.fillRect(w-b-t,b,t,h-2*b);
+  g.fillStyle='#b8955a'; const b2=b+t+0.06*px, t2=0.03*px;
+  g.fillRect(b2,b2,w-2*b2,t2);g.fillRect(b2,h-b2-t2,w-2*b2,t2);g.fillRect(b2,b2,t2,h-2*b2);g.fillRect(w-b2-t2,b2,t2,h-2*b2);
+
+});
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(HW,HD),new THREE.MeshPhysicalMaterial({map:floorTex,roughness:0.12,clearcoat:1,clearcoatRoughness:0.05,reflectivity:0.6}));
+floor.rotation.x=-Math.PI/2; floor.position.set(HW/2,0,HD/2); floor.receiveShadow=true; S.add(floor);
+// стены
+const wallMat=new THREE.MeshStandardMaterial({color:0xeee3cf,roughness:0.75});
+const mold=new THREE.MeshStandardMaterial({color:0xf6eedf,roughness:0.55});
+const darkStone=new THREE.MeshStandardMaterial({color:0x5b4a3a,roughness:0.35});
+const bronze=new THREE.MeshStandardMaterial({color:0x9a7448,metalness:1,roughness:0.28});
+const brass=new THREE.MeshStandardMaterial({color:0xc9a35f,metalness:1,roughness:0.22});
+const walnut=new THREE.MeshStandardMaterial({color:0x5a3a24,roughness:0.42});
+const walnut2=new THREE.MeshStandardMaterial({color:0x6b472d,roughness:0.38});
+function box(w,h,d,mat,x,y,z,sh=true){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);m.castShadow=sh;m.receiveShadow=true;S.add(m);return m;}
+// 4 стены
+box(HW,CH,0.1,wallMat,HW/2,CH/2,-0.05,false);      // лифты
+box(HW,CH,0.1,wallMat,HW/2,CH/2,HD+0.05,false);    // лестница
+box(0.1,CH,HD,wallMat,-0.05,CH/2,HD/2,false);      // левая (A, C)
+box(0.1,CH,HD,wallMat,HW+0.05,CH/2,HD/2,false);    // правая (B, D)
+// плинтус
+for(const [w,d,x,z] of [[HW,0.03,HW/2,0.015],[HW,0.03,HW/2,HD-0.015],[0.03,HD,0.015,HD/2],[0.03,HD,HW-0.015,HD/2]]) box(w,0.14,d,darkStone,x,0.07,z,false);
+// потолок с подсвеченным карнизом
+const ceil=new THREE.Mesh(new THREE.PlaneGeometry(HW,HD),new THREE.MeshStandardMaterial({color:0xf8f2e6,roughness:0.9}));ceil.rotation.x=Math.PI/2;ceil.position.set(HW/2,CH,HD/2);S.add(ceil);
+const drop=0.18, inset=0.55;
+box(HW,drop,inset,mold,HW/2,CH-drop/2,inset/2,false);box(HW,drop,inset,mold,HW/2,CH-drop/2,HD-inset/2,false);
+box(inset,drop,HD,mold,inset/2,CH-drop/2,HD/2,false);box(inset,drop,HD,mold,HW-inset/2,CH-drop/2,HD/2,false);
+const glow=new THREE.MeshBasicMaterial({color:0xffd9a0});
+for(const [w,d,x,z] of [[HW-2*inset,0.03,HW/2,inset],[HW-2*inset,0.03,HW/2,HD-inset],[0.03,HD-2*inset,inset,HD/2],[0.03,HD-2*inset,HW-inset,HD/2]]){const m=box(w,0.03,d,glow,x,CH-drop-0.02,z,false);}
+const cl=new THREE.RectAreaLight?null:null;
+// люстра-диск
+const lamp=new THREE.Mesh(new THREE.CylinderGeometry(0.42,0.42,0.06,48),new THREE.MeshBasicMaterial({color:0xfff0d6}));lamp.position.set(HW/2,CH-0.06,HD/2);S.add(lamp);
+const ring=new THREE.Mesh(new THREE.TorusGeometry(0.46,0.025,12,64),brass);ring.rotation.x=Math.PI/2;ring.position.set(HW/2,CH-0.08,HD/2);S.add(ring);
+// панели-молдинги на стенах
+function panel(x0,x1,y0,y1,plane,c){ // plane: 'z' at c (стена XY), 'x' at c (стена ZY)
+  const t=0.025,w=0.035;
+  const segs=[[x0,x1,y0,y0],[x0,x1,y1,y1],[x0,x0,y0,y1],[x1,x1,y0,y1]];
+  for(const [a,b,c0,c1] of segs){const L=Math.max(b-a,c1-c0)+w; const horiz=c1===c0;
+    if(plane==='z') box(horiz?L:w,horiz?w:L,t,mold,(a+b)/2,(c0+c1)/2,c,false);
+    else box(t,horiz?w:L,horiz?L:w,mold,c,(c0+c1)/2,(a+b)/2,false);}
+}
+// лифты: 2 портала на стене z=0, центры x 1.55 и 4.05 (как в плане секции)
+for(const cx of [1.55,4.05]){
+  box(1.5,2.55,0.08,darkStone,cx,1.275,0.04);
+  const d1=box(0.55,2.25,0.04,bronze,cx-0.28,1.125+0.05,0.1); const d2=box(0.55,2.25,0.04,bronze,cx+0.28,1.125+0.05,0.1);
+  box(0.012,2.25,0.05,new THREE.MeshStandardMaterial({color:0x2a2018}),cx,1.175,0.105,false);
+  box(1.5,0.12,0.1,brass,cx,2.6,0.06); // карниз портала
+  // индикатор
+  box(0.34,0.07,0.02,new THREE.MeshBasicMaterial({color:0xffc070}),cx,2.43,0.13,false);
+}
+// кнопки вызова между лифтами
+box(0.14,0.32,0.03,brass,HW/2,1.15,0.03); box(0.05,0.05,0.04,new THREE.MeshBasicMaterial({color:0xffe2a8}),HW/2,1.22,0.05,false);box(0.05,0.05,0.04,new THREE.MeshBasicMaterial({color:0xffe2a8}),HW/2,1.1,0.05,false);
+panel(0.25,0.62,0.35,2.6,'z',0.02); panel(4.98,5.35,0.35,2.6,'z',0.02);
+// двери квартир: левая стена x=0 — A (z=1.2) и C (z=3.2); правая x=5.6 — B (z=1.2) и D (z=3.2)
+const plateMat=new THREE.MeshStandardMaterial({color:0xc9a35f,metalness:1,roughness:0.3});
+function door(xw,zc,side,label){
+  const s=side; // +1 стена слева (x=0, дверь смотрит в +x), -1 справа
+  const x=xw+s*0.01;
+  box(0.06,2.45,1.28,mold,x+s*0.03,1.225,zc); // наличник
+  box(0.05,2.3,1.08,walnut,x+s*0.06,1.15,zc);
+  for(const [yy,hh] of [[0.62,0.85],[1.65,0.95]]) for(const dz of [-0.24,0.24]) box(0.03,hh,0.38,walnut2,x+s*0.095,yy,zc+dz);
+  const hz=zc+(s>0?0.42:-0.42)*(zc<2?1:-1)*0;
+  box(0.05,0.03,0.16,brass,x+s*0.13,1.05,zc+0.38); box(0.04,0.2,0.05,brass,x+s*0.12,1.05,zc+0.42);
+  box(0.02,0.11,0.2,plateMat,x+s*0.09,2.05,zc);
+  // бра по обе стороны
+  for(const dz of [-0.82,0.82]){ if(Math.abs(zc+dz-HD/2)<0.2) continue;
+    const zz=zc+dz; if(zz<0.15||zz>HD-0.15) continue;
+    box(0.04,0.28,0.1,brass,x+s*0.04,1.75,zz);
+    const sh=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.09,0.22,24),new THREE.MeshBasicMaterial({color:0xffe8c2}));sh.position.set(x+s*0.12,1.82,zz);S.add(sh);
+    const L=new THREE.PointLight(0xffc98a,1.1,3.2,2);L.position.set(x+s*0.2,1.85,zz);S.add(L);
+  }
+  panel(zc-0.6,zc+0.6,2.55,2.72,'x',xw+s*0.012);
+}
+door(0,1.2,1); door(0,3.2,1); door(HW,1.2,-1); door(HW,3.2,-1);
+// панели на боковых стенах между дверями
+panel(1.95,2.45,0.35,2.6,'x',0.012); panel(1.95,2.45,0.35,2.6,'x',HW-0.012);
+// дверь на лестницу (стена z=HD) справа — служебная, филёнчатая светлая
+box(1.0,2.25,0.05,new THREE.MeshStandardMaterial({color:0xe6dcc8,roughness:0.5}),HW-1.35,1.125,HD-0.03);
+box(0.1,0.03,0.05,brass,HW-1.75,1.05,HD-0.07);
+// консоль с вазой у лестничной стены
+box(1.3,0.06,0.42,new THREE.MeshStandardMaterial({color:0xe9e2d4,roughness:0.2}),1.6,0.85,HD-0.25);
+box(0.08,0.8,0.08,brass,1.0,0.42,HD-0.12);box(0.08,0.8,0.08,brass,2.2,0.42,HD-0.12);
+const vase=new THREE.Mesh(new THREE.SphereGeometry(0.16,32,16),new THREE.MeshStandardMaterial({color:0xf3efe6,roughness:0.15}));vase.position.set(1.6,1.05,HD-0.25);S.add(vase);
+for(const dx of [-0.42,0.42]){const c=new THREE.Mesh(new THREE.CylinderGeometry(0.03,0.04,0.3,16),brass);c.position.set(1.6+dx,1.03,HD-0.25);S.add(c);}
+// картина над консолью
+const art=canvasTex(800,880,(g,w,h)=>{const gr=g.createLinearGradient(0,0,w,h);gr.addColorStop(0,'#d9c7a6');gr.addColorStop(1,'#b89870');g.fillStyle=gr;g.fillRect(0,0,w,h);
+ const r=rnd(11);for(let i=0;i<9;i++){g.fillStyle=`rgba(${240-r()*60|0},${225-r()*60|0},${200-r()*70|0},0.55)`;g.beginPath();g.ellipse(r()*w,r()*h,80+r()*220,40+r()*120,r()*3,0,7);g.fill();}
+ g.strokeStyle='rgba(60,45,30,0.5)';g.lineWidth=6;g.beginPath();g.moveTo(w*0.1,h*0.7);g.bezierCurveTo(w*0.4,h*0.2,w*0.6,h*0.9,w*0.9,h*0.3);g.stroke();});
+const pic=new THREE.Mesh(new THREE.PlaneGeometry(0.95,1.05),new THREE.MeshStandardMaterial({map:art,roughness:0.8}));pic.rotation.y=Math.PI;pic.position.set(1.6,1.82,HD-0.035);S.add(pic);
+for(const [w,h,x,y] of [[1.07,0.06,1.6,2.37],[1.07,0.06,1.6,1.27],[0.06,1.16,1.07,1.82],[0.06,1.16,2.13,1.82]]) box(w,h,0.05,brass,x,y,HD-0.04);
+// свет
+S.add(new THREE.HemisphereLight(0xfff1dc,0x7a6650,0.55));
+const key=new THREE.PointLight(0xffe0b0,6,9,2);key.position.set(HW/2,CH-0.25,HD/2);key.castShadow=true;key.shadow.mapSize.set(1024,1024);S.add(key);
+for(const [x,z] of [[0.8,0.6],[HW-0.8,0.6],[0.8,HD-0.6],[HW-0.8,HD-0.6]]){const L=new THREE.PointLight(0xffd29a,1.6,4,2);L.position.set(x,CH-0.25,z);S.add(L);}
+for(const z of [0.6,HD-0.6]) for(const x of [0.7,HW-0.7]){}
+// камера
+const cam=new THREE.PerspectiveCamera(VIEW==='lifts'?76:70,Wd/Ht,0.05,50);
+if(VIEW==='lifts'){cam.position.set(HW/2,1.5,HD-0.06);cam.lookAt(HW/2,1.32,0);}
+else {cam.position.set(1.0,1.55,0.35);cam.lookAt(HW-0.6,1.25,HD-0.3);}
+R.render(S,cam); window.DONE=true;
+</script></body></html>
