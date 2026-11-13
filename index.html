@@ -732,6 +732,7 @@ nav.top .cxl a svg{width:18px;height:18px;display:block;fill:none;filter:drop-sh
 <style id="sbar">
 nav.top:not(.solid){background:linear-gradient(180deg,rgba(10,16,13,.22),rgba(10,16,13,0))!important}
 </style>
+<style id="mfkon">.mf2-stage{container-type:inline-size}.mf2-stage .klb{position:absolute;transform:translate(-50%,-50%);background:var(--c);color:#fff;font:700 1.85cqw/1 Inter,sans-serif;padding:.7cqw 1.5cqw;border-radius:99px;white-space:nowrap;box-shadow:0 .3cqw .8cqw rgba(0,0,0,.25);pointer-events:none}.mf2-stage.kon .hsv:not(.ksv),.mf2-stage.kon .lbl{display:none}.mf2-stage .ksv .hp{fill:transparent;stroke:transparent;stroke-width:6;cursor:pointer}.mf2-stage .ksv .hp.on{fill:color-mix(in srgb,var(--c) 22%,transparent);stroke:var(--c)}.mf2-kon .kg{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:10px;cursor:pointer;transition:all .25s}.mf2-kon .kg.on{border-color:var(--c);box-shadow:inset 0 0 0 1px var(--c)}.mf2-kon .kg b.n{display:block;font:600 11px/1 Inter,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--c)}.mf2-kon .kg .a{font-family:Georgia,serif;font-size:22px;margin:6px 0 2px}.mf2-kon table{width:100%;margin-top:6px;font-size:13px}.mf2-kon td:last-child{text-align:right}</style>
 </head>
 <body>
 <nav class="top" id="nav"><div class="wrap">
@@ -858,15 +859,12 @@ nav.top:not(.solid){background:linear-gradient(180deg,rgba(10,16,13,.22),rgba(10
     <div class="mf2-ctrl">
       <div class="mf2-lab">Подъезд</div><div class="mf2-seg" id="mfSeg"></div>
       <div class="mf2-lab">Этаж</div><div class="mf2-fl" id="mfFls"></div>
+      <div class="mf2-lab" style="margin-top:22px">Конструктор</div><div class="mf2-seg" id="mfKon"><button data-v="1">1</button><button data-v="2">2</button><button data-v="3">3</button><button data-v="4">4</button></div>
     </div>
     <div class="mf2-plan"><div class="mf2-stage" id="mfStage"><img src="img/plan-floor-clean.jpg" alt="План этажа подъезда: квартиры A, B, C, D" draggable="false"></div><p class="muted small" id="mfNote"></p></div>
     <div class="mf2-card" id="mfCard"></div>
   </div>
   <div class="mf-tar" id="mfTar"></div>
-  <div id="constructor" style="margin-top:56px"><h3 style="margin-bottom:10px">Конструктор</h3>
-   <div class="seg" id="kbtn" style="margin:14px 0"><button data-v="1">1</button><button data-v="2">2</button><button data-v="3">3</button><button data-v="4" class="on">4</button></div>
-   <div class="kwrap" id="kwrap"><img id="kimg" src="img/var-4.jpg" alt="Вариант этажа"><svg id="ksvg" preserveAspectRatio="none"></svg><div class="khint small" id="khint">Наведите на квартиру — нажмите, чтобы открыть её план. Нажмите на центр (лифты и лестница) — увеличить весь этаж.</div></div>
-   <div class="kcards num" id="kcards"></div><p class="small muted" id="ktxt" style="margin-top:10px"></p></div>
 </div></section>
 
 <section id="sales"><div class="wrap">
