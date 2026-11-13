@@ -38,8 +38,8 @@ fetch('audio/song.mp3',{method:'HEAD'}).then(r=>{ if(r.ok){ mode='audio'; mus.re
 const armM=()=>{ if(mode==='link'){ mus.href=SONG; setTimeout(()=>mus.removeAttribute('href'),1500); } };
 ['pointerdown','touchstart','focus','keydown'].forEach(e=>mus.addEventListener(e,armM,{passive:true}));
 mus.addEventListener('click',e=>{ if(mode!=='audio') return; e.preventDefault();
-  if(!playing){ au.volume=0; const p=au.play(); if(p&&p.catch) p.catch(()=>{ playing=false; mus.classList.remove('on'); }); playing=true; mus.classList.add('on'); ramp(VOL); }
-  else { playing=false; mus.classList.remove('on'); ramp(0,()=>au.pause()); } });
+  if(!playing){ au.volume=0; const p=au.play(); if(p&&p.catch) p.catch(()=>{ playing=false; mus.classList.remove('on'); }); playing=true; mus.classList.add('on'); clearInterval(fade); au.volume=VOL; }
+  else { playing=false; mus.classList.remove('on'); clearInterval(fade); au.pause(); au.currentTime=au.currentTime; } });
 document.body.append(btn,mus,box);
 const $=s=>box.querySelector(s),IN=$('#vIn');let pw='',man=null;
 const u8=b=>new Uint8Array(b);
