@@ -34,6 +34,9 @@ function build(){
   map.zoomCtl=L.control.zoom({position:'bottomright',zoomInTitle:'+',zoomOutTitle:'−'});
   map.on('popupopen',()=>{ if(!big) map.closePopup(); });
   map.options.minZoom=2;
+  const dot=L.marker(parcels.getBounds().getCenter(),{icon:L.divIcon({className:'',html:'<div class="aksu-dot"><i></i></div>',iconSize:[28,28],iconAnchor:[14,14]}),keyboard:false}).addTo(map);
+  dot.on('click',e=>{ L.DomEvent.stop(e); fly(parcels,null,4.2); });
+  const sd=()=>{ const el=dot.getElement(); if(el) el.style.display=map.getZoom()<9?'':'none'; }; map.on('zoomend',sd); sd();
   fit(); card.classList.add('ready');
   document.getElementById('akClean').onclick=()=>setView('clean');
   document.getElementById('akTopo').onclick=()=>setView(view==='topo'?'clean':'topo');
@@ -59,7 +62,7 @@ function open(){ if(big) return; big=true;
   card.classList.add('fs'); document.documentElement.classList.add('aksu-lock'); requestAnimationFrame(()=>back.classList.add('on'));
   if(map){ const t=++flyTok; map.closePopup(); map.invalidateSize(false); interact(true); const c=parcels.getBounds().getCenter();
     setTimeout(()=>{ if(!big||t!==flyTok) return; map.invalidateSize(false); map.setView([18,c.lng],2,{animate:false});
-      setTimeout(()=>{ if(big&&t===flyTok) fly(parcels,null,4.2); },1300); },260); }
+    },260); }
 }
 function close(){ if(!big) return; big=false;
   card.classList.remove('fs'); document.documentElement.classList.remove('aksu-lock');
