@@ -697,9 +697,42 @@ figure img,.typecard .plan img,.lhead img{border-radius:18px}
 </style>
 <style>
 #location .maptabs,#location .mapbox{display:none!important}
-#location .mapwrap{grid-template-columns:minmax(0,1fr)!important;max-width:760px}
 #location .mapside .rooms td{font-size:15px;padding:9px 0}
 #location .mapside .mapbtns{margin-top:16px}
+
+/* карта участков ПДП Ж5: слева колонка, справа карта; по нажатию — на весь экран */
+#location .mapwrap{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;max-width:none!important;gap:22px}
+@media(max-width:900px){#location .mapwrap{grid-template-columns:minmax(0,1fr)!important}}
+.aksu{position:relative;min-height:440px;border-radius:18px;overflow:hidden;cursor:pointer;background:#cfd6c6 url(img/site-top.jpg) center/cover;box-shadow:0 18px 50px rgba(30,40,30,.18);border:1px solid rgba(168,134,79,.55);isolation:isolate}
+@media(max-width:900px){.aksu{min-height:0;height:62vw;max-height:420px;min-height:300px}}
+.aksu-ph{position:absolute;inset:0;z-index:0}
+.aksu-map{position:absolute;inset:0;z-index:1;opacity:0;transition:opacity .6s;background:#cfd6c6}
+.aksu.ready .aksu-map{opacity:1}
+.aksu .leaflet-container{font:inherit;background:#cfd6c6}
+.aksu:not(.fs) .leaflet-control-container{display:none}
+.aksu:not(.fs) .leaflet-container{cursor:pointer}
+.aksu-hint{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);z-index:5;display:flex;align-items:center;gap:8px;padding:9px 16px;border-radius:30px;background:rgba(255,252,244,.94);color:#1F3A2E;font:600 13px/1 Manrope,Inter,system-ui,sans-serif;box-shadow:0 6px 20px rgba(20,30,20,.25);white-space:nowrap;transition:transform .25s,background .25s}
+.aksu:hover .aksu-hint{transform:translateX(-50%) translateY(-2px);background:#fff}
+.aksu-tag{position:absolute;left:14px;top:14px;z-index:5;display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:30px;background:rgba(31,58,46,.88);color:#F4EFE6;font:600 12px/1 Manrope,Inter,system-ui,sans-serif;letter-spacing:.02em}
+.aksu-tag i{width:9px;height:9px;border-radius:50%;background:#E3C894}
+.aksu-x,.aksu-panel{display:none}
+.aksu.fs{position:fixed;inset:3vh 3vw;z-index:2000;min-height:0;height:auto;max-height:none;cursor:default;border-radius:20px;box-shadow:0 30px 90px rgba(0,0,0,.5)}
+.aksu.fs .aksu-hint,.aksu.fs .aksu-tag{display:none}
+.aksu.fs .aksu-x{display:flex;position:absolute;right:14px;top:14px;z-index:1200;width:42px;height:42px;border-radius:50%;border:2px solid #b49a68;background:#f4ecd9;color:#1F3A2E;font:400 26px/1 system-ui;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.3);padding:0}
+.aksu.fs .aksu-panel{display:block;position:absolute;left:14px;top:14px;z-index:1100;width:290px;max-width:calc(100% - 90px);max-height:calc(100% - 28px);overflow:auto;padding:14px 16px;border-radius:14px;background:rgba(251,247,238,.96);color:#24322b;box-shadow:0 10px 30px rgba(0,0,0,.28);font:13px/1.35 Manrope,Inter,system-ui,sans-serif}
+.aksu-panel h4{margin:0 0 10px;font:600 17px/1.2 Lora,Georgia,serif;color:#1F3A2E}
+.aksu-leg{display:flex;align-items:center;gap:10px;padding:8px 10px;margin:0 -4px 6px;border:1px solid #e0d6bf;border-radius:10px;background:#fff;cursor:pointer}
+.aksu-leg:hover{border-color:#b49a68}.aksu-leg i{width:12px;height:12px;border-radius:3px;flex:none}
+.aksu-seg{display:flex;gap:6px;margin-top:10px}
+.aksu-seg button,.aksu-fit{flex:1;border:1px solid #cdbf9f;background:#fff;color:#2b3a32;border-radius:10px;padding:9px 6px;font:inherit;cursor:pointer}
+.aksu-seg button.on{background:#1F3A2E;border-color:#1F3A2E;color:#fff}
+.aksu-fit{width:100%;margin-top:8px}.aksu-op{margin-top:10px}.aksu-op label{display:block;margin-bottom:4px}.aksu-op input{width:100%}
+.aksu-back{position:fixed;inset:0;z-index:1999;background:rgba(14,22,18,.72);backdrop-filter:blur(4px);opacity:0;transition:opacity .25s}.aksu-back.on{opacity:1}
+html.aksu-lock,html.aksu-lock body{overflow:hidden}
+.aksu.fs .leaflet-control-layers{border-radius:10px;margin-top:70px}
+.aksu-lbl{font:800 13px/1 Manrope,Inter,sans-serif;color:#1F3A2E;background:rgba(255,252,244,.95);border:1px solid #b49a68;border-radius:8px;padding:5px 9px;text-align:center;white-space:nowrap;box-shadow:0 3px 10px rgba(0,0,0,.3)}
+.aksu-pop h4{margin:0 0 6px;font-size:13.5px;color:#1F3A2E}.aksu-pop table{border-collapse:collapse;font-size:12.5px}.aksu-pop td{padding:1px 8px 1px 0;vertical-align:top}
+@media(max-width:700px){.aksu.fs{inset:0;border-radius:0}.aksu.fs .aksu-panel{top:auto;bottom:0;left:0;right:0;width:auto;max-width:none;max-height:40%;border-radius:16px 16px 0 0}.aksu.fs .leaflet-control-layers{margin-top:62px}}
 /* выбор языка: каменная рамка в верхней панели */
 nav.top{padding-top:54px!important}nav.top.solid{padding-top:50px!important}
 #langbar{position:fixed!important;top:7px!important;left:50%!important;right:auto!important;bottom:auto!important;transform:translateX(-50%)!important;z-index:90;display:block!important}
@@ -843,6 +876,21 @@ nav.top .logo::before,nav.top .logo::after{content:none}
       <div class="mapbtns" id="mapbtns"></div>
       <p class="small muted" style="margin-top:12px">Карты Google, Яндекс и 2GIS открываются в новой вкладке, точка участка уже отмечена.</p>
     </aside>
+    <div class="aksu" id="aksuCard" role="button" tabindex="0" aria-label="Карта участков — нажмите, чтобы увеличить">
+      <div class="aksu-ph" id="aksuPh"></div>
+      <div class="aksu-map" id="aksuMap"></div>
+      <div class="aksu-hint"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg><span>Нажмите, чтобы увеличить карту</span></div>
+      <div class="aksu-tag"><i></i>Участки Аксу · ПДП Ж5</div>
+      <button class="aksu-x" id="aksuX" aria-label="Закрыть" type="button">×</button>
+      <div class="aksu-panel" id="aksuPanel">
+        <h4>Участки Аксу · ПДП Ж5</h4>
+        <div class="aksu-leg" data-p="1"><i style="background:#3f8a5c"></i><span>Участок 0,65 га · Амангельды, 78</span></div>
+        <div class="aksu-leg" data-p="2"><i style="background:#e0a243"></i><span>Участок 0,2286 га · парковка</span></div>
+        <div class="aksu-seg"><button id="akClean" class="on" type="button">Чисто</button><button id="akTopo" type="button">Топосъёмка 2019</button></div>
+        <div class="aksu-op" id="akOpW" style="display:none"><label>Прозрачность <b id="akOpV">60%</b></label><input type="range" id="akOp" min="0" max="100" value="60"></div>
+        <button class="aksu-fit" id="akFit" type="button">Оба участка</button>
+      </div>
+    </div>
   </div>
 </div></section>
 
@@ -1108,7 +1156,7 @@ nav.top .logo::before,nav.top .logo::after{content:none}
 <div class="modal" id="modal"><button class="x" id="mx">×</button><div id="mbody"></div></div>
 
 <script src="model.js"></script>
-<script src="kpoly.js"></script><script src="app.js"></script><script src="album.js"></script><script src="extra.js"></script><script src="vault.js"></script><script src="kp.js"></script><script src="whiteout.js"></script><script src="priceformat.js"></script>
+<script src="kpoly.js"></script><script src="app.js"></script><script src="album.js"></script><script src="extra.js"></script><script src="vault.js"></script><script src="aksumap.js"></script><script src="kp.js"></script><script src="whiteout.js"></script><script src="priceformat.js"></script>
 <script type="module" src="three3d.js"></script>
 <script src="map.js"></script>
 <script src="i18n.js"></script>
