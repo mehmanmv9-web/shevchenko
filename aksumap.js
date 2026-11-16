@@ -33,13 +33,18 @@ function build(){
   L.control.layers({'Спутник':L.layerGroup([sat,lab]),'Схема OSM':osm,'Светлая схема':carto},null,{position:'topright',collapsed:true}).addTo(map);
   map.zoomCtl=L.control.zoom({position:'bottomright',zoomInTitle:'+',zoomOutTitle:'−'});
   map.on('popupopen',()=>{ if(!big) map.closePopup(); });
+  map.options.minZoom=2;
   fit(); card.classList.add('ready');
   document.getElementById('akClean').onclick=()=>setView('clean');
   document.getElementById('akTopo').onclick=()=>setView(view==='topo'?'clean':'topo');
   const op=document.getElementById('akOp');op.oninput=()=>{topo.setOpacity(op.value/100);document.getElementById('akOpV').textContent=op.value+'%'};
-  document.getElementById('akFit').onclick=()=>fit();
-  document.querySelectorAll('#aksuPanel [data-p]').forEach(b=>b.onclick=()=>{const t=b.dataset.p==='1'?p065:pPk;map.fitBounds(t.getBounds().pad(.8));t.openPopup()});
+  document.getElementById('akFit').onclick=()=>fly(parcels,null,2.4);
+  [p065,pPk].forEach(g=>g.on('click',e=>{ if(big){ L.DomEvent.stop(e); fly(g,g,2.4); } }));
+  document.querySelectorAll('#aksuPanel [data-p]').forEach(b=>b.onclick=()=>{const t=b.dataset.p==='1'?p065:pPk;fly(t,t,2.4)});
 }
+let flyTok=0;
+function fly(layer,pop,dur){ const t=++flyTok; map.closePopup(); map.flyToBounds(layer.getBounds().pad(layer===parcels?.45:.8),{duration:dur||3.4,easeLinearity:.18,maxZoom:19});
+  if(pop) map.once('moveend',()=>{ if(t===flyTok&&big) pop.openPopup(); }); }
 function fit(){ if(map&&parcels) map.fitBounds(parcels.getBounds().pad(big?.45:.4),{animate:false}); }
 function setView(v){ view=v;
   document.getElementById('akClean').classList.toggle('on',v==='clean');document.getElementById('akTopo').classList.toggle('on',v==='topo');
@@ -52,12 +57,14 @@ const home=card.parentNode, mark=document.createComment('aksu'); let back=null;
 function open(){ if(big) return; big=true;
   home.insertBefore(mark,card); back=document.createElement('div'); back.className='aksu-back'; back.onclick=close; document.body.appendChild(back); document.body.appendChild(card);
   card.classList.add('fs'); document.documentElement.classList.add('aksu-lock'); requestAnimationFrame(()=>back.classList.add('on'));
-  if(map){ map.closePopup(); map.invalidateSize(false); interact(true); fit(); setTimeout(()=>{map.invalidateSize(false);fit()},260); }
+  if(map){ const t=++flyTok; map.closePopup(); map.invalidateSize(false); interact(true); const c=parcels.getBounds().getCenter();
+    setTimeout(()=>{ if(!big||t!==flyTok) return; map.invalidateSize(false); map.setView([18,c.lng],2,{animate:false});
+      setTimeout(()=>{ if(big&&t===flyTok) fly(parcels,null,4.2); },1300); },260); }
 }
 function close(){ if(!big) return; big=false;
   card.classList.remove('fs'); document.documentElement.classList.remove('aksu-lock');
   if(mark.parentNode) mark.parentNode.insertBefore(card,mark); mark.remove(); if(back){back.remove();back=null}
-  if(map){ interact(false); map.invalidateSize(false); fit(); }
+  if(map){ flyTok++; map.stop(); interact(false); map.invalidateSize(false); fit(); }
 }
 card.addEventListener('click',e=>{ if(!big && !e.target.closest('.aksu-x')) { open(); e.preventDefault(); } });
 card.addEventListener('keydown',e=>{ if(!big&&(e.key==='Enter'||e.key===' ')){e.preventDefault();open()} });
