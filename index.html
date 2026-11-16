@@ -826,6 +826,21 @@ nav.top .logo::before,nav.top .logo::after{content:none}
 @media(max-width:900px){nav.top .logo,nav.top.solid .logo{height:38px;padding:0 16px;font-size:19px;letter-spacing:.2em;text-indent:.2em;border-radius:14px}}
 @media(max-width:420px){nav.top .logo,nav.top.solid .logo{height:34px;padding:0 12px;font-size:16px;letter-spacing:.14em;text-indent:.14em}}
 </style>
+<style>
+/* 3D-макет / рум-тур: переключатель */
+.vtabs{display:flex;gap:10px;flex-wrap:wrap;margin:30px 0 0}
+.vtabs button{display:inline-flex;align-items:center;gap:10px;padding:13px 24px;border-radius:999px;border:1px solid rgba(227,200,148,.55);background:rgba(255,255,255,.06);color:#EDE6D8;font:600 15px 'Manrope',sans-serif;letter-spacing:.02em;cursor:pointer;transition:all .25s}
+.vtabs button svg{width:18px;height:18px}
+.vtabs button:hover{border-color:#E3C894;transform:translateY(-1px)}
+.vtabs button.on{background:linear-gradient(135deg,#C9A66B,#A8864F);border-color:transparent;color:#fff;box-shadow:0 10px 28px rgba(168,134,79,.35)}
+.vtabs .vt-note{align-self:center;font-size:13px;color:#B9C4BB;margin-left:6px}
+#s3d .viewer{margin-top:18px}
+.tourbox{position:relative;margin-top:18px;height:min(84vh,820px);min-height:520px;border-radius:18px;overflow:hidden;border:1px solid #2D3B34;background:#0E1612;box-shadow:0 30px 80px -40px rgba(0,0,0,.6)}
+.tourbox iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+.tourbox .tb-open{position:absolute;right:14px;bottom:14px;z-index:3;background:rgba(14,22,18,.78);color:#fff;text-decoration:none;font:600 13px 'Manrope',sans-serif;padding:9px 16px;border-radius:999px;backdrop-filter:blur(8px)}
+.tourbox[hidden],.viewer[hidden]{display:none!important}
+@media(max-width:700px){.vtabs button{flex:1 1 45%;justify-content:center;padding:12px 10px;font-size:14px}.vtabs .vt-note{display:none}.tourbox{height:78vh;min-height:460px;border-radius:14px}}
+</style>
 </head>
 <body>
 <nav class="top" id="nav"><div class="wrap">
@@ -851,6 +866,7 @@ nav.top .logo::before,nav.top .logo::after{content:none}
     <div style="margin-top:30px;display:flex;gap:12px;flex-wrap:wrap">
       <a class="btn" href="javascript:void 0" data-kp>✦ Личная презентация</a>
       <a class="btn" href="#s3d">3D-модель</a>
+      <a class="btn" href="#s3d" onclick="setTimeout(function(){var b=document.querySelector('#vtabs [data-vt=tour]');b&&b.click();},300)">Рум-тур</a>
       <a class="btn ghost" href="#invest">Экономика проекта</a>
     </div>
   </div>
@@ -897,7 +913,13 @@ nav.top .logo::before,nav.top .logo::after{content:none}
 <section id="s3d"><div class="wrap">
   <div class="eyebrow">02 · Интерактивная 3D-модель</div>
   <h2>Дом целиком, этаж за этажом</h2>
-  <p class="lead">Смотрите дом на закате, днём или ночью. Выберите этаж — откроется планировка этажа; нажмите на квартиру, чтобы увидеть комнаты и цену. Этажи −1 и −2 — паркинг (нажмите на машино-место), 1–2 — коммерция и лобби подъездов.</p>
+  <p class="lead">Смотрите дом на закате, днём или ночью. Выберите этаж — откроется планировка этажа; нажмите на квартиру, чтобы увидеть комнаты и цену. Этажи −1 и −2 — паркинг (нажмите на машино-место), 1–2 — коммерция и лобби подъездов. Во вкладке «Рум-тур» — прогулка по типовому этажу: от лифтового холла в любую из четырёх квартир.</p>
+  <div class="vtabs" id="vtabs">
+    <button class="on" data-vt="model"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 22V12M21 7l-9 5-9-5"/></svg>3D-макет дома</button>
+    <button data-vt="tour"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/></svg>Рум-тур по этажу</button>
+    <span class="vt-note">Лифтовой холл и квартиры A, B, C, D · 117,2 м²</span>
+  </div>
+  <div class="tourbox" id="tourbox" hidden><iframe id="tourframe" title="Рум-тур по типовому этажу" allow="fullscreen; autoplay"></iframe><a class="tb-open" href="tour/index.html" target="_blank" rel="noopener">На весь экран ↗</a></div>
   <div class="viewer" id="viewer">
     <canvas id="cv"></canvas>
     <div class="v-load" id="vload">Загрузка 3D…</div>
@@ -1161,5 +1183,19 @@ nav.top .logo::before,nav.top .logo::after{content:none}
 <script src="map.js"></script>
 <script src="i18n.js"></script>
 <script src="geo3data.js"></script><script src="parkmap.js"></script>
+<script>
+(function(){
+  var tabs=document.getElementById('vtabs'), viewer=document.getElementById('viewer'), box=document.getElementById('tourbox'), fr=document.getElementById('tourframe');
+  if(!tabs) return;
+  tabs.addEventListener('click',function(e){
+    var b=e.target.closest('button[data-vt]'); if(!b) return;
+    var tour=b.dataset.vt==='tour';
+    tabs.querySelectorAll('button[data-vt]').forEach(function(x){x.classList.toggle('on',x===b);});
+    viewer.hidden=tour; box.hidden=!tour;
+    if(tour && !fr.getAttribute('src')) fr.setAttribute('src','tour/index.html');
+    if(!tour) window.dispatchEvent(new Event('resize'));
+  });
+})();
+</script>
 </body>
 </html>
