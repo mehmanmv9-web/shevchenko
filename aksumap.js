@@ -29,7 +29,9 @@ function build(){
   p065.addTo(map);pPk.addTo(map);parcels=L.featureGroup([p065,pPk]);window.__aksu={map,p065,pPk};
   const aside=[D.label065[0]+0.0001,D.label065[1]-0.00068];
   labelGroup=L.layerGroup([L.polyline([aside,D.label065],{color:'#fff',weight:1.4,dashArray:'3 4',opacity:.9,interactive:false}),
-    L.marker(aside,{icon:L.divIcon({className:'',html:'<div class="aksu-lbl">ПДП Ж5</div>',iconSize:[90,26],iconAnchor:[45,13]}),interactive:false})]).addTo(map);
+    (()=>{ const m=L.marker(aside,{icon:L.divIcon({className:'',html:'<div class="aksu-lbl">ПДП Ж5<b>?</b></div>',iconSize:[96,26],iconAnchor:[48,13]}),keyboard:false,riseOnHover:true});
+      m.bindPopup('<div class="aksu-pop"><h4>ПДП Ж5 — что это значит</h4><p>По закону ПДП — градостроительный проект для отдельных частей территорий и функциональных зон населённых пунктов (Правила разработки градостроительных проектов, РК). Он определяет, что и как можно строить на каждом участке: назначение земли, красные линии улиц, этажность, инженерные сети.</p><p>Ж5 — код зоны в ПДП Алматы: жилая многоэтажная застройка 6–12 этажей. Наш дом в 9 этажей укладывается в эту зону.</p><p class="src">Источники: Правила разработки градостроительных проектов (РК); Алматыгенплан, ПДП от 29.12.2023.</p></div>',{maxWidth:320,autoPan:false,offset:[0,-8]});
+      m.on('click',e=>{ if(big) L.DomEvent.stop(e); }); return m; })()]).addTo(map);
   L.control.layers({'Спутник':L.layerGroup([sat,lab]),'Схема OSM':osm,'Светлая схема':carto},null,{position:'topright',collapsed:true}).addTo(map);
   map.zoomCtl=L.control.zoom({position:'bottomright',zoomInTitle:'+',zoomOutTitle:'−'});
   map.on('popupopen',()=>{ if(!big) map.closePopup(); });
