@@ -148,7 +148,6 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
   <button class="tbtn pill primary" id="btnTour"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg><span class="tx">Начать тур</span></button>
   <div class="aptbtns" title="Автотур по квартире"><button data-aptbtn="A">A</button><button data-aptbtn="B">B</button><button data-aptbtn="C">C</button><button data-aptbtn="D">D</button></div>
   <button class="tbtn pill" id="btnApts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span class="tx">Квартиры</span></button>
-  <button class="tbtn pill" id="btnMusic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg><span class="tx">Музыка: выкл</span></button>
   <button class="tbtn pill" id="btnContact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg><span class="tx">Записаться на показ</span></button>
 </div>
 <div id="bottom" class="pill hud">
@@ -175,7 +174,7 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
     </div>
     <div class="btns"><button id="startTour" class="pill">▶ Начать 3D-тур</button><button id="startWalk" class="pill">Осмотреть самому</button></div>
     <div class="aptrow">Сразу в квартиру — автотур:<button data-aptbtn="A">A</button><button data-aptbtn="B">B</button><button data-aptbtn="C">C</button><button data-aptbtn="D">D</button></div>
-    <div class="note">Тур начинается у лифтов · из холла можно зайти в любую квартиру · со звуком</div>
+    <div class="note">Тур начинается у лифтов · из холла можно зайти в любую квартиру</div>
   </div>
 </div>
 
@@ -1569,7 +1568,6 @@ $('btnView').onclick = () => { if (mode === 'flying') return; if (tour.active) s
 $('btnTour').onclick = () => { if (mode === 'flying' && !tour.active) return; if (tour.active) stopTour(); else startTour(); };
 document.querySelectorAll('[data-aptbtn]').forEach(b => { b.onclick = () => tourApt(b.dataset.aptbtn); });
 $('btnApts').onclick = () => { if ($('chooser').classList.contains('show')) closeChooser(); else showChooser(tour.active); };
-$('btnMusic').onclick = () => { Music.on ? Music.stop() : Music.start(); };
 $('btnContact').onclick = openContact;
 function openContact(){ $('contact').classList.remove('hidden'); }
 $('cClose').onclick = () => $('contact').classList.add('hidden');
@@ -1588,7 +1586,7 @@ function refreshUI(){
   $('bottom').classList.toggle('faded', tour.active && innerWidth < 760);
   document.querySelectorAll('.aptbtns button').forEach(b => b.classList.toggle('cur', tour.active && tour.apt === b.dataset.aptbtn));
 }
-function updateMuteBtn(){ $('btnMusic').querySelector('.tx').textContent = Music.on ? 'Музыка: вкл' : 'Музыка: выкл'; $('btnMusic').classList.toggle('on', Music.on); }
+function updateMuteBtn(){}
 function hideWelcome(){ const w = $('welcome'); if (w.classList.contains('faded')) return; w.classList.add('faded'); document.querySelectorAll('.hud').forEach(e => e.classList.remove('faded')); setTimeout(() => w.classList.add('hidden'), 1000); }
 $('startTour').onclick = startTour;
 $('startWalk').onclick = () => { hideWelcome(); goWalk(2.6); };
@@ -1633,19 +1631,7 @@ mm.addEventListener('click', e => {
 });
 
 /* ---------------- music (WebAudio, без файлов) ---------------- */
-const CHORDS = [[130.81, 196.00, 246.94, 329.63, 293.66], [110.00, 164.81, 196.00, 261.63, 246.94], [87.31, 130.81, 164.81, 220.00, 246.94], [98.00, 146.83, 220.00, 261.63, 329.63]];
-const BELLS = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.5];
-const Music = {
-  ctx: null, master: null, bus: null, on: false, timer: null, next: 0, step: 0,
-  start(){ try { if (!this.ctx){ const AC = window.AudioContext || window.webkitAudioContext; this.ctx = new AC(); this.build(); } this.ctx.resume(); this.on = true; const t = this.ctx.currentTime; this.master.gain.cancelScheduledValues(t); this.master.gain.setTargetAtTime(0.22, t, 1.2); if (!this.timer){ this.next = t + 0.1; this.timer = setInterval(() => this.tick(), 200); } } catch (e) { this.on = false; } updateMuteBtn(); },
-  stop(){ if (this.ctx){ this.master.gain.cancelScheduledValues(this.ctx.currentTime); this.master.gain.setTargetAtTime(0, this.ctx.currentTime, 0.3); } this.on = false; updateMuteBtn(); },
-  build(){ const c = this.ctx; this.master = c.createGain(); this.master.gain.value = 0; const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2400; const dl = c.createDelay(2); dl.delayTime.value = 0.42; const fb = c.createGain(); fb.gain.value = 0.36; const wet = c.createGain(); wet.gain.value = 0.32; this.bus = c.createGain(); this.bus.connect(lp); lp.connect(this.master); lp.connect(dl); dl.connect(fb); fb.connect(dl); dl.connect(wet); wet.connect(this.master); this.master.connect(c.destination); },
-  tick(){ if (!this.ctx) return; while (this.next < this.ctx.currentTime + 0.6){ this.schedule(this.next); this.next += 0.5; this.step++; } },
-  schedule(t){ const beat = this.step % 16, chord = CHORDS[Math.floor(this.step / 16) % 4]; if (beat === 0) chord.forEach((f, i) => this.pad(f, t, 8.4, i === 0 ? 0.05 : 0.03)); if (this.step % 2 === 0 && Math.random() < 0.5) this.bell(BELLS[Math.floor(Math.random() * BELLS.length)], t); },
-  pad(f, t, dur, vol){ const c = this.ctx; for (const [type, det, k] of [['sine', 0, 1], ['triangle', 5, 0.35]]){ const o = c.createOscillator(); o.type = type; o.frequency.value = f; o.detune.value = det; const g = c.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol * k, t + 2.2); g.gain.setValueAtTime(vol * k, t + dur - 3); g.gain.linearRampToValueAtTime(0, t + dur); o.connect(g); g.connect(this.bus); o.start(t); o.stop(t + dur + 0.1); } },
-  bell(f, t){ const c = this.ctx, o = c.createOscillator(), o2 = c.createOscillator(), g = c.createGain(), g2 = c.createGain(); o.type = 'sine'; o.frequency.value = f; o2.type = 'sine'; o2.frequency.value = f * 2.01; g2.gain.value = 0.2; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.04, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0008, t + 2.4); o.connect(g); o2.connect(g2); g2.connect(g); g.connect(this.bus); o.start(t); o2.start(t); o.stop(t + 2.5); o2.stop(t + 2.5); },
-};
-
+const Music = { on: false, start(){}, stop(){} }; // музыка отключена
 
 /* ---------------- loop ---------------- */
 let last = performance.now(), fpsAcc = 0, fpsN = 0, degraded = false, mapT = 0;
