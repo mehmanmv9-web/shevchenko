@@ -8,8 +8,9 @@ const INFO={
  p2:{t:'Участок 0,2286 га — аренда, автопарковка',h:'<p class="src" style="margin:0 0 8px">Акт на право временного возмездного (долгосрочного) землепользования (аренды) № 0006372</p><table class="doc"><tr><td>Кадастровый номер</td><td><b>20-311-016-165</b></td></tr><tr><td>Право</td><td>временное возмездное землепользование (аренда) на срок до 15 июня 2062 года</td></tr><tr><td>Площадь</td><td><b>0,2286 га</b></td></tr><tr><td>Категория земель</td><td>земли населённых пунктов (городов, посёлков и сельских населённых пунктов)</td></tr><tr><td>Целевое назначение</td><td>для эксплуатации и обслуживания автопарковки</td></tr><tr><td>Адрес</td><td>южнее ул. Жамбыла, восточнее ул. Амангельды, Алмалинский район</td></tr><tr><td>Ограничения и обременения</td><td>обеспечить беспрепятственный доступ на участок эксплуатирующим службам и предприятиям для технического обслуживания и ремонта инженерных сетей; соблюдать режим использования земель в охранной зоне сетей телекоммуникаций АО «Казахтелеком»; без права отчуждения до выкупа у государства права временного возмездного долгосрочного землепользования</td></tr><tr><td>Делимость</td><td>неделимый</td></tr><tr><td>Смежные участки</td><td>с одной стороны — улица; с другой — земли населённых пунктов и участок 20-311-016-133</td></tr></table>'},
  pdp:{t:'ПДП Ж5 — что это значит',h:'<p>По закону ПДП — градостроительный проект для отдельных частей территорий и функциональных зон населённых пунктов (Правила разработки градостроительных проектов, РК). Он определяет, что и как можно строить на каждом участке: назначение земли, красные линии улиц, этажность, инженерные сети.</p><p>Ж5 — код зоны в ПДП Алматы: жилая многоэтажная застройка 6–12 этажей. Наш дом в 9 этажей укладывается в эту зону.</p><p class="src">Источники: Правила разработки градостроительных проектов (РК); Алматыгенплан.</p>'}};
 const dlg=document.getElementById('aksuDlg'); let dlgAt=0;
-function showInfo(k){ const i=INFO[k]; if(!i) return; dlg.querySelector('h4').textContent=i.t; dlg.querySelector('.aksu-db').innerHTML=i.h; dlg.hidden=false; dlgAt=Date.now(); }
-function hideInfo(){ if(dlg.hidden) return false; dlg.hidden=true; return true; }
+let pend=null;
+function showInfo(k){ const i=INFO[k]; if(!i) return; pend=null; dlg.dataset.k=k; dlg.querySelector('h4').textContent=i.t; dlg.querySelector('.aksu-db').innerHTML=i.h; dlg.hidden=false; dlgAt=Date.now(); }
+function hideInfo(){ pend=null; if(dlg.hidden) return false; dlg.hidden=true; dlg.dataset.k=''; return true; }
 dlg.querySelector('.aksu-dx').onclick=e=>{ e.stopPropagation(); hideInfo(); };
 dlg.addEventListener('click',e=>e.stopPropagation());
 let map=null, started=false, big=false, parcels=null, topo=null, labelGroup=null, view='clean';
@@ -38,7 +39,7 @@ function build(){
   p065.addTo(map);pPk.addTo(map);parcels=L.featureGroup([p065,pPk]);window.__aksu={map,p065,pPk};
   const aside=[D.label065[0]+0.0001,D.label065[1]-0.00068]; window.__aksuLbl=aside;
   labelGroup=L.layerGroup([L.polyline([aside,D.label065],{color:'#fff',weight:1.4,dashArray:'3 4',opacity:.9,interactive:false}),
-    L.marker(aside,{icon:L.divIcon({className:'aksu-lblw',html:'<div class="aksu-lbl">ПДП Ж5<b>?</b></div>',iconSize:[0,0],iconAnchor:[0,0]}),keyboard:false,riseOnHover:true}).on('click',e=>{ L.DomEvent.stop(e); if(big) showInfo('pdp'); })]).addTo(map);
+    L.marker(aside,{icon:L.divIcon({className:'aksu-lblw',html:'<div class="aksu-lbl">ПДП Ж5<b>?</b></div>',iconSize:[0,0],iconAnchor:[0,0]}),keyboard:false,riseOnHover:true}).on('click',e=>{ L.DomEvent.stop(e); if(!big) return; if(!dlg.hidden&&dlg.dataset.k==='pdp'){ ++flyTok; hideInfo(); } else { ++flyTok; map.stop(); showInfo('pdp'); } })]).addTo(map);
   L.control.layers({'Спутник':L.layerGroup([sat,lab]),'Схема OSM':osm,'Светлая схема':carto},null,{position:'topright',collapsed:true}).addTo(map);
   map.zoomCtl=L.control.zoom({position:'bottomright',zoomInTitle:'+',zoomOutTitle:'−'});
   map.on('click',()=>{ if(Date.now()-dlgAt>250) hideInfo(); });
@@ -55,7 +56,10 @@ function build(){
   document.querySelectorAll('#aksuPanel [data-p]').forEach(b=>b.onclick=()=>{if(b.dataset.p==='pdp'){ fly(parcels,'pdp',2.8); return; } const t=b.dataset.p==='1'?p065:pPk;fly(t,b.dataset.p==='1'?'p1':'p2',2.4)});
 }
 let flyTok=0;
-function fly(layer,pop,dur){ const t=++flyTok; map.closePopup(); hideInfo(); map.stop();
+function fly(layer,pop,dur){
+  // повторное нажатие на ту же кнопку: окно открыто (или ещё «едет») — закрываем, и ничего не двигаем; следующее нажатие откроет снова
+  if(pop && ((!dlg.hidden && dlg.dataset.k===pop) || pend===pop)){ ++flyTok; hideInfo(); return; }
+  const t=++flyTok; map.closePopup(); hideInfo(); map.stop(); pend=pop||null;
   const bd=layer.getBounds().pad(layer===parcels?.45:.8), tz=Math.min(19,map.getBoundsZoom(bd)), tc=bd.getCenter();
   const cz=map.getZoom(), sz=map.getSize(), off=map.project(tc,cz).subtract(map.project(map.getCenter(),cz));
   let ms=0;
