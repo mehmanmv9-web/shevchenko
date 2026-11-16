@@ -172,6 +172,7 @@ function renderExtra(){
   $('#chessExtra').innerHTML=`<div class="xh">Коммерция и паркинг</div>
     <div class="xcard"><h4>Коммерческие, ${nf(COM,1)} м²</h4><div class="sub">${J(p=>usd(p))} за м²</div><div class="com-blk">${nf(COM,1)} м²</div>
       <div class="tot"><span>Сумма по прайсу</span><b>${J(p=>usd(Math.round(COM*p)))}</b></div></div>`+lvl(1,LV[0])+lvl(2,LV[1])+`<div class="xcard"><h4>Новые места паркинга</h4><div class="sub">${M.PARK.added} мест сверх таблицы · всего ${M.PARK.total}</div><div class="com-blk">+${M.PARK.added}</div><div class="tot"><span>${M.PARK.added} мест × ${usd(PP_)}</span><b>${usd(M.PARK.addedUsd)}</b></div></div>`+
+    `<div class="xcard"><h4>Паркинг −3 · новый уровень</h4><div class="sub">78 мест · 2 960 м² · отм. −11,4 м</div><div class="com-blk">+78</div><div class="tot"><span>78 мест × ${usd(PP_)}</span><b>${usd(78*PP_)}</b></div><div class="tot"><span>Затраты 2 960 м² × $410–430</span><b>−$1.213.600…1.272.800</b></div><div class="tot"><span>Дополнительная прибыль</span><b>$1.067.200…1.126.400</b></div></div>`+
     `<div class="xleg"><span><i style="background:#8C9A93"></i><span>Паркинг, ${PN} мест × ${usd(PP_)}</span> = ${usd(PN*PP_)}</span><span><i style="background:#C9A66B"></i><span>Доля собственника участка</span> · <span>Паркинг, ${OWN} мест</span></span></div>`;
 }
 $('#chessTools').onclick=e=>{const b=e.target.closest('button'); if(!b) return; if(b.dataset.s) chSec=+b.dataset.s; if(b.dataset.f) chFl=+b.dataset.f; renderChess();};
