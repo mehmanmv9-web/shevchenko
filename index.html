@@ -732,6 +732,28 @@ html.aksu-lock,html.aksu-lock body{overflow:hidden}
 .aksu.fs .leaflet-control-layers{border-radius:10px;margin-top:70px}
 .aksu-dot{width:28px;height:28px;position:relative;cursor:pointer}.aksu-dot i{position:absolute;inset:7px;border-radius:50%;background:#E3C894;border:2px solid #1F3A2E;box-shadow:0 0 0 0 rgba(227,200,148,.8);animation:aksup 1.8s infinite}@keyframes aksup{to{box-shadow:0 0 0 18px rgba(227,200,148,0)}}
 .aksu-lbl b{display:inline-block;margin-left:7px;width:16px;height:16px;line-height:16px;border-radius:50%;background:#1F3A2E;color:#F4EFE6;font-size:11px;text-align:center;vertical-align:1px}.aksu-lbl{cursor:pointer;font:800 13px/1 Manrope,Inter,sans-serif;color:#1F3A2E;background:rgba(255,252,244,.95);border:1px solid #b49a68;border-radius:8px;padding:5px 9px;text-align:center;white-space:nowrap;box-shadow:0 3px 10px rgba(0,0,0,.3)}
+
+.aksu-dlg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:1400;width:min(400px,calc(100% - 32px));max-height:calc(100% - 40px);overflow:auto;padding:20px 22px 18px;border-radius:16px;background:#FBF7EE;border:1px solid #c9a86c;box-shadow:0 24px 70px rgba(0,0,0,.5);color:#24322b;font:14px/1.45 Manrope,Inter,system-ui,sans-serif;cursor:default}
+.aksu-dlg[hidden]{display:none}
+.aksu-dlg h4{margin:0 34px 10px 0;font:600 19px/1.25 Lora,Georgia,serif;color:#1F3A2E}
+.aksu-dlg p{margin:8px 0 0}.aksu-dlg .src{font-size:12px;color:#7a7f78}
+.aksu-dlg table{border-collapse:collapse;font-size:13.5px;width:100%}.aksu-dlg td{padding:4px 10px 4px 0;vertical-align:top;border-bottom:1px solid #eadfc6}
+.aksu-dx{position:absolute;right:10px;top:10px;width:32px;height:32px;border-radius:50%;border:1.5px solid #b49a68;background:#f4ecd9;color:#1F3A2E;font:400 21px/1 system-ui;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center}
+.aksu-lblw{width:0!important;height:0!important}
+.aksu-lbl{position:absolute;left:0;top:0;transform:translate(-50%,-50%);white-space:nowrap;cursor:pointer;transition:background .2s,transform .2s}
+.aksu-lbl:hover{background:#fff;transform:translate(-50%,-50%) scale(1.06)}
+.pdpbtn{display:flex;align-items:center;gap:10px;width:100%;margin-top:14px;padding:12px 16px;border:1px solid #c9a86c;border-radius:14px;background:#FBF7EE;color:#1F3A2E;font:inherit;cursor:pointer;text-align:left;transition:background .2s,box-shadow .2s}
+.pdpbtn:hover{background:#fff;box-shadow:0 6px 18px rgba(60,45,20,.12)}
+.pdpbtn b{font:600 16px/1 Lora,Georgia,serif;letter-spacing:.02em}.pdpbtn span{flex:1;color:#6b6f66;font-size:14px}
+.pdpbtn i{font-style:normal;width:26px;height:26px;border-radius:50%;background:#1F3A2E;color:#F4EFE6;display:flex;align-items:center;justify-content:center;font-size:17px;transition:transform .25s}
+.pdpbtn.on i{transform:rotate(45deg)}
+.pdpfull{margin-top:10px;padding:16px 18px;border-radius:14px;background:#F8F2E4;border:1px solid #e3d7bb;font-size:14.5px;line-height:1.5;color:#2b3a32}
+.pdpfull[hidden]{display:none}
+.pdpfull h5{margin:0 0 6px;font:600 18px/1.25 Lora,Georgia,serif;color:#1F3A2E}
+.pdpfull h6{margin:12px 0 0;font:700 11px/1 Manrope,Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#A8864F}
+.pdpfull p{margin:5px 0 0}
+.pdpshow{margin-top:14px;padding:10px 18px;border:0;border-radius:30px;background:#1F3A2E;color:#F4EFE6;font:600 13px/1 Manrope,Inter,sans-serif;cursor:pointer}
+.pdpshow:hover{background:#2c5241}
 .aksu-pop p{margin:6px 0 0;line-height:1.4;max-width:290px}.aksu-pop .src{font-size:11px;color:#7a7f78}.aksu-pop h4{margin:0 0 6px;font-size:13.5px;color:#1F3A2E}.aksu-pop table{border-collapse:collapse;font-size:12.5px}.aksu-pop td{padding:1px 8px 1px 0;vertical-align:top}
 @media(max-width:700px){.aksu.fs{inset:0;border-radius:0}.aksu.fs .aksu-panel{top:auto;bottom:0;left:0;right:0;width:auto;max-width:none;max-height:40%;border-radius:16px 16px 0 0}.aksu.fs .leaflet-control-layers{margin-top:62px}}
 /* выбор языка: каменная рамка в верхней панели */
@@ -890,6 +912,17 @@ nav.top .logo::before,nav.top .logo::after{content:none}
       <div class="eyebrow">Участок</div>
       <h3>Амангельды · Жамбыла · Шевченко</h3>
       <table class="rooms"><tr><td>Район</td><td>Алмалинский</td></tr><tr><td>Улицы</td><td>Амангельды, Жамбыла, Шевченко</td></tr><tr><td>Площадь</td><td>8 846 м² (≈ 88 соток)</td></tr><tr><td>Кадастровый №</td><td>20-311-016-133</td></tr><tr><td>Соседний участок</td><td>20-311-016-165, 0,2286 га</td></tr><tr><td>Координаты центра</td><td id="mcoord"></td></tr></table>
+      <button class="pdpbtn" id="pdpBtn" type="button" aria-expanded="false" aria-controls="pdpFull"><b>ПДП Ж5</b><span>Что это значит</span><i>+</i></button>
+      <div class="pdpfull" id="pdpFull" hidden>
+        <h5>ПДП Ж5 — полное разъяснение</h5>
+        <h6>Что такое ПДП</h6>
+        <p>Проект детальной планировки — градостроительный документ на отдельную часть города. Он разграничивает участки по функциям и закрепляет территории под жильё, социальные и коммунальные объекты, улично-дорожную сеть, инженерные трассы, озеленение и благоустройство.</p>
+        <h6>Что значит Ж5</h6>
+        <p>Буква показывает вид зоны, цифра — её тип. Ж — жилая зона; в зоне Ж5 допускается многоэтажная жилая застройка в 6–12 этажей.</p>
+        <h6>Что это значит для проекта</h6>
+        <p>Участок отмечен на карте как ПДП Ж5; целевое назначение по кадастровому паспорту — бизнес-центр, многоэтажный жилой комплекс с коммерческими помещениями. Наш дом в 9 надземных этажей укладывается в диапазон зоны Ж5.</p>
+        <button class="pdpshow" id="pdpShow" type="button">Показать на карте</button>
+      </div>
       <div class="mapbtns" id="mapbtns"></div>
       <p class="small muted" style="margin-top:12px">Карты Google, Яндекс и 2GIS открываются в новой вкладке, точка участка уже отмечена.</p>
     </aside>
@@ -898,11 +931,13 @@ nav.top .logo::before,nav.top .logo::after{content:none}
       <div class="aksu-map" id="aksuMap"></div>
       <div class="aksu-hint"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg><span>Нажмите, чтобы увеличить карту</span></div>
       <div class="aksu-tag"><i></i>Участки Аксу · ПДП Ж5</div>
+      <div class="aksu-dlg" id="aksuDlg" hidden role="dialog"><button class="aksu-dx" type="button" aria-label="Закрыть">×</button><h4></h4><div class="aksu-db"></div></div>
       <button class="aksu-x" id="aksuX" aria-label="Закрыть" type="button">×</button>
       <div class="aksu-panel" id="aksuPanel">
         <h4>Участки Аксу · ПДП Ж5</h4>
         <div class="aksu-leg" data-p="1"><i style="background:#3f8a5c"></i><span>Участок 0,65 га · Амангельды, 78</span></div>
         <div class="aksu-leg" data-p="2"><i style="background:#e0a243"></i><span>Участок 0,2286 га · парковка</span></div>
+        <div class="aksu-leg" data-p="pdp"><i style="background:#1F3A2E"></i><span>ПДП Ж5 — что это значит</span></div>
         <div class="aksu-seg"><button id="akClean" class="on" type="button">Чисто</button><button id="akTopo" type="button">Топосъёмка 2019</button></div>
         <div class="aksu-op" id="akOpW" style="display:none"><label>Прозрачность <b id="akOpV">60%</b></label><input type="range" id="akOp" min="0" max="100" value="60"></div>
         <button class="aksu-fit" id="akFit" type="button">Оба участка</button>
@@ -1179,7 +1214,7 @@ nav.top .logo::before,nav.top .logo::after{content:none}
 <div class="modal" id="modal"><button class="x" id="mx">×</button><div id="mbody"></div></div>
 
 <script src="model.js"></script>
-<script src="kpoly.js"></script><script src="app.js"></script><script src="album.js"></script><script src="extra.js"></script><script src="vault.js"></script><script src="aksumap.js?v=6"></script><script src="kp.js"></script><script src="whiteout.js"></script><script src="priceformat.js"></script>
+<script src="kpoly.js"></script><script src="app.js"></script><script src="album.js"></script><script src="extra.js"></script><script src="vault.js"></script><script src="aksumap.js?v=7"></script><script src="kp.js"></script><script src="whiteout.js"></script><script src="priceformat.js"></script>
 <script type="module" src="three3d.js"></script>
 <script src="map.js"></script>
 <script src="i18n.js"></script>
