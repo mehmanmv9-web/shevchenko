@@ -55,7 +55,8 @@ function pad(){pw='';IN.innerHTML='<h3>Рабочие документы</h3><di
 function dots(){IN.querySelectorAll('#vDots i').forEach((d,i)=>d.classList.toggle('f',i<pw.length))}
 async function tryPw(){const err=IN.querySelector('#vErr');err.textContent='Проверка…';
   try{man=JSON.parse(new TextDecoder().decode(await dec('vault/check.txt',pw)));list(pw)}catch(e){err.textContent='Неверный пароль';pw='';dots()}}
-function list(p){IN.innerHTML='<h3>Рабочие документы</h3><div class="vs">Оригиналы проекта · откроется в Google Диске, там нажмите «Скачать»</div>'+man.map(f=>`<div class="vrow"><div><b>${f.t}</b><small>${f.fn} · ${f.kb>1024?(f.kb/1024).toFixed(1)+' МБ':f.kb+' КБ'}</small></div><a class="vdl" href="${f.u}" target="_blank" rel="noopener">Скачать</a></div>`).join('');}
+function list(p){IN.innerHTML='<h3>Рабочие документы</h3><div class="vs">Оригиналы проекта · откроется в Google Диске, там нажмите «Скачать»</div>'+man.map(f=>`<div class="vrow"><div><b>${f.t}</b><small>${f.fn} · ${f.kb>1024?(f.kb/1024).toFixed(1)+' МБ':f.kb+' КБ'}</small></div>${f.e?`<button class="vdl" data-e="${f.e}" data-fn="${f.fn}">Скачать</button>`:`<a class="vdl" href="${f.u}" target="_blank" rel="noopener">Скачать</a>`}</div>`).join('');
+  IN.onclick=async e=>{const b=e.target.closest('button[data-e]');if(!b)return;const t=b.textContent;b.textContent='…';try{const d=await dec(b.dataset.e,p);const u=URL.createObjectURL(new Blob([d],{type:'application/pdf'}));const a=document.createElement('a');a.href=u;a.download=b.dataset.fn;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);b.textContent=t}catch(x){b.textContent='Ошибка'}};}
 function open_(){box.classList.add('on');man=null;IN.onclick=null;pad();}
 function close_(){box.classList.remove('on');man=null;pw='';IN.innerHTML=''}
 btn.onclick=open_;box.querySelector('.vx').onclick=close_;box.addEventListener('click',e=>{if(e.target===box)close_()});
