@@ -32,6 +32,7 @@ function build(){
     L.marker(aside,{icon:L.divIcon({className:'',html:'<div class="aksu-lbl">ПДП Ж5</div>',iconSize:[90,26],iconAnchor:[45,13]}),interactive:false})]).addTo(map);
   L.control.layers({'Спутник':L.layerGroup([sat,lab]),'Схема OSM':osm,'Светлая схема':carto},null,{position:'topright',collapsed:true}).addTo(map);
   map.zoomCtl=L.control.zoom({position:'bottomright',zoomInTitle:'+',zoomOutTitle:'−'});
+  map.on('popupopen',()=>{ if(!big) map.closePopup(); });
   fit(); card.classList.add('ready');
   document.getElementById('akClean').onclick=()=>setView('clean');
   document.getElementById('akTopo').onclick=()=>setView(view==='topo'?'clean':'topo');
@@ -39,7 +40,7 @@ function build(){
   document.getElementById('akFit').onclick=()=>fit();
   document.querySelectorAll('#aksuPanel [data-p]').forEach(b=>b.onclick=()=>{const t=b.dataset.p==='1'?p065:pPk;map.fitBounds(t.getBounds().pad(.8));t.openPopup()});
 }
-function fit(){ if(map&&parcels) map.fitBounds(parcels.getBounds().pad(big?.9:.55),{animate:false}); }
+function fit(){ if(map&&parcels) map.fitBounds(parcels.getBounds().pad(big?.45:.4),{animate:false}); }
 function setView(v){ view=v;
   document.getElementById('akClean').classList.toggle('on',v==='clean');document.getElementById('akTopo').classList.toggle('on',v==='topo');
   document.getElementById('akOpW').style.display=v==='topo'?'block':'none';
@@ -51,7 +52,7 @@ const home=card.parentNode, mark=document.createComment('aksu'); let back=null;
 function open(){ if(big) return; big=true;
   home.insertBefore(mark,card); back=document.createElement('div'); back.className='aksu-back'; back.onclick=close; document.body.appendChild(back); document.body.appendChild(card);
   card.classList.add('fs'); document.documentElement.classList.add('aksu-lock'); requestAnimationFrame(()=>back.classList.add('on'));
-  if(map){ map.invalidateSize(false); interact(true); fit(); setTimeout(()=>{map.invalidateSize(false);fit()},260); }
+  if(map){ map.closePopup(); map.invalidateSize(false); interact(true); fit(); setTimeout(()=>{map.invalidateSize(false);fit()},260); }
 }
 function close(){ if(!big) return; big=false;
   card.classList.remove('fs'); document.documentElement.classList.remove('aksu-lock');
