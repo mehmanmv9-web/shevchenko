@@ -55,13 +55,15 @@ function build(){
   document.querySelectorAll('#aksuPanel [data-p]').forEach(b=>b.onclick=()=>{if(b.dataset.p==='pdp'){ fly(parcels,'pdp',2.8); return; } const t=b.dataset.p==='1'?p065:pPk;fly(t,b.dataset.p==='1'?'p1':'p2',2.4)});
 }
 let flyTok=0;
-function fly(layer,pop,dur){ const t=++flyTok; map.closePopup();hideInfo(); map.stop();
+function fly(layer,pop,dur){ const t=++flyTok; map.closePopup(); hideInfo(); map.stop();
   const bd=layer.getBounds().pad(layer===parcels?.45:.8), tz=Math.min(19,map.getBoundsZoom(bd)), tc=bd.getCenter();
   const cz=map.getZoom(), sz=map.getSize(), off=map.project(tc,cz).subtract(map.project(map.getCenter(),cz));
-  // рядом (участок в пределах одного-двух экранов и тот же масштаб ±2) — спокойный наезд без «отлёта» вверх и обратно
-  if(cz>=14 && Math.abs(tz-cz)<=2.5 && Math.abs(off.x)<sz.x*1.5 && Math.abs(off.y)<sz.y*1.5){ map.setView(tc,tz,{animate:true,duration:1.3,easeLinearity:.3,noMoveStart:true}); }
-  else map.flyTo(tc,tz,{duration:dur||3.4,easeLinearity:.18});
-  if(pop) map.once('moveend',()=>{ if(t===flyTok&&big) setTimeout(()=>{ if(t===flyTok&&big) showInfo(pop); },120); }); }
+  let ms=0;
+  if(Math.abs(off.x)<2 && Math.abs(off.y)<2 && Math.abs(tz-cz)<0.05){ ms=0; }               // уже там — просто показать окно
+  else if(cz>=14 && Math.abs(tz-cz)<=2.5 && Math.abs(off.x)<sz.x*1.5 && Math.abs(off.y)<sz.y*1.5){ map.setView(tc,tz,{animate:true,duration:1.3,easeLinearity:.3,noMoveStart:true}); ms=1300; }
+  else { const d=dur||3.4; map.flyTo(tc,tz,{duration:d,easeLinearity:.18}); ms=d*1000; }
+  // окно открываем по таймеру, а не по moveend: если двигаться некуда, moveend не приходит
+  if(pop) setTimeout(()=>{ if(t===flyTok&&big) showInfo(pop); },ms+(ms?220:40)); }
 function fit(){ if(map&&parcels) map.fitBounds(parcels.getBounds().pad(big?.45:.4),{animate:false}); }
 function setView(v){ view=v;
   document.getElementById('akClean').classList.toggle('on',v==='clean');document.getElementById('akTopo').classList.toggle('on',v==='topo');
