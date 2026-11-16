@@ -24,8 +24,8 @@ function build(){
   L.layerGroup([sat,lab]).addTo(map);
   topo=L.imageOverlay('aksu/topo2019_overlay.png',D.overlayBounds,{opacity:.6,interactive:false});
   const s065={color:'#3f8a5c',weight:3.2,fillColor:'#3f8a5c',fillOpacity:.14}, sPk={color:'#e0a243',weight:3.2,fillColor:'#e0a243',fillOpacity:.2};
-  const p065=L.polygon(D.parcel065,s065).bindPopup('<div class="aksu-pop"><h4>ПДП Ж5 · участок 0,65 га — ул. Амангельды, 78</h4><table><tr><td>Кадастровый №</td><td><b>20:311:016:133</b></td></tr><tr><td>Площадь</td><td>0,6500 га</td></tr><tr><td>Право</td><td>частная собственность</td></tr><tr><td>Документ</td><td>Кадастровый паспорт от 02.10.2023</td></tr></table></div>',{maxWidth:300});
-  const pPk=L.polygon(D.parking,sPk).bindPopup('<div class="aksu-pop"><h4>Участок 0,2286 га</h4><table><tr><td>Кадастровый №</td><td><b>20:311:016:165</b></td></tr><tr><td>Площадь</td><td>0,2286 га</td></tr><tr><td>Право</td><td>аренда до 15.06.2062</td></tr><tr><td>Назначение</td><td>автопарковка</td></tr><tr><td>Документ</td><td>Гос. акт № 0006372</td></tr></table></div>',{maxWidth:300});
+  const p065=L.polygon(D.parcel065,s065).bindPopup('<div class="aksu-pop"><h4>ПДП Ж5 · участок 0,65 га — ул. Амангельды, 78</h4><table><tr><td>Кадастровый №</td><td><b>20:311:016:133</b></td></tr><tr><td>Площадь</td><td>0,6500 га</td></tr><tr><td>Право</td><td>частная собственность</td></tr><tr><td>Документ</td><td>Кадастровый паспорт от 02.10.2023</td></tr></table></div>',{maxWidth:300,autoPan:false});
+  const pPk=L.polygon(D.parking,sPk).bindPopup('<div class="aksu-pop"><h4>Участок 0,2286 га</h4><table><tr><td>Кадастровый №</td><td><b>20:311:016:165</b></td></tr><tr><td>Площадь</td><td>0,2286 га</td></tr><tr><td>Право</td><td>аренда до 15.06.2062</td></tr><tr><td>Назначение</td><td>автопарковка</td></tr><tr><td>Документ</td><td>Гос. акт № 0006372</td></tr></table></div>',{maxWidth:300,autoPan:false});
   p065.addTo(map);pPk.addTo(map);parcels=L.featureGroup([p065,pPk]);window.__aksu={map,p065,pPk};
   const aside=[D.label065[0]+0.0001,D.label065[1]-0.00068];
   labelGroup=L.layerGroup([L.polyline([aside,D.label065],{color:'#fff',weight:1.4,dashArray:'3 4',opacity:.9,interactive:false}),
@@ -46,8 +46,13 @@ function build(){
   document.querySelectorAll('#aksuPanel [data-p]').forEach(b=>b.onclick=()=>{const t=b.dataset.p==='1'?p065:pPk;fly(t,t,2.4)});
 }
 let flyTok=0;
-function fly(layer,pop,dur){ const t=++flyTok; map.closePopup(); map.flyToBounds(layer.getBounds().pad(layer===parcels?.45:.8),{duration:dur||3.4,easeLinearity:.18,maxZoom:19});
-  if(pop) map.once('moveend',()=>{ if(t===flyTok&&big) pop.openPopup(); }); }
+function fly(layer,pop,dur){ const t=++flyTok; map.closePopup(); map.stop();
+  const bd=layer.getBounds().pad(layer===parcels?.45:.8), tz=Math.min(19,map.getBoundsZoom(bd)), tc=bd.getCenter();
+  const cz=map.getZoom(), sz=map.getSize(), off=map.project(tc,cz).subtract(map.project(map.getCenter(),cz));
+  // рядом (участок в пределах одного-двух экранов и тот же масштаб ±2) — спокойный наезд без «отлёта» вверх и обратно
+  if(cz>=14 && Math.abs(tz-cz)<=2.5 && Math.abs(off.x)<sz.x*1.5 && Math.abs(off.y)<sz.y*1.5){ map.setView(tc,tz,{animate:true,duration:1.3,easeLinearity:.3,noMoveStart:true}); }
+  else map.flyTo(tc,tz,{duration:dur||3.4,easeLinearity:.18});
+  if(pop) map.once('moveend',()=>{ if(t===flyTok&&big) setTimeout(()=>{ if(t===flyTok&&big) pop.openPopup(); },120); }); }
 function fit(){ if(map&&parcels) map.fitBounds(parcels.getBounds().pad(big?.45:.4),{animate:false}); }
 function setView(v){ view=v;
   document.getElementById('akClean').classList.toggle('on',v==='clean');document.getElementById('akTopo').classList.toggle('on',v==='topo');
