@@ -131,11 +131,11 @@ const m4 = new THREE.Matrix4();
 const PODF = 0.233, UPF = (1 - PODF) / 8;
 const facTex = {long: tex('img/fac-long.jpg'), short: tex('img/fac-short.jpg'), longNight: tex('img/fac-long-night.jpg'), shortNight: tex('img/fac-short-night.jpg')};
 const photoMats = [];
-function photoMat(side, f, rep = 1){
+function photoMat(side, f, rep = 1, offX = 0){
   const v0 = f === 1 ? 0 : f === 1.5 ? PODF * 3.9 / 7.0 : PODF + (f - 2) * UPF;
   const vh = f === 1 ? PODF * 3.9 / 7.0 : f === 1.5 ? PODF * 3.1 / 7.0 : UPF;
   const t = facTex[side].clone(), tn = facTex[side + 'Night'].clone();
-  for (const x of [t, tn]) { x.wrapS = THREE.RepeatWrapping; x.repeat.set(rep, vh); x.offset.set(0, v0); x.needsUpdate = true; }
+  for (const x of [t, tn]) { x.wrapS = THREE.RepeatWrapping; x.repeat.set(rep, vh); x.offset.set(offX, v0); x.needsUpdate = true; }
   const m = new THREE.MeshStandardMaterial({color:0x000000, emissiveMap:t, emissive:0xffffff, emissiveIntensity:1, roughness:0.9, metalness:0, toneMapped:false});
   m.userData = {day:t, night:tn}; photoMats.push(m); return m;
 }
@@ -167,6 +167,7 @@ function cornerTex(night){ const c = document.createElement('canvas'); c.width =
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; }
 const cornerMat = new THREE.MeshStandardMaterial({color: 0x000000, emissive: 0xffffff, emissiveMap: cornerTex(false), emissiveIntensity: 1, roughness: 0.5, metalness: 0, toneMapped: false, side: THREE.DoubleSide});
 cornerMat.userData = {day: cornerTex(false), night: cornerTex(true)}; cornerMat.emissiveMap = cornerMat.userData.day; photoMats.push(cornerMat);
+const pierMat = new THREE.MeshStandardMaterial({color: 0xa68a62, roughness: 0.9, emissive: 0x4a3b26, emissiveIntensity: 0.6});
 const planUV = (x, y) => [(G.Y1 - y) / (G.Y1 - G.Y0), 1 - x / G.D];
 for (const s of G.sects) {
   const z = SECZ[s.n], ya = s.y0, yb = s.y0 + s.L, rep = 1;
@@ -177,12 +178,14 @@ for (const s of G.sects) {
     grp.add(quadV(wx(G.D), wz(ya), wx(G.D), wz(yb), yb0, h, photoMat('long', f, rep)));
     if (s.sgn > 0) grp.add(quadV(wx(0), wz(ya), wx(G.D), wz(ya), yb0, h, photoMat('short', f)));
     else grp.add(quadV(wx(G.D), wz(yb), wx(0), wz(yb), yb0, h, photoMat('short', f)));
-    { const yc = s.sgn > 0 ? ya : yb, dy = s.sgn > 0 ? 1 : -1;   // угол: длинный фасад + торец
-      for (const xx of [0, G.D]) { const ox = xx === 0 ? -1 : 1, ix = -ox, LEG = 3.0;
-        const pier = new THREE.Mesh(new THREE.BoxGeometry(0.62, h, 0.62), stone); pier.position.set(wx(xx) + ox * 0.14, yb0 + h / 2, wz(yc) + dy * 0.14); grp.add(pier);
-        if (f >= 2) { grp.add(quadV(wx(xx) + ox * 0.07, wz(yc), wx(xx) + ox * 0.07, wz(yc + dy * LEG), yb0 + 0.12, h - 0.4, cornerMat));
-          grp.add(quadV(wx(xx), wz(yc) + dy * 0.07, wx(xx) + ix * LEG, wz(yc) + dy * 0.07, yb0 + 0.12, h - 0.4, cornerMat)); } } }
-    if (joinLo) for (const xx of [0, G.D]) { const pl = new THREE.Mesh(new THREE.BoxGeometry(0.34, h, 1.3), stone); pl.position.set(wx(xx) + (xx ? 0.12 : -0.12), yb0 + h / 2, wz(ya)); grp.add(pl); }   // пилястра закрывает шов фасада
+    { const yc = s.sgn > 0 ? ya : yb, dy = s.sgn > 0 ? 1 : -1;   // угол: торцевая панорамная ячейка берётся из тех же фото, что и фасад (тот же цвет и интерьер)
+      for (const xx of [0, G.D]) { const ox = xx === 0 ? -1 : 1, ix = -ox, LEG = 3.2;
+        const pier = new THREE.Mesh(new THREE.BoxGeometry(0.4, h, 0.4), pierMat); pier.position.set(wx(xx) + ox * 0.08, yb0 + h / 2, wz(yc) + dy * 0.08); grp.add(pier);
+        const yIn = yc + dy * LEG, rl = LEG / s.L, rs = LEG / G.D;
+        const endL = (xx === 0) === (yc === ya), xIn = xx + ix * LEG, endS = s.sgn > 0 ? xx === G.D : xx === 0;   // порядок вершин как у основных фасадов — лицом наружу
+        grp.add(quadV(wx(xx) + ox * 0.03, wz(endL ? yIn : yc), wx(xx) + ox * 0.03, wz(endL ? yc : yIn), yb0, h, photoMat('long', f, rl, endL ? 1 - rl : 0)));
+        grp.add(quadV(wx(endS ? xIn : xx), wz(yc) + dy * 0.03, wx(endS ? xx : xIn), wz(yc) + dy * 0.03, yb0, h, photoMat('short', f, rs, endS ? 1 - rs : 0))); } }
+    if (joinLo) for (const xx of [0, G.D]) { const pl = new THREE.Mesh(new THREE.BoxGeometry(0.3, h, 0.9), pierMat); pl.position.set(wx(xx) + (xx ? 0.12 : -0.12), yb0 + h / 2, wz(ya)); grp.add(pl); }   // пилястра закрывает шов фасада
     const slab = new THREE.Mesh(new THREE.BoxGeometry(G.D - 0.1, 0.3, s.L - 0.1), stone); slab.position.set(wx(G.D / 2), yb0 + h - 0.16, wz((ya + yb) / 2)); slab.receiveShadow = true; grp.add(slab);
     grp.traverse(o => { if (o.isMesh) o.castShadow = true; });
     bld.add(grp); shells.push({o: grp, fl: f});
