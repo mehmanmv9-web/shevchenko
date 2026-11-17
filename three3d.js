@@ -55,6 +55,31 @@ const pmrem = new THREE.PMREMGenerator(renderer);
 const envTex = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
 
 const sky = new Sky(); sky.scale.setScalar(3000); scene.add(sky);
+/* ---------- панорама Алматы: хребет Заилийского Алатау на юге, предгорья и город по кругу ---------- */
+const PANO = new THREE.Mesh(new THREE.CylinderGeometry(1300, 1300, 300, 96, 1, true), new THREE.MeshBasicMaterial({transparent: true, side: THREE.BackSide, fog: false, toneMapped: false, depthWrite: false}));
+PANO.position.y = 140; PANO.renderOrder = -1; scene.add(PANO);
+const FARG = new THREE.Mesh(new THREE.CircleGeometry(1500, 64), new THREE.MeshBasicMaterial({color: 0x8a9478, fog: false, toneMapped: false})); FARG.rotation.x = -Math.PI / 2; FARG.position.y = -2.2; scene.add(FARG);
+const panoTex = {};
+function drawPano(mode){
+  const W = 6144, H = 512, c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d'), R = rng(1234);
+  const P = {day: {far: '#9fb4c9', rock: '#7d93aa', snow: '#f7f9fc', foot: '#6d8a63', hz: 'rgba(214,226,238,0)', hz2: 'rgba(214,226,238,.9)', bld: '#c9bfae', lit: 0}, dusk: {far: '#a98fa6', rock: '#6f5f7d', snow: '#ffd9bd', foot: '#4d5a45', hz: 'rgba(230,170,140,0)', hz2: 'rgba(230,170,140,.85)', bld: '#8c7364', lit: .5}, night: {far: '#27324a', rock: '#151c2e', snow: '#566684', foot: '#0f1a18', hz: 'rgba(16,24,38,0)', hz2: 'rgba(16,24,38,.9)', bld: '#141a24', lit: 1}}[mode];
+  const ph = Array.from({length: 40}, () => R() * 6.283), baseY = H * 0.8;
+  const ridge = (u, seed, amp, kmax) => { let v = 0, n = 0; for (let k = 1; k <= kmax; k++) { const a = 1 / Math.pow(k, 0.85); v += a * Math.sin(6.283 * k * u + ph[(k + seed) % 40]); n += a; } return v / n; };
+  const env = u => 0.5 + 0.5 * Math.cos(6.283 * u);                 // u = 0 — юг (хребет), север — низкие холмы
+  const layer = (seed, hMin, hMax, col, snow) => { const pts = []; let top = H; for (let x = 0; x <= W; x += 4) { const u = x / W, h = H * (hMin + (hMax - hMin) * env(u) * (0.55 + 0.45 * ridge(u, seed, 1, 38)) + 0.02 * ridge(u * 7, seed + 3, 1, 12)); const y = baseY - h; pts.push([x, y]); top = Math.min(top, y); }
+    const gr = g.createLinearGradient(0, top, 0, baseY); gr.addColorStop(0, snow ? P.snow : col); gr.addColorStop(snow ? 0.22 : 0.1, snow ? P.snow : col); gr.addColorStop(snow ? 0.34 : 0.4, col); gr.addColorStop(1, col);
+    g.fillStyle = gr; g.beginPath(); g.moveTo(0, H); pts.forEach(p => g.lineTo(p[0], p[1])); g.lineTo(W, H); g.closePath(); g.fill(); };
+  layer(1, 0.04, 0.62, P.far, true); layer(11, 0.03, 0.42, P.rock, true);
+  const hz = g.createLinearGradient(0, baseY - H * 0.25, 0, baseY); hz.addColorStop(0, P.hz); hz.addColorStop(1, P.hz2); g.fillStyle = hz; g.fillRect(0, baseY - H * 0.25, W, H * 0.25);
+  layer(23, 0.02, 0.13, P.foot, false);
+  g.fillStyle = P.foot; g.fillRect(0, baseY - 2, W, H - baseY + 2);
+  for (let x = 0; x < W; x += 3 + R() * 14) { const bh = 5 + R() * (22 + 40 * (R() > 0.93)), bw = 6 + R() * 16, y = baseY + 2 - bh + 8; g.fillStyle = P.bld; g.fillRect(x, y, bw, bh + 40);
+    if (P.lit) { g.fillStyle = `rgba(255,214,140,${P.lit * 0.85})`; for (let wy = y + 3; wy < y + bh; wy += 5) for (let wx2 = x + 2; wx2 < x + bw - 2; wx2 += 4) if (R() > 0.55) g.fillRect(wx2, wy, 1.6, 2.2); } }
+  for (let x = 0; x < W; x += 5 + R() * 9) { g.fillStyle = ['#46613c', '#3c5634', '#587348'][(R() * 3) | 0]; if (mode === 'night') g.fillStyle = '#0c1612'; const r = 5 + R() * 9; g.beginPath(); g.arc(x, baseY + 14 + R() * 20, r, 0, 6.283); g.fill(); }
+  const fade = g.createLinearGradient(0, H - 70, 0, H); fade.addColorStop(0, 'rgba(0,0,0,0)'); fade.addColorStop(1, P.foot); g.fillStyle = fade; g.fillRect(0, H - 70, W, 70);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; t.wrapS = THREE.RepeatWrapping; return t;
+}
+function setPano(mode){ if (!panoTex[mode]) panoTex[mode] = drawPano(mode); PANO.material.map = panoTex[mode]; PANO.material.needsUpdate = true; FARG.material.color.set({day: 0x8f9c7e, dusk: 0x4d5a45, night: 0x0f1a18}[mode]); }
 const sunDir = new THREE.Vector3();
 const hemi = new THREE.HemisphereLight(0xdbe6f2, 0x5d4a35, 0.7); scene.add(hemi);
 const sun = new THREE.DirectionalLight(0xffffff, 2.6); sun.castShadow = true;
@@ -316,7 +341,7 @@ function apply(){
   const park = isPark(), isFloor = typeof level === 'number';
   if (plates[level]) plates[level].visible = true;
   shells.forEach(s => s.o.visible = !park && !(isFloor && s.fl >= level));
-  site.visible = !park; ghost.visible = park;
+  site.visible = !park; ghost.visible = park; PANO.visible = !park; FARG.visible = !park;
   if (!isFloor || level < 2) select(null);
   if (!park) selStall(null, true);
   if (level === 1 || level === 1.5) showCom(level); else if (park) showPark(); else info.classList.remove('show');
@@ -401,7 +426,7 @@ function setLight(k){
   lightKey = k; const L = LIGHT[k];
   const phi = THREE.MathUtils.degToRad(90 - L.el), th = THREE.MathUtils.degToRad(L.az); sunDir.setFromSphericalCoords(1, phi, th);
   const u = sky.material.uniforms; u.sunPosition.value.copy(sunDir); u.turbidity.value = L.turb; u.rayleigh.value = L.ray; u.mieCoefficient.value = 0.006; u.mieDirectionalG.value = 0.82;
-  sky.visible = !L.night; scene.background = L.night ? new THREE.Color(0x0b1420) : null;
+  sky.visible = !L.night; scene.background = L.night ? new THREE.Color(0x0b1420) : null; setPano(k);
   scene.fog = new THREE.Fog(L.night ? 0x0b1420 : (k==='dusk'?0xb98a72:0xcfdbe6), 600, 2400);
   const sp = L.night ? new THREE.Vector3(-0.4,0.8,-0.3) : sunDir.clone(); sp.y = Math.max(sp.y, 0.12);
   sun.position.copy(sp.multiplyScalar(300)); sun.intensity = L.sun; sun.color.setHex(L.sunC); hemi.intensity = L.hemi;
