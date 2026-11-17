@@ -80,7 +80,22 @@ const lawnMat = new THREE.MeshStandardMaterial({color:0x6f9a4c, roughness:1});
 const asphMat = new THREE.MeshStandardMaterial({color:0x4a4d50, roughness:0.95});
 const walkMat = new THREE.MeshStandardMaterial({color:0xC9C2B4, roughness:0.95});
 const waterMat = new THREE.MeshStandardMaterial({color:0x7fb6d6, roughness:0.15, metalness:0.2});
-const nbMat = new THREE.MeshStandardMaterial({color:0xE8E2D6, roughness:0.9});
+/* ---------- «живые» поверхности: процедурные текстуры (асфальт, плитка, газон, фасады соседних домов) ---------- */
+function ptex(w, h, draw, rx, ry){ const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(rx, ry); t.anisotropy = 8; return t; }
+const noise = (g, w, h, n, cols, sz) => { for (let i = 0; i < n; i++) { g.fillStyle = cols[(Math.random() * cols.length) | 0]; g.fillRect(Math.random() * w, Math.random() * h, sz, sz); } };
+asphMat.map = ptex(512, 512, (g, w, h) => { g.fillStyle = '#4b4d50'; g.fillRect(0, 0, w, h); noise(g, w, h, 9000, ['#5a5c60', '#3d3f42', '#6a6c70', '#34363a'], 2); }, 1 / 6, 1 / 6); asphMat.color.set(0xffffff);
+paveMat.map = ptex(512, 512, (g, w, h) => { g.fillStyle = '#e4d9c3'; g.fillRect(0, 0, w, h); noise(g, w, h, 3000, ['#d8ccb4', '#efe6d2', '#cfc3aa'], 3); g.strokeStyle = 'rgba(120,105,80,.55)'; g.lineWidth = 2; for (let i = 0; i <= 4; i++) { g.beginPath(); g.moveTo(i * w / 4, 0); g.lineTo(i * w / 4, h); g.moveTo(0, i * h / 4); g.lineTo(w, i * h / 4); g.stroke(); } }, 1 / 4.8, 1 / 4.8); paveMat.color.set(0xffffff);
+walkMat.map = ptex(512, 512, (g, w, h) => { g.fillStyle = '#c4bcad'; g.fillRect(0, 0, w, h); noise(g, w, h, 3000, ['#b8b0a0', '#d0c9bb', '#aaa292'], 3); g.strokeStyle = 'rgba(90,84,72,.5)'; g.lineWidth = 2; g.strokeRect(0, 0, w, h); g.beginPath(); g.moveTo(w / 2, 0); g.lineTo(w / 2, h); g.stroke(); }, 1 / 2.4, 1 / 2.4); walkMat.color.set(0xffffff);
+lawnMat.map = ptex(512, 512, (g, w, h) => { g.fillStyle = '#6b9648'; g.fillRect(0, 0, w, h); noise(g, w, h, 14000, ['#5d8a3c', '#7aa655', '#4f7b32', '#86b060'], 2); }, 1 / 5, 1 / 5); lawnMat.color.set(0xffffff);
+const grassMat = lawnMat.clone(); grassMat.map = lawnMat.map.clone(); grassMat.map.needsUpdate = true;
+const FACADE_TINTS = [['#d9c3a0', '#8a6a4a'], ['#cdbba3', '#6f5a48'], ['#e1d3b7', '#7d6650'], ['#b99a7d', '#5b4636'], ['#d4b896', '#6b5037']];
+const nbMats = FACADE_TINTS.map(([wall, win], k) => {
+  const f = ptex(256, 256, (g, w, h) => { g.fillStyle = wall; g.fillRect(0, 0, w, h); noise(g, w, h, 1200, [wall, 'rgba(0,0,0,.05)', 'rgba(255,255,255,.07)'], 3);
+    g.fillStyle = '#2a3340'; for (const [x] of [[40], [150]]) { g.fillRect(x, 60, 66, 150); g.fillStyle = 'rgba(230,200,140,.35)'; g.fillRect(x + 4, 64, 58, 70); g.fillStyle = '#2a3340'; g.fillStyle = win; g.fillRect(x - 6, 205, 78, 10); g.fillStyle = '#2a3340'; }
+    g.fillStyle = 'rgba(0,0,0,.18)'; g.fillRect(0, h - 6, w, 6); }, 1 / 7.2, 1 / 3.3);
+  return new THREE.MeshStandardMaterial({map: f, roughness: 0.92, envMapIntensity: 0.4}); });
+const nbRoof = new THREE.MeshStandardMaterial({color: 0x8d8579, roughness: 1});
+const nbMat = nbMats[0];
 const glowM = new THREE.MeshStandardMaterial({color:0xfff2d8, emissive:0xffc27a, emissiveIntensity:0});
 const postM = new THREE.MeshStandardMaterial({color:0x1d1a16, metalness:0.6, roughness:0.5});
 const deckMat = new THREE.MeshStandardMaterial({color:0xB48B5E, roughness:0.85});
@@ -194,7 +209,8 @@ function polyMesh(pts, h, mat){
 }
 const gr = new THREE.PlaneGeometry(460, 460, 1, 46); gr.rotateX(-Math.PI / 2);
 { const gp = gr.attributes.position; for (let i = 0; i < gp.count; i++) gp.setY(i, ground(YM - gp.getZ(i)) - 0.3); gr.computeVertexNormals(); }
-const groundM = new THREE.Mesh(gr, new THREE.MeshStandardMaterial({color: 0xB9B3A6, roughness: 1})); groundM.receiveShadow = true; site.add(groundM);
+grassMat.map.repeat.set(460 / 8, 460 / 8); grassMat.color.set(0xcdd6b8);
+const groundM = new THREE.Mesh(gr, grassMat); groundM.receiveShadow = true; site.add(groundM);
 const sy = y => ground(y);
 function flat(pts, mat, dy = 0){ const cy = pts.reduce((s, p) => s + p[1], 0) / pts.length; return polyMesh(pts, sy(cy) + dy, mat); }
 site.add(flat([[-40, -30], [-17.5, -30], [-17.5, 200], [-40, 200]], asphMat, 0.01));
@@ -214,9 +230,6 @@ site.add(flat([[28.5, 0.4], [32.7, 0.4], [32.7, 96], [28.5, 96]], new THREE.Mesh
   const ya = G.rampA[0], yb = G.rampA[1], ym = (ya + yb) / 2;
   const rp = new THREE.Mesh(new THREE.BoxGeometry(32, 0.25, yb - ya), new THREE.MeshStandardMaterial({color: 0x55585c, roughness: 0.8})); rp.position.set(wx(6.8), sy(ym) + 0.12, wz(ym)); site.add(rp);
   for (const yy of [ya - 0.15, yb + 0.15]) { const wl = new THREE.Mesh(new THREE.BoxGeometry(24, 1.1, 0.3), stone); wl.position.set(wx(10.6), sy(ym) + 0.55, wz(yy)); site.add(wl); }
-  const pg = new THREE.Group(); for (let x = -1; x <= 22; x += 2.6) pg.add(at(new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.25, yb - ya + 1), deckMat), wx(x), sy(ym) + 4.4, wz(ym)));
-  for (const [x, y] of [[-1, ya - 0.4], [-1, yb + 0.4], [22, ya - 0.4], [22, yb + 0.4]]) pg.add(at(new THREE.Mesh(new THREE.BoxGeometry(0.3, 4.4, 0.3), deckMat), wx(x), sy(ym) + 2.2, wz(y)));
-  site.add(pg);
 }
 const cy = y => sy(y) + 0.1;
 site.add(at(new THREE.Mesh(new THREE.CylinderGeometry(3.4, 3.6, 0.6, 32), stone), wx(46), cy(52) + 0.3, wz(52)));
@@ -227,20 +240,28 @@ site.add(polyMesh([[34, 62.8], [43.5, 62.8], [43.5, 72], [34, 72]], cy(67) + 0.0
 site.add(polyMesh([[45.5, 62.8], [55.5, 62.8], [55.5, 71.8], [45.5, 71.8]], cy(67) + 0.05, new THREE.MeshStandardMaterial({color: 0xC9A98A, roughness: 1})));
 for (const [a, b] of [[[22.4, 40], [50, 40]], [[22.4, 62], [55, 62]], [[22.4, 110], [36, 110]]]) site.add(polyMesh([[a[0], a[1] - 1.1], [b[0], a[1] - 1.1], [b[0], a[1] + 1.1], [a[0], a[1] + 1.1]], cy(a[1]) + 0.06, paveMat));
 site.add(polyMesh([[37.7, 24], [39.5, 24], [39.5, 80], [37.7, 80]], cy(52) + 0.06, paveMat));
+const LEAVES = [0x4a6b34, 0x587a3b, 0x3f5e2d, 0x66853f].map(c => new THREE.MeshStandardMaterial({color: c, roughness: 0.95}));
+const BLOSS = [0xE9B9C9, 0xF0C7D3, 0xDDA4B8].map(c => new THREE.MeshStandardMaterial({color: c, roughness: 0.95}));
 function tree(x, y, big = 1, blossom = false){
-  const t = new THREE.Group(); t.add(at(new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.22, 2.4 * big, 6), trunkMat), 0, 1.2 * big, 0));
-  t.add(at(new THREE.Mesh(new THREE.IcosahedronGeometry(1.9 * big, 0), blossom ? blossomMat : leafMat), 0, 3.3 * big, 0));
-  t.position.set(wx(x), sy(y), wz(y)); t.traverse(o => { if (o.isMesh) o.castShadow = true; }); site.add(t);
+  const t = new THREE.Group(), r = rng(((x * 73 + y * 31) | 0) + 7); const hh = (2.6 + r() * 1.2) * big;
+  t.add(at(new THREE.Mesh(new THREE.CylinderGeometry(0.14 * big, 0.26 * big, hh, 7), trunkMat), 0, hh / 2, 0));
+  const set = blossom ? BLOSS : LEAVES, n = 6 + ((r() * 3) | 0);
+  for (let i = 0; i < n; i++) { const a = r() * Math.PI * 2, d = (0.4 + r() * 1.5) * big, rad = (1.1 + r() * 0.9) * big;
+    const m = new THREE.Mesh(new THREE.IcosahedronGeometry(rad, 1), set[(r() * set.length) | 0]); m.scale.y = 0.85; t.add(at(m, Math.cos(a) * d, hh + 0.4 * big + r() * 2.2 * big, Math.sin(a) * d)); }
+  t.rotation.y = r() * 6.28; t.position.set(wx(x), sy(y), wz(y)); t.traverse(o => { if (o.isMesh) o.castShadow = true; }); site.add(t);
 }
-for (let y = -4; y < 158; y += 7) { tree(-3.0, y, 0.85); tree(-11.0, y + 3.5, 0.85, (y + 4) % 21 === 0); }
+for (let y = -4; y < 158; y += 8) { tree(-3.0, y, 1.0); tree(-11.0, y + 4, 1.05, (y + 4) % 24 === 0); }
+for (let y = 6; y < 156; y += 9) { tree(31.5, y, 0.9 + (y % 3) * 0.1); }
 [[26.5, 30], [26.5, 50], [26.5, 72], [26.5, 96], [26.5, 118], [36, 30], [43, 30], [36, 46], [53, 47], [40, 58], [48, 66.5], [36, 85], [42, 99], [36, 112]].forEach(([x, y], i) => tree(x, y, 1.1, i % 3 === 0));
 for (let y = 0; y < 160; y += 14) { site.add(at(new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 4, 6), postM), wx(-1.2), sy(y) + 2, wz(y)));
   const l = at(new THREE.Mesh(new THREE.SphereGeometry(0.22, 10, 8), glowM), wx(-1.2), sy(y) + 4.1, wz(y)); l.userData.lamp = true; site.add(l); }
-for (const nb of G.nb) { const sh = new THREE.Shape(nb.poly.map(([x, y]) => new THREE.Vector2(wx(x), -wz(y))));
-  const g = new THREE.ExtrudeGeometry(sh, {depth: nb.h, bevelEnabled: false}); g.rotateX(-Math.PI / 2);
-  const m = new THREE.Mesh(g, nbMat); m.position.y = sy(nb.poly.reduce((s, p) => s + p[1], 0) / nb.poly.length); m.castShadow = m.receiveShadow = true; site.add(m); }
-[[-75, 20, 30, 90, 22], [-75, 120, 30, 50, 15], [70, 140, 30, 30, 26], [78, 40, 24, 50, 40], [10, 200, 70, 20, 18], [10, -55, 70, 20, 20], [-75, -40, 30, 40, 12]].forEach(([x, y, w, l, h]) => {
-  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, l), nbMat); m.position.set(wx(x), sy(y) + h / 2, wz(y)); m.castShadow = m.receiveShadow = true; site.add(m); });
+let nbK = 0;
+function nbBlock(poly, h, y){ const sh = new THREE.Shape(poly.map(([x, yy]) => new THREE.Vector2(wx(x), -wz(yy))));
+  const g = new THREE.ExtrudeGeometry(sh, {depth: h, bevelEnabled: false}); g.rotateX(-Math.PI / 2);
+  const m = new THREE.Mesh(g, [nbRoof, nbMats[(nbK++) % nbMats.length]]); m.position.y = y; m.castShadow = m.receiveShadow = true; site.add(m);
+  const e = new THREE.Mesh(new THREE.ExtrudeGeometry(sh, {depth: 0.5, bevelEnabled: false}), new THREE.MeshStandardMaterial({color: 0x6f675b, roughness: 1})); e.geometry.rotateX(-Math.PI / 2); e.position.y = y + h; site.add(e); }
+for (const nb of G.nb) nbBlock(nb.poly, nb.h, sy(nb.poly.reduce((s, p) => s + p[1], 0) / nb.poly.length));
+[[-75, 20, 30, 90, 22], [-75, 120, 30, 50, 15], [70, 140, 30, 30, 26], [78, 40, 24, 50, 40], [10, 200, 70, 20, 18], [10, -55, 70, 20, 20], [-75, -40, 30, 40, 12]].forEach(([x, y, w, l, h]) => nbBlock([[x - w / 2, y - l / 2], [x + w / 2, y - l / 2], [x + w / 2, y + l / 2], [x - w / 2, y + l / 2]], h, sy(y)));
 function label(text, x, y, h = 3){ const c = document.createElement('canvas'); c.width = 1024; c.height = 128; const g = c.getContext('2d');
   g.fillStyle = 'rgba(20,26,22,.78)'; g.beginPath(); g.roundRect(4, 14, 1016, 100, 50); g.fill(); g.fillStyle = '#F3E9D6'; g.font = '600 60px Inter, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text, 512, 66);
   const sp = new THREE.Sprite(new THREE.SpriteMaterial({map: ctex(c), depthTest: false})); sp.scale.set(24, 3, 1); sp.position.set(wx(x), sy(y) + h, wz(y)); sp.renderOrder = 5; site.add(sp); }
