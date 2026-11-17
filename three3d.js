@@ -33,6 +33,7 @@ renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
 renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.outputColorSpace = THREE.SRGBColorSpace;
 const scene = new THREE.Scene();
+window.__shev = {scene, THREE};   // для экспорта в GLB (Blender)
 const camera = new THREE.PerspectiveCamera(32, 1, 1.5, 5000);
 camera.position.set(-2, 190, 215);
 const controls = new OrbitControls(camera, canvas);
