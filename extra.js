@@ -70,10 +70,10 @@ addEventListener('keydown',e=>{ if(!document.querySelector('#myfloor:hover')) re
 function tariffs(){
   const tot=U.reduce((a,u)=>a+u.area,0);
   $('mfTar').innerHTML=`<table><tr><th>Цена за м²</th>${P.map(p=>`<th>${usd(p)}</th>`).join('')}</tr>
-  <tr><td>Квартира ≈88,2 м²</td>${P.map(p=>`<td>${usd(Math.round(88.17*p))}</td>`).join('')}</tr>
-  <tr><td>Этаж подъезда (4 квартиры)</td>${P.map(p=>`<td>${usd(Math.round(352.66*p))}</td>`).join('')}</tr>
+  <tr><td>Квартира 117,2 м²</td>${P.map(p=>`<td>${usd(Math.round(117.2*p))}</td>`).join('')}</tr>
+  <tr><td>Этаж подъезда (4 квартиры)</td>${P.map(p=>`<td>${usd(Math.round(4*117.2*p))}</td>`).join('')}</tr>
   <tr><td>Все квартиры · ${nf(tot,1)} м² (128)</td>${P.map(p=>`<td>${usd(Math.round(tot*p))}</td>`).join('')}</tr></table>
-  <p class="muted small">Цена = площадь × тариф; квартира D в подъездах 1 и 4 — 88,09 м²; A и C — 88,17 м², B и D — 88,16 м². Коммерция и паркинг в расчёт не входят.</p>`;
+  <p class="muted small">Цена = площадь × тариф; квартира D в подъездах 1 и 4 — 117,1 м². Коммерция и паркинг в расчёт не входят.</p>`;
 }
 draw(); tariffs();
 }
