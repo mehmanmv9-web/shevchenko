@@ -129,7 +129,7 @@ const m4 = new THREE.Matrix4();
 
 /* ---------- фото-фасады: подиум (1 этаж + антресоль) + 8 жилых ---------- */
 const PODF = 0.233, UPF = (1 - PODF) / 8;
-const facTex = {long: tex('img/fac-long.jpg'), short: tex('img/fac-short.jpg'), longNight: tex('img/fac-long-night.jpg'), shortNight: tex('img/fac-short-night.jpg')};
+const facTex = {};   // фото-фасады больше не используются: дом построен геометрией
 const photoMats = [];
 function photoMat(side, f, rep = 1, offX = 0){
   const v0 = f === 1 ? 0 : f === 1.5 ? PODF * 3.9 / 7.0 : PODF + (f - 2) * UPF;
@@ -169,23 +169,129 @@ const cornerMat = new THREE.MeshStandardMaterial({color: 0x000000, emissive: 0xf
 cornerMat.userData = {day: cornerTex(false), night: cornerTex(true)}; cornerMat.emissiveMap = cornerMat.userData.day; photoMats.push(cornerMat);
 const pierMat = new THREE.MeshStandardMaterial({color: 0xa68a62, roughness: 0.9, emissive: 0x4a3b26, emissiveIntensity: 0.6});
 const planUV = (x, y) => [(G.Y1 - y) / (G.Y1 - G.Y0), 1 - x / G.D];
+/* ====================== ПРОЦЕДУРНЫЙ ФАСАД (геометрия, без фото-текстур) ======================
+   Каждый подъезд собирается из пилястр, окон с коваными ограждениями, угловых панорамных эркеров с балконами и цветами,
+   витрин подиума, входной арки с люстрой, балюстрады и карниза — по композиции с вашего чертежа и визуализаций. */
+function interiorTex(kind, night){
+  const W = {win: 256, pano: 512, store: 256, arch: 256}[kind], H = {win: 384, pano: 384, store: 512, arch: 400}[kind];
+  const c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d'), R = rng(kind.length * 977 + (night ? 5 : 1));
+  const warm = night ? ['#ffe2b0', '#ffbf6a', '#b97a35'] : ['#f6dcae', '#e8bd7e', '#b0824c'];
+  const gr = g.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, warm[0]); gr.addColorStop(0.55, warm[1]); gr.addColorStop(1, warm[2]); g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  g.fillStyle = 'rgba(255,248,222,.95)'; g.fillRect(0, 0, W, H * 0.045);                       // подсветка карниза потолка
+  const cur = (x0, x1) => { const cg = g.createLinearGradient(x0, 0, x1, 0); cg.addColorStop(0, 'rgba(150,118,84,.85)'); cg.addColorStop(1, 'rgba(214,186,148,.55)'); g.fillStyle = cg; g.fillRect(Math.min(x0, x1), 0, Math.abs(x1 - x0), H * 0.9);
+    g.strokeStyle = 'rgba(90,64,40,.35)'; g.lineWidth = 1; for (let x = Math.min(x0, x1) + 3; x < Math.max(x0, x1); x += 6) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x + 1, H * 0.9); g.stroke(); } };
+  const cw = kind === 'pano' ? W * 0.07 : W * 0.17; cur(0, cw); cur(W, W - cw);
+  const lustre = (cx, cy, s) => { g.strokeStyle = 'rgba(90,60,30,.8)'; g.lineWidth = 2; g.beginPath(); g.moveTo(cx, 0); g.lineTo(cx, cy); g.stroke();
+    const rg = g.createRadialGradient(cx, cy + s * .5, 2, cx, cy + s * .5, s * 2.4); rg.addColorStop(0, 'rgba(255,250,224,1)'); rg.addColorStop(1, 'rgba(255,226,160,0)'); g.fillStyle = rg; g.fillRect(cx - s * 2.5, cy - s, s * 5, s * 4.4);
+    for (let t = 0; t < 3; t++) { g.fillStyle = 'rgba(255,248,214,.95)'; g.beginPath(); g.ellipse(cx, cy + t * s * .55, s * (1.1 - t * .2), s * .16, 0, 0, 6.283); g.fill(); for (let i = -3; i <= 3; i++) { g.fillStyle = 'rgba(255,255,236,.95)'; g.fillRect(cx + i * s * .26 * (1 - t * .2), cy + t * s * .55, 2, s * .38); } } };
+  const sofa = (x, y, w, hh) => { g.fillStyle = 'rgba(96,74,56,.82)'; g.beginPath(); g.roundRect(x, y, w, hh, 6); g.fill(); g.fillStyle = 'rgba(122,98,76,.85)'; g.beginPath(); g.roundRect(x + w * .04, y - hh * .5, w * .92, hh * .6, 6); g.fill(); };
+  const plant = (x, y, r) => { g.fillStyle = 'rgba(48,74,40,.85)'; g.beginPath(); g.arc(x, y, r, 0, 6.283); g.fill(); g.fillStyle = 'rgba(70,52,36,.9)'; g.fillRect(x - r * .25, y + r * .6, r * .5, r * .9); };
+  if (kind === 'pano') { lustre(W * .5, H * .1, 16); lustre(W * .22, H * .12, 11); lustre(W * .78, H * .12, 11); sofa(W * .3, H * .66, W * .4, H * .1); g.fillStyle = 'rgba(70,50,34,.85)'; g.fillRect(W * .44, H * .8, W * .12, H * .03); plant(W * .12, H * .72, 18); plant(W * .88, H * .72, 18); g.fillStyle = 'rgba(80,60,44,.5)'; g.fillRect(W * .55, H * .3, W * .14, H * .2); }
+  else if (kind === 'store') { lustre(W * .5, H * .06, 14); g.fillStyle = 'rgba(255,236,190,.55)'; for (let r = 0; r < 4; r++) for (let i = 0; i < 4; i++) g.fillRect(W * (.2 + i * .15), H * (.34 + r * .11), W * .1, H * .05); g.fillStyle = 'rgba(80,58,40,.8)'; for (let r = 0; r < 4; r++) g.fillRect(W * .18, H * (.39 + r * .11), W * .64, 3); sofa(W * .3, H * .8, W * .4, H * .06); }
+  else if (kind === 'arch') { lustre(W * .5, H * .22, 26); g.fillStyle = 'rgba(86,60,40,.7)'; g.fillRect(W * .12, H * .64, W * .76, H * .02); g.fillStyle = 'rgba(255,230,170,.6)'; g.fillRect(W * .2, H * .5, W * .6, H * .12); g.fillStyle = 'rgba(70,52,36,.85)'; g.fillRect(W * .36, H * .72, W * .28, H * .08); plant(W * .14, H * .7, 14); plant(W * .86, H * .7, 14); }
+  else { g.fillStyle = 'rgba(255,240,200,.5)'; g.fillRect(W * .3, H * .3, W * .4, H * .15); g.fillStyle = 'rgba(76,56,40,.5)'; g.fillRect(W * .32, H * .32, W * .36, H * .11); lustre(W * .5, H * .14, 9); sofa(W * .28, H * .68, W * .44, H * .09); plant(W * .8, H * .7, 12); }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
+}
+function glassMat(kind){ const d = interiorTex(kind, false), n = interiorTex(kind, true), m = new THREE.MeshStandardMaterial({color: 0x000000, emissive: 0xffffff, emissiveMap: d, emissiveIntensity: 1, roughness: 0.4, toneMapped: false}); m.userData = {day: d, night: n}; photoMats.push(m); return m; }
+function railTex(kind){
+  const c = document.createElement('canvas'); c.width = 512; c.height = 128; const g = c.getContext('2d');
+  if (kind === 'iron') { g.strokeStyle = '#1a1511'; g.fillStyle = '#1a1511'; g.lineWidth = 5; g.beginPath(); g.moveTo(0, 8); g.lineTo(512, 8); g.moveTo(0, 122); g.lineTo(512, 122); g.stroke(); g.lineWidth = 3;
+    for (let x = 6; x < 512; x += 32) { g.beginPath(); g.moveTo(x, 8); g.lineTo(x, 122); g.stroke(); g.beginPath(); g.arc(x + 16, 40, 12, 0, 6.283); g.stroke(); g.beginPath(); g.arc(x + 16, 90, 12, 0, 6.283); g.stroke(); g.beginPath(); g.moveTo(x + 4, 64); g.quadraticCurveTo(x + 16, 52, x + 28, 64); g.quadraticCurveTo(x + 16, 76, x + 4, 64); g.stroke(); } }
+  else { g.fillStyle = '#efe3c8'; g.fillRect(0, 0, 512, 14); g.fillRect(0, 112, 512, 16); for (let x = 8; x < 512; x += 24) { g.beginPath(); g.moveTo(x + 6, 14); g.quadraticCurveTo(x - 2, 40, x + 5, 62); g.quadraticCurveTo(x + 14, 90, x + 6, 112); g.lineTo(x + 12, 112); g.quadraticCurveTo(x + 22, 90, x + 13, 62); g.quadraticCurveTo(x + 20, 40, x + 12, 14); g.closePath(); g.fill(); } }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; }
+const FM = {
+  cream: new THREE.MeshStandardMaterial({color: 0xf1e6cc, roughness: 0.82, envMapIntensity: 0.6, emissive: 0x2b2216, emissiveIntensity: 0.55}),
+  dark: new THREE.MeshStandardMaterial({color: 0x2a2018, roughness: 0.5, metalness: 0.45}),
+  plinth: new THREE.MeshStandardMaterial({color: 0x56473a, roughness: 0.8}),
+  win: glassMat('win'), pano: glassMat('pano'), store: glassMat('store'), arch: glassMat('arch'),
+  rail: new THREE.MeshStandardMaterial({map: railTex('iron'), alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.5, metalness: 0.5}),
+  balus: new THREE.MeshStandardMaterial({map: railTex('stone'), alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.85, emissive: 0x2b2216, emissiveIntensity: 0.4}),
+  lamp: new THREE.MeshBasicMaterial({color: 0xffd48c, toneMapped: false}),
+  planter: new THREE.MeshStandardMaterial({color: 0xe9e1d2, roughness: 0.8}),
+  plant: new THREE.MeshStandardMaterial({color: 0x3d5e2f, roughness: 0.95}),
+  cone: new THREE.MeshStandardMaterial({color: 0x2c5030, roughness: 0.95})
+};
+const FG = {box: new THREE.BoxGeometry(1, 1, 1), plane: new THREE.PlaneGeometry(1, 1), cyl: new THREE.CylinderGeometry(1, 1, 1, 10), ball: new THREE.IcosahedronGeometry(1, 1), cone: new THREE.ConeGeometry(1, 1, 9)};
+const FTYPE = {box: ['box', 'cream'], dark: ['box', 'dark'], plinth: ['box', 'plinth'], win: ['plane', 'win'], pano: ['plane', 'pano'], store: ['plane', 'store'], rail: ['plane', 'rail'], balus: ['plane', 'balus'], lamp: ['ball', 'lamp'], planter: ['cyl', 'planter'], plant: ['ball', 'plant'], cone: ['cone', 'cone']};
+const _Y = new THREE.Vector3(0, 1, 0), _bm = new THREE.Matrix4(), _sm = new THREE.Matrix4();
+function archShape(w, hr){ const sh = new THREE.Shape(); sh.moveTo(-w / 2, 0); sh.lineTo(w / 2, 0); sh.lineTo(w / 2, hr); sh.absarc(0, hr, w / 2, 0, Math.PI, false); sh.lineTo(-w / 2, 0); return sh; }
+function bayList(W, ends, kind){
+  const nom = {pano: 4.9, win: 3.2, pil: 0.8, jp: 0.4}; let seq;
+  if (kind === 'long') seq = [...(ends[0] === 'pano' ? ['pano'] : ['jp', 'win']), 'pil', 'win', 'pil', 'win', 'pil', 'win', 'pil', 'win', 'pil', ...(ends[1] === 'pano' ? ['pano'] : ['win', 'jp'])];
+  else seq = ['pano', 'pil', 'win', 'pil', 'win', 'pil', 'win', 'pil', 'pano'];
+  const fixed = seq.reduce((a, t) => a + (t === 'pil' || t === 'jp' ? nom[t] : 0), 0), flex = seq.reduce((a, t) => a + (t === 'pil' || t === 'jp' ? 0 : nom[t]), 0), k = (W - fixed) / flex;
+  let u = 0; return seq.map(t => { const w = (t === 'pil' || t === 'jp') ? nom[t] : nom[t] * k, b = {t, w, c: u + w / 2}; u += w; return b; });
+}
+function buildFacadeFloor(grp, s, f, yb0, h, joinLo, joinHi){
+  const A = {}, ya = s.y0, yb = s.y0 + s.L, pod = f === 1 || f === 1.5;
+  const frame = (O, N) => ({O, N, T: new THREE.Vector3().crossVectors(_Y, N)});
+  const faces = [
+    {F: frame(new THREE.Vector3(wx(0), 0, wz(yb)), new THREE.Vector3(-1, 0, 0)), W: s.L, kind: 'long', ends: [joinHi ? 'j' : 'pano', joinLo ? 'j' : 'pano'], arch: true},
+    {F: frame(new THREE.Vector3(wx(G.D), 0, wz(ya)), new THREE.Vector3(1, 0, 0)), W: s.L, kind: 'long', ends: [joinLo ? 'j' : 'pano', joinHi ? 'j' : 'pano'], arch: false},
+    s.sgn > 0 ? {F: frame(new THREE.Vector3(wx(0), 0, wz(ya)), new THREE.Vector3(0, 0, 1)), W: G.D, kind: 'short', ends: ['pano', 'pano'], arch: false}
+              : {F: frame(new THREE.Vector3(wx(G.D), 0, wz(yb)), new THREE.Vector3(0, 0, -1)), W: G.D, kind: 'short', ends: ['pano', 'pano'], arch: false}
+  ];
+  for (const fc of faces) {
+    const {F, W} = fc, P = new THREE.Vector3(), put = (type, u, y, d, sx, sy, sz) => { P.copy(F.O).addScaledVector(F.T, u).addScaledVector(F.N, d); P.y = y;
+      _bm.makeBasis(F.T, _Y, F.N); _bm.setPosition(P.x, P.y, P.z); _sm.makeScale(sx, sy, sz); (A[type] = A[type] || []).push(_bm.clone().multiply(_sm)); };
+    const bays = bayList(W, fc.ends, fc.kind), uc = W / 2, ARCH = fc.arch && pod, zone = 3.1;
+    if (f === 1) put('plinth', W / 2, yb0 + 0.35, 0.12, W, 0.7, 0.26); else put('box', W / 2, yb0 + 0.17, 0.2, W, 0.34, 0.46);
+    if (f === 9) { put('box', W / 2, yb0 + h - 0.2, 0.34, W + 0.1, 0.42, 0.85); put('balus', W / 2, yb0 + h + 0.55, 0.62, W, 1.1, 1); }
+    for (const b of bays) {
+      const inArch = ARCH && Math.abs(b.c - uc) < zone + b.w / 2 - 0.2;
+      if (b.t === 'pil' || b.t === 'jp') {
+        put('box', b.c, yb0 + h / 2, 0.13, b.w, h, 0.26); put('box', b.c, yb0 + h - 0.27, 0.2, b.w + 0.25, 0.34, 0.42); put('box', b.c, yb0 + 0.58, 0.18, b.w + 0.14, 0.3, 0.34);
+        if (!pod && b.t === 'pil') put('lamp', b.c, yb0 + 1.7, 0.34, 0.1, 0.17, 0.1);
+        if (f === 1 && b.t === 'pil' && !(ARCH && Math.abs(b.c - uc) < zone + 0.4)) { put('dark', b.c, yb0 + 0.55, 1.15, 0.5, 0.7, 0.5); put('cone', b.c, yb0 + 1.95, 1.15, 0.5, 2.3, 0.5); }
+        continue; }
+      if (pod) {
+        if (inArch) { if (f === 1) put('lamp', b.c, yb0 + 3.3, 0.36, 0.13, 0.22, 0.13); continue; }
+        const gw = b.w - 0.35, gh = f === 1 ? h - 0.95 : h - 0.75, gy = f === 1 ? yb0 + 0.72 + gh / 2 : yb0 + 0.42 + gh / 2;
+        put('dark', b.c, gy, 0.0, gw + 0.18, gh + 0.18, 0.08); put('store', b.c, gy, 0.06, gw, gh, 1);
+        for (let i = 1; i <= 2; i++) put('dark', b.c - gw / 2 + gw * i / 3, gy, 0.1, 0.07, gh, 0.1);
+        put('dark', b.c, gy + gh * 0.16, 0.1, gw, 0.07, 0.1);
+        if (f === 1.5) put('rail', b.c, yb0 + 0.42 + 0.5, 0.34, b.w - 0.2, 0.95, 1);
+        continue; }
+      if (b.t === 'win') {
+        put('dark', b.c, yb0 + 1.9, 0.05, 1.74, 2.62, 0.1); put('win', b.c, yb0 + 1.9, 0.11, 1.5, 2.4, 1); put('dark', b.c, yb0 + 1.9, 0.14, 0.06, 2.4, 0.06);
+        put('box', b.c, yb0 + 0.5, 0.2, 2.0, 0.1, 0.4); put('box', b.c, yb0 + 3.17, 0.14, 2.0, 0.16, 0.3);
+        put('rail', b.c, yb0 + 0.34 + 0.5, 0.4, 1.95, 0.95, 1);
+      } else {   // угловой панорамный эркер с балконом
+        const pw = b.w, gh = h - 0.75;
+        put('box', b.c, yb0 + 0.15, 0.52, pw, 0.3, 1.04);
+        put('pano', b.c, yb0 + 0.32 + gh / 2, -0.12, pw - 0.5, gh, 1);
+        for (let i = 0; i <= 4; i++) put('dark', b.c - (pw - 0.5) / 2 + (pw - 0.5) * i / 4, yb0 + 0.32 + gh / 2, -0.09, 0.09, gh + 0.06, 0.12);
+        put('dark', b.c, yb0 + 0.32 + gh, -0.09, pw - 0.4, 0.1, 0.14);
+        put('rail', b.c, yb0 + 0.3 + 0.5, 1.02, pw, 1.0, 1);
+        for (const sx of [-1, 1]) { put('planter', b.c + sx * (pw / 2 - 0.45), yb0 + 0.55, 0.78, 0.26, 0.5, 0.26); put('plant', b.c + sx * (pw / 2 - 0.45), yb0 + 1.05, 0.78, 0.42, 0.42, 0.42); }
+        put('planter', b.c, yb0 + 0.55, 0.78, 0.22, 0.4, 0.22); put('plant', b.c, yb0 + 0.98, 0.78, 0.3, 0.3, 0.3); }
+    }
+    if (fc.arch && f === 1) {   // входная группа: арка с люстрой, двери, фонари, ступени
+      const AW = 4.3, HR = 4.2, geoE = (sh, d) => new THREE.ExtrudeGeometry(sh, {depth: d, bevelEnabled: false});
+      const base = new THREE.Matrix4(); P.copy(F.O).addScaledVector(F.T, uc).addScaledVector(F.N, 0); P.y = yb0; base.makeBasis(F.T, _Y, F.N); base.setPosition(P.x, P.y, P.z);
+      const place = (geo, mat, dz) => { const m = new THREE.Mesh(geo, mat); m.matrixAutoUpdate = false; m.matrix.copy(base).multiply(new THREE.Matrix4().makeTranslation(0, 0, dz)); grp.add(m); m.castShadow = true; return m; };
+      const sur = archShape(AW + 1.1, HR); const hole = archShape(AW, HR); sur.holes.push(new THREE.Path(hole.getPoints(24).reverse()));
+      place(geoE(sur, 0.36), FM.cream, 0); place(geoE(archShape(AW + 0.16, HR), 0.06), FM.dark, 0.0);
+      const gg = new THREE.ShapeGeometry(archShape(AW, HR), 24); { const pos = gg.attributes.position, uv = new Float32Array(pos.count * 2); for (let i = 0; i < pos.count; i++) { uv[i * 2] = (pos.getX(i) + AW / 2) / AW; uv[i * 2 + 1] = pos.getY(i) / (HR + AW / 2); } gg.setAttribute('uv', new THREE.BufferAttribute(uv, 2)); }
+      place(gg, FM.arch, 0.08);
+      for (const [x, y, w, hh] of [[0, 1.5, 0.07, 3.0], [-AW / 4, 1.5, 0.05, 3.0], [AW / 4, 1.5, 0.05, 3.0], [0, 3.0, AW, 0.08], [0, HR, AW, 0.08], [0, HR + AW / 4, 0.06, AW / 2]]) put('dark', uc + x, yb0 + y + (hh > 3 ? 0 : 0), 0.14, w, hh, 0.1);
+      put('box', uc, yb0 + 0.1, 1.0, AW + 1.3, 0.2, 2.0); put('box', uc, yb0 + 0.03, 1.5, AW + 2.2, 0.06, 3.0);
+      for (const sx of [-1, 1]) { put('dark', uc + sx * (AW / 2 + 0.55), yb0 + 3.35, 0.45, 0.06, 0.1, 0.22); put('lamp', uc + sx * (AW / 2 + 0.55), yb0 + 3.3, 0.55, 0.14, 0.24, 0.14); }
+      for (const sx of [-1, 1]) for (const dx of [1.9, 2.6]) { put('dark', uc + sx * (AW / 2 + dx), yb0 + 0.5, 1.4, 0.55, 0.65, 0.55); put('cone', uc + sx * (AW / 2 + dx), yb0 + 1.9, 1.4, 0.5, 2.1, 0.5); }
+    }
+    if (fc.arch && f === 2) { put('box', uc, yb0 + 0.17, 0.62, 5.0, 0.34, 1.24); put('balus', uc, yb0 + 0.34 + 0.5, 1.2, 5.0, 1.0, 1); for (const sx of [-1, 1]) { put('box', uc + sx * 2.5, yb0 + 0.9, 1.2, 0.3, 1.5, 0.3); put('plant', uc + sx * 2.5, yb0 + 1.85, 1.2, 0.36, 0.36, 0.36); } }
+  }
+  for (const [type, arr] of Object.entries(A)) { const [g, m] = FTYPE[type], im = new THREE.InstancedMesh(FG[g], FM[m], arr.length); arr.forEach((mt, i) => im.setMatrixAt(i, mt)); im.instanceMatrix.needsUpdate = true; im.frustumCulled = false; im.castShadow = ['box', 'dark', 'plinth', 'planter'].includes(type); grp.add(im); }
+  const wall = new THREE.Mesh(new THREE.BoxGeometry(G.D - 0.04, h, s.L - 0.04), FM.cream); wall.position.set(wx(G.D / 2), yb0 + h / 2, wz((ya + yb) / 2)); wall.castShadow = true; wall.receiveShadow = true; grp.add(wall);
+  for (const xx of [0, G.D]) { const yc = s.sgn > 0 ? ya : yb, ox = xx === 0 ? -1 : 1; const pier = new THREE.Mesh(new THREE.BoxGeometry(0.5, h, 0.5), FM.cream); pier.position.set(wx(xx) + ox * 0.12, yb0 + h / 2, wz(yc) + (s.sgn > 0 ? 1 : -1) * 0.12); grp.add(pier); }
+}
+
 for (const s of G.sects) {
   const z = SECZ[s.n], ya = s.y0, yb = s.y0 + s.L, rep = 1;
   const joinLo = G.sects.some(o => o !== s && Math.abs(o.y0 + o.L - ya) < 0.4), joinHi = G.sects.some(o => o !== s && Math.abs(o.y0 - yb) < 0.4);   // стык двух подъездов в одном блоке
   for (const f of SHELLS) {
     const grp = new THREE.Group(), yb0 = z + LV[f], h = FH(f);
-    grp.add(quadV(wx(0), wz(yb), wx(0), wz(ya), yb0, h, photoMat('long', f, rep)));
-    grp.add(quadV(wx(G.D), wz(ya), wx(G.D), wz(yb), yb0, h, photoMat('long', f, rep)));
-    if (s.sgn > 0) grp.add(quadV(wx(0), wz(ya), wx(G.D), wz(ya), yb0, h, photoMat('short', f)));
-    else grp.add(quadV(wx(G.D), wz(yb), wx(0), wz(yb), yb0, h, photoMat('short', f)));
-    { const yc = s.sgn > 0 ? ya : yb, dy = s.sgn > 0 ? 1 : -1;   // угол: торцевая панорамная ячейка берётся из тех же фото, что и фасад (тот же цвет и интерьер)
-      for (const xx of [0, G.D]) { const ox = xx === 0 ? -1 : 1, ix = -ox, LEG = 3.2;
-        const pier = new THREE.Mesh(new THREE.BoxGeometry(0.4, h, 0.4), pierMat); pier.position.set(wx(xx) + ox * 0.08, yb0 + h / 2, wz(yc) + dy * 0.08); grp.add(pier);
-        const yIn = yc + dy * LEG, rl = LEG / s.L, rs = LEG / G.D;
-        const endL = (xx === 0) === (yc === ya), xIn = xx + ix * LEG, endS = s.sgn > 0 ? xx === G.D : xx === 0;   // порядок вершин как у основных фасадов — лицом наружу
-        grp.add(quadV(wx(xx) + ox * 0.03, wz(endL ? yIn : yc), wx(xx) + ox * 0.03, wz(endL ? yc : yIn), yb0, h, photoMat('long', f, rl, endL ? 1 - rl : 0)));
-        grp.add(quadV(wx(endS ? xIn : xx), wz(yc) + dy * 0.03, wx(endS ? xx : xIn), wz(yc) + dy * 0.03, yb0, h, photoMat('short', f, rs, endS ? 1 - rs : 0))); } }
-    if (joinLo) for (const xx of [0, G.D]) { const pl = new THREE.Mesh(new THREE.BoxGeometry(0.3, h, 0.9), pierMat); pl.position.set(wx(xx) + (xx ? 0.12 : -0.12), yb0 + h / 2, wz(ya)); grp.add(pl); }   // пилястра закрывает шов фасада
+    buildFacadeFloor(grp, s, f, yb0, h, joinLo, joinHi);
     const slab = new THREE.Mesh(new THREE.BoxGeometry(G.D - 0.1, 0.3, s.L - 0.1), stone); slab.position.set(wx(G.D / 2), yb0 + h - 0.16, wz((ya + yb) / 2)); slab.receiveShadow = true; grp.add(slab);
     grp.traverse(o => { if (o.isMesh) o.castShadow = true; });
     bld.add(grp); shells.push({o: grp, fl: f});
