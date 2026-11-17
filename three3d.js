@@ -88,13 +88,13 @@ paveMat.map = ptex(512, 512, (g, w, h) => { g.fillStyle = '#e4d9c3'; g.fillRect(
 walkMat.map = ptex(512, 512, (g, w, h) => { g.fillStyle = '#c4bcad'; g.fillRect(0, 0, w, h); noise(g, w, h, 3000, ['#b8b0a0', '#d0c9bb', '#aaa292'], 3); g.strokeStyle = 'rgba(90,84,72,.5)'; g.lineWidth = 2; g.strokeRect(0, 0, w, h); g.beginPath(); g.moveTo(w / 2, 0); g.lineTo(w / 2, h); g.stroke(); }, 1 / 2.4, 1 / 2.4); walkMat.color.set(0xffffff);
 lawnMat.map = ptex(512, 512, (g, w, h) => { g.fillStyle = '#6b9648'; g.fillRect(0, 0, w, h); noise(g, w, h, 14000, ['#5d8a3c', '#7aa655', '#4f7b32', '#86b060'], 2); }, 1 / 5, 1 / 5); lawnMat.color.set(0xffffff);
 const grassMat = lawnMat.clone(); grassMat.map = lawnMat.map.clone(); grassMat.map.needsUpdate = true;
-const FACADE_TINTS = [['#d9c3a0', '#8a6a4a'], ['#cdbba3', '#6f5a48'], ['#e1d3b7', '#7d6650'], ['#b99a7d', '#5b4636'], ['#d4b896', '#6b5037']];
+const FACADE_TINTS = [['#f0e2c6', '#a98a66'], ['#e8dcc6', '#9a8268'], ['#f4ead2', '#a58c70'], ['#dcc3a2', '#8c6f56'], ['#e9d6b8', '#a07f5c']];
 const nbMats = FACADE_TINTS.map(([wall, win], k) => {
   const f = ptex(256, 256, (g, w, h) => { g.fillStyle = wall; g.fillRect(0, 0, w, h); noise(g, w, h, 1200, [wall, 'rgba(0,0,0,.05)', 'rgba(255,255,255,.07)'], 3);
     g.fillStyle = '#2a3340'; for (const [x] of [[40], [150]]) { g.fillRect(x, 60, 66, 150); g.fillStyle = 'rgba(230,200,140,.35)'; g.fillRect(x + 4, 64, 58, 70); g.fillStyle = '#2a3340'; g.fillStyle = win; g.fillRect(x - 6, 205, 78, 10); g.fillStyle = '#2a3340'; }
     g.fillStyle = 'rgba(0,0,0,.18)'; g.fillRect(0, h - 6, w, 6); }, 1 / 7.2, 1 / 3.3);
-  return new THREE.MeshStandardMaterial({map: f, roughness: 0.92, envMapIntensity: 0.4}); });
-const nbRoof = new THREE.MeshStandardMaterial({color: 0x8d8579, roughness: 1});
+  return new THREE.MeshStandardMaterial({map: f, roughness: 0.92, envMapIntensity: 0.4, emissive: 0xffffff, emissiveMap: f, emissiveIntensity: 0.28}); });
+const nbRoof = new THREE.MeshStandardMaterial({color: 0xb3ab9d, roughness: 1});
 const nbMat = nbMats[0];
 const glowM = new THREE.MeshStandardMaterial({color:0xfff2d8, emissive:0xffc27a, emissiveIntensity:0});
 const postM = new THREE.MeshStandardMaterial({color:0x1d1a16, metalness:0.6, roughness:0.5});
@@ -209,7 +209,7 @@ function polyMesh(pts, h, mat){
 }
 const gr = new THREE.PlaneGeometry(460, 460, 1, 46); gr.rotateX(-Math.PI / 2);
 { const gp = gr.attributes.position; for (let i = 0; i < gp.count; i++) gp.setY(i, ground(YM - gp.getZ(i)) - 0.3); gr.computeVertexNormals(); }
-grassMat.map.repeat.set(460 / 8, 460 / 8); grassMat.color.set(0xcdd6b8);
+grassMat.map.repeat.set(460 / 8, 460 / 8); grassMat.color.set(0xf2ecd2);
 const groundM = new THREE.Mesh(gr, grassMat); groundM.receiveShadow = true; site.add(groundM);
 const sy = y => ground(y);
 function flat(pts, mat, dy = 0){ const cy = pts.reduce((s, p) => s + p[1], 0) / pts.length; return polyMesh(pts, sy(cy) + dy, mat); }
@@ -259,7 +259,7 @@ let nbK = 0;
 function nbBlock(poly, h, y){ const sh = new THREE.Shape(poly.map(([x, yy]) => new THREE.Vector2(wx(x), -wz(yy))));
   const g = new THREE.ExtrudeGeometry(sh, {depth: h, bevelEnabled: false}); g.rotateX(-Math.PI / 2);
   const m = new THREE.Mesh(g, [nbRoof, nbMats[(nbK++) % nbMats.length]]); m.position.y = y; m.castShadow = m.receiveShadow = true; site.add(m);
-  const e = new THREE.Mesh(new THREE.ExtrudeGeometry(sh, {depth: 0.5, bevelEnabled: false}), new THREE.MeshStandardMaterial({color: 0x6f675b, roughness: 1})); e.geometry.rotateX(-Math.PI / 2); e.position.y = y + h; site.add(e); }
+  const e = new THREE.Mesh(new THREE.ExtrudeGeometry(sh, {depth: 0.5, bevelEnabled: false}), new THREE.MeshStandardMaterial({color: 0xa59d8f, roughness: 1})); e.geometry.rotateX(-Math.PI / 2); e.position.y = y + h; site.add(e); }
 for (const nb of G.nb) nbBlock(nb.poly, nb.h, sy(nb.poly.reduce((s, p) => s + p[1], 0) / nb.poly.length));
 [[-75, 20, 30, 90, 22], [-75, 120, 30, 50, 15], [70, 140, 30, 30, 26], [78, 40, 24, 50, 40], [10, 200, 70, 20, 18], [10, -55, 70, 20, 20], [-75, -40, 30, 40, 12]].forEach(([x, y, w, l, h]) => nbBlock([[x - w / 2, y - l / 2], [x + w / 2, y - l / 2], [x + w / 2, y + l / 2], [x - w / 2, y + l / 2]], h, sy(y)));
 function label(text, x, y, h = 3){ const c = document.createElement('canvas'); c.width = 1024; c.height = 128; const g = c.getContext('2d');
