@@ -1,7 +1,7 @@
 (function(){
 const M=window.SHEV, T=M.TYPES, K=M.TYPE_KEYS;
 const $=s=>document.querySelector(s);
-const nf=(x,d=0)=>x.toLocaleString('ru-RU',{minimumFractionDigits:d,maximumFractionDigits:d}).replace(/ /g,' ');
+const nf=(x,d=0)=>x.toLocaleString('ru-RU',{minimumFractionDigits:d,maximumFractionDigits:d}).replace(/\u00a0/g,'\u202f');
 const usd=(x,d=0)=>{const r=Math.round(x*Math.pow(10,d))/Math.pow(10,d); return (r<0?'−$':'$')+nf(Math.abs(r),d);};
 const mln=(x,d=2)=>{const r=Math.round(x/1e6*Math.pow(10,d))/Math.pow(10,d); return (r<0?'−$':'$')+nf(Math.abs(r),d)+' млн';};
 const m2=(x,d=1)=>nf(x,d)+' м²';
@@ -48,13 +48,13 @@ document.addEventListener('click',e=>{const im=e.target.closest('[data-zoom]'); 
 /* ---------- hero ---------- */
 const base=M.run({});
 $('#heroKpis').innerHTML=[
- ['≈88 соток','участок в «золотом квадрате»'],['9','этажей: 1 — коммерция с антресолью, 2–9 — резиденции'],['128','резиденций по 117,2 м²'],['$4 500–6 000','цена за м²'],['3 года','до сдачи дома']
+ ['≈88 соток','участок в «золотом квадрате»'],['9','этажей: 1 — коммерция с антресолью, 2–9 — резиденции'],['128','резиденций по 117,2 м²'],['308','машиномест на 3 уровнях паркинга'],['$4 500–6 000','цена за м²'],['3 года','до сдачи дома']
 ].map(x=>`<div><b>${x[0]}</b><span>${x[1]}</span></div>`).join('');
 
 /* ---------- hero film ---------- */
 (function(){
-  const F=[['ph13','Главный фасад · закат'],['ph08','Фасад по ул. Амангельды'],['ph12','Двор-парк'],['ph05','Арка главного входа'],['ph09','Вечерняя улица']];
-  const box=$('#film'), cap=$('#filmcap'); const AR={'ph13':1.5,'ph08':1.5,'ph12':1.5,'ph05':1.5,'ph09':1.5,'ext-front':1.5,'fac-long':2048/1013,'park':1.5,'fac-long-night':2048/1013,'entrance':1.5};
+  const F=[['ph08','Фасад по ул. Амангельды'],['fac-long','Главный фасад'],['ph05','Арка главного входа'],['fac-long-night','Дом вечером'],['mont-zhambyl','Вид со стороны ул. Жамбыла']];
+  const box=$('#film'), cap=$('#filmcap'); const AR={'ph08':1.5,'ph05':1.5,'fac-long':2048/1244,'fac-long-night':2048/1244,'mont-zhambyl':2516/1780};
   box.innerHTML=F.map(f=>`<div><i style="background-image:url(img/${f[0]}.jpg)"></i><b style="background-image:url(img/${f[0]}.jpg);aspect-ratio:${AR[f[0]]}"></b></div>`).join('');
   const els=box.querySelectorAll('div'); let i=0;
   const show=()=>{els.forEach((e,k)=>{e.classList.toggle('on',k===i); if(k===i){e.style.animation='none'; e.offsetHeight; e.style.animation='';}}); cap.textContent=F[i][1]; i=(i+1)%F.length;};
@@ -62,12 +62,10 @@ $('#heroKpis').innerHTML=[
 })();
 /* ---------- walk (cinematic tour) ---------- */
 (function(){
-  const S=[['ext-front-4k','Прибытие','Светлый классический фасад','Камень, бронза и тёплый свет окон — дом выглядит дорого в любое время суток.'],
-   ['ph09-4k','Фасад','Угол дома','Вечерняя улица и мягкий свет окон.'],
-   ['ph08-4k','Фасад','Фасад по ул. Амангельды','Девять этажей светлого камня и кованых балконов.'],
+  const S=[['ph08-4k','Фасад','Фасад по ул. Амангельды','Девять этажей светлого камня и кованых балконов.'],
    ['fac-long-night-4k','Вечер','Дом вечером','Тёплый свет окон и витрин вдоль ул. Амангельды.'],
    ['entrance-4k','Вход','Парадный портал','Арочные витрины первого этажа и бронзовые двери встречают жителей и гостей.'],
-   ['ph03-4k','Паркинг','Вход и въезд в паркинг','Подземный паркинг на два уровня — машины остаются под домом.'],
+   ['ph03-4k','Паркинг','Вход и въезд в паркинг','Подземный паркинг на три уровня — машины остаются под домом.'],
    ['lobby-4k','Внутри','Лобби','Консьерж, мягкие кресла и высота 8,7 м — как в хорошем отеле.'],
    ['lobby2-4k','Ресепшен','Мрамор и консьерж','Каждого гостя встречают; посторонних в доме нет.'],
    ['lift-hall-4k','Лифтовой холл','Два лифта','Два лифта в бронзе, мраморный пол, тёплая подсветка; по сторонам — ореховые двери квартир.'],
@@ -80,10 +78,9 @@ $('#heroKpis').innerHTML=[
    ['ph10-4k','Квартира','Утренний свет','Светлые комнаты с видом на двор.'],
    ['ph17-4k','Квартира','Комнаты квартиры','Гостиная, спальни, кухня и ванная.'],
    ['ph11-4k','Квартира','Студийная планировка','Свободное пространство для жизни и гостей.'],
-   ['park-4k','Двор','Парк без машин','Аллеи, цветы и фонари — машины остаются в подземном паркинге.'],
-   ['ph14-4k','Двор','Зимний вечер над двором','Двор-сад в снегу и тёплых огнях.']];
+   ['fac-long-4k','Фасад','Дом целиком','Девять этажей светлого камня — ровный ритм окон и балконов.']];
   const box=$('#walkbox'), cap=$('#walkcap'), pr=$('#walkprog');
-  const FIT=['ext-front-4k','fac-long-night-4k','ph08-4k','ph06-4k','ph07-4k','ph10-4k','ph11-4k','ph17-4k','ph18-4k'];
+  const FIT=['fac-long-4k','fac-long-night-4k','ph08-4k','ph06-4k','ph07-4k','ph10-4k','ph11-4k','ph17-4k','ph18-4k'];
   box.insertAdjacentHTML('afterbegin',S.map(x=>FIT.includes(x[0])?`<div class="sl fit"><img class="bgb" data-src="img/${x[0]}.jpg" alt=""><img class="fg" data-src="img/${x[0]}.jpg" alt="${x[2]}"></div>`:`<div class="sl"><img data-src="img/${x[0]}.jpg" alt="${x[2]}"></div>`).join(''));
   pr.innerHTML=S.map(()=>'<i><b></b></i>').join('');
   (function(){ const fs=document.createElement('button'); fs.id='walkfs'; fs.type='button'; fs.setAttribute('aria-label','На весь экран');
@@ -108,7 +105,7 @@ $('#heroKpis').innerHTML=[
 })();
 
 /* ---------- gallery ---------- */
-const gal=[['fac-long','Фасад по ул. Амангельды','g-a'],['aerial','Двор-парк с высоты','g-b'],['entrance','Главный вход','g-c'],['fac-short','Торец · ул. Жамбыла','g-c'],['lobby','Лобби','g-c'],['ext-front','Главный фасад','g-d'],['corridor','Поэтажный холл','g-c'],['lift-hall','Лифтовой холл','g-c']];
+const gal=[['fac-long','Фасад по ул. Амангельды','g-a'],['mont-zhambyl','Дом с высоты · фотомонтаж','g-b'],['entrance','Главный вход','g-c'],['fac-short','Торец · ул. Жамбыла','g-c'],['lobby','Лобби','g-c'],['fac-long-night','Дом вечером','g-d'],['corridor','Поэтажный холл','g-c'],['lift-hall','Лифтовой холл','g-c']];
 $('#gallery').innerHTML=gal.map(g=>`<figure class="${g[2]}"><img src="img/${g[0]}.jpg" alt="${g[1]}" loading="lazy" data-zoom><figcaption>${g[1]}</figcaption></figure>`).join('');
 
 /* ---------- types ---------- */
@@ -171,7 +168,7 @@ function renderExtra(){
       <div class="tot"><span>Паркинг, ${n} мест × ${usd(PP_)}</span><b>${usd(n*PP_)}</b></div></div>`; };
   $('#chessExtra').innerHTML=`<div class="xh">Коммерция и паркинг</div>
     <div class="xcard"><h4>Коммерческие, ${nf(COM,1)} м²</h4><div class="sub">${J(p=>usd(p))} за м²</div><div class="com-blk">${nf(COM,1)} м²</div>
-      <div class="tot"><span>Сумма по прайсу</span><b>${J(p=>usd(Math.round(COM*p)))}</b></div></div>`+lvl(1,LV[0])+lvl(2,LV[1])+`<div class="xcard"><h4>Новые места паркинга</h4><div class="sub">${M.PARK.added} мест сверх таблицы · всего ${M.PARK.total}</div><div class="com-blk">+${M.PARK.added}</div><div class="tot"><span>${M.PARK.added} мест × ${usd(PP_)}</span><b>${usd(M.PARK.addedUsd)}</b></div></div>`+
+      <div class="tot"><span>Сумма по прайсу</span><b>${J(p=>usd(Math.round(COM*p)))}</b></div></div>`+lvl(1,LV[0])+lvl(2,LV[1])+`<div class="xcard"><h4>Новые места паркинга</h4><div class="sub">${M.PARK.added} мест сверх таблицы на −1 и −2 · всего ${M.PARK.total} с уровнем −3</div><div class="com-blk">+${M.PARK.added}</div><div class="tot"><span>${M.PARK.added} мест × ${usd(PP_)}</span><b>${usd(M.PARK.addedUsd)}</b></div></div>`+
     `<div class="xcard"><h4>Паркинг −3 · новый уровень</h4><div class="sub">78 мест · 2 960 м² · отм. −11,4 м</div><div class="com-blk">+78</div><div class="tot"><span>78 мест × ${usd(PP_)}</span><b>${usd(78*PP_)}</b></div><div class="tot"><span>Затраты 2 960 м² × $410–430</span><b>−$1.213.600…1.272.800</b></div><div class="tot"><span>Дополнительная прибыль</span><b>$1.067.200…1.126.400</b></div></div>`+
     `<div class="xleg"><span><i style="background:#8C9A93"></i><span>Паркинг, ${PN} мест × ${usd(PP_)}</span> = ${usd(PN*PP_)}</span><span><i style="background:#C9A66B"></i><span>Доля собственника участка</span> · <span>Паркинг, ${OWN} мест</span></span></div>`;
 }
@@ -301,7 +298,7 @@ $('#pricesw').onclick=e=>{const b=e.target.closest('button'); if(b) setPrice(b.d
 /* ---------- TEP ---------- */
 (function(){
   const rows=[['Адрес','г. Алматы, Алмалинский р-н, ул. Амангельды, 78 — между ул. Жамбыла и ул. Шевченко'],['Кадастровые номера','20-311-016-133 (0,6560 га, собственность) и 20-311-016-165 (0,2286 га, аренда)'],['Разрешительная стадия','АПЗ KZ32VUA00382944 от 12.03.2021; эскизный проект'],['Участок','8 846 м² (≈ 88 соток)'],['Пятно застройки','2 380,5 м² · 2 блока по 53,14 × 22,40 м, 4 подъезда'],['Этажность','9 этажей: 1 — коммерция с антресолью, 2–9 — квартиры; + 3 этажа паркинга'],
-   ['Общая площадь надземная','23 787,6 м²'],['Продаваемая площадь','19 628,4 м² (квартиры 15 000,0 + коммерция 4 628,4)'],['Квартиры на этаже подъезда','4 резиденции по 117,2 м² (468,8 м² на этаж подъезда ≤ 500 м²)'],['Квартир','128 · по 4 на этаже в подъезде'],['Паркинг','2 уровня, 230 мест (+70 к таблице: +$2.100.000); 160 в продаже по финмодели'],['Сад на крыше','сады всех четырёх подъездов'],
+   ['Общая площадь надземная','23 787,6 м²'],['Продаваемая площадь','19 628,4 м² (квартиры 15 000,0 + коммерция 4 628,4)'],['Квартиры на этаже подъезда','4 резиденции по 117,2 м² (468,8 м² на этаж подъезда ≤ 500 м²)'],['Квартир','128 · по 4 на этаже в подъезде'],['Паркинг','3 уровня, 308 мест (+148 к таблице); 160 в продаже по финмодели'],['Сад на крыше','сады всех четырёх подъездов'],
    ['Подъездов / лифтов','4 / 8 — по 2 лифта и лестнице Н2 в подъезде'],['Цена продажи',null],['Рядом','отель Rixos Almaty, городской парк']];
   window.__renderTEP=()=>{ $('#tep').innerHTML='<tr><th>Показатель</th><th class="r">Значение</th></tr>'+rows.map(r=>`<tr><td>${r[0]}</td><td class="r">${r[1]??J(p=>usd(p))+' за м²'}</td></tr>`).join(''); };
   window.__renderTEP();
