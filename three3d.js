@@ -155,6 +155,18 @@ function floorQuad(x0, x1, y0, y1, h, mat, uv){
   g.setIndex([0, 1, 2, 0, 2, 3]); g.computeVertexNormals();
   const m = new THREE.Mesh(g, mat); m.material.side = THREE.DoubleSide; return m;
 }
+/* ---------- угловые панорамные эркеры: цельное остекление с балюстрадой, как на фото ---------- */
+function cornerTex(night){ const c = document.createElement('canvas'); c.width = 300; c.height = 330; const g = c.getContext('2d');
+  const gr = g.createLinearGradient(0, 0, 0, 330); gr.addColorStop(0, night ? '#ffb961' : '#e9a85e'); gr.addColorStop(0.55, night ? '#ffd9a0' : '#f2c488'); gr.addColorStop(1, night ? '#c98642' : '#a8743c'); g.fillStyle = gr; g.fillRect(0, 0, 300, 330);
+  const rg = g.createRadialGradient(150, 70, 4, 150, 70, 130); rg.addColorStop(0, 'rgba(255,248,215,.95)'); rg.addColorStop(1, 'rgba(255,230,170,0)'); g.fillStyle = rg; g.fillRect(0, 0, 300, 330);
+  g.strokeStyle = 'rgba(70,40,18,.8)'; g.lineWidth = 3; g.beginPath(); g.moveTo(150, 0); g.lineTo(150, 52); g.stroke(); g.fillStyle = 'rgba(255,240,200,.95)'; g.beginPath(); g.ellipse(150, 60, 22, 9, 0, 0, 6.283); g.fill();
+  g.fillStyle = 'rgba(60,34,16,.55)'; g.fillRect(40, 205, 90, 60); g.fillRect(180, 195, 80, 70); g.fillStyle = 'rgba(45,70,40,.65)'; g.beginPath(); g.arc(270, 235, 26, 0, 6.283); g.fill();
+  g.fillStyle = '#1d1712'; for (const x of [0, 100, 200, 294]) g.fillRect(x - 3, 0, 9, 330); g.fillRect(0, 0, 300, 8);
+  g.fillStyle = '#c9b48a'; g.fillRect(0, 262, 300, 68); g.fillStyle = '#1d1712'; g.fillRect(0, 262, 300, 7); g.fillRect(0, 296, 300, 5); for (let x = 8; x < 300; x += 14) g.fillRect(x, 268, 3, 28);
+  g.fillStyle = '#d8c7a0'; g.fillRect(0, 301, 300, 29);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; }
+const cornerMat = new THREE.MeshStandardMaterial({color: 0x000000, emissive: 0xffffff, emissiveMap: cornerTex(false), emissiveIntensity: 1, roughness: 0.5, metalness: 0, toneMapped: false, side: THREE.DoubleSide});
+cornerMat.userData = {day: cornerTex(false), night: cornerTex(true)}; cornerMat.emissiveMap = cornerMat.userData.day; photoMats.push(cornerMat);
 const planUV = (x, y) => [(G.Y1 - y) / (G.Y1 - G.Y0), 1 - x / G.D];
 for (const s of G.sects) {
   const z = SECZ[s.n], ya = s.y0, yb = s.y0 + s.L, rep = 1;
@@ -165,6 +177,11 @@ for (const s of G.sects) {
     grp.add(quadV(wx(G.D), wz(ya), wx(G.D), wz(yb), yb0, h, photoMat('long', f, rep)));
     if (s.sgn > 0) grp.add(quadV(wx(0), wz(ya), wx(G.D), wz(ya), yb0, h, photoMat('short', f)));
     else grp.add(quadV(wx(G.D), wz(yb), wx(0), wz(yb), yb0, h, photoMat('short', f)));
+    { const yc = s.sgn > 0 ? ya : yb, dy = s.sgn > 0 ? 1 : -1;   // угол: длинный фасад + торец
+      for (const xx of [0, G.D]) { const ox = xx === 0 ? -1 : 1, ix = -ox, LEG = 3.0;
+        const pier = new THREE.Mesh(new THREE.BoxGeometry(0.62, h, 0.62), stone); pier.position.set(wx(xx) + ox * 0.14, yb0 + h / 2, wz(yc) + dy * 0.14); grp.add(pier);
+        if (f >= 2) { grp.add(quadV(wx(xx) + ox * 0.07, wz(yc), wx(xx) + ox * 0.07, wz(yc + dy * LEG), yb0 + 0.12, h - 0.4, cornerMat));
+          grp.add(quadV(wx(xx), wz(yc) + dy * 0.07, wx(xx) + ix * LEG, wz(yc) + dy * 0.07, yb0 + 0.12, h - 0.4, cornerMat)); } } }
     if (joinLo) for (const xx of [0, G.D]) { const pl = new THREE.Mesh(new THREE.BoxGeometry(0.34, h, 1.3), stone); pl.position.set(wx(xx) + (xx ? 0.12 : -0.12), yb0 + h / 2, wz(ya)); grp.add(pl); }   // пилястра закрывает шов фасада
     const slab = new THREE.Mesh(new THREE.BoxGeometry(G.D - 0.1, 0.3, s.L - 0.1), stone); slab.position.set(wx(G.D / 2), yb0 + h - 0.16, wz((ya + yb) / 2)); slab.receiveShadow = true; grp.add(slab);
     grp.traverse(o => { if (o.isMesh) o.castShadow = true; });
@@ -444,11 +461,13 @@ document.getElementById('vlight').onclick = e => { const b = e.target.closest('b
 /* ---------- кинооблёт ---------- */
 const lb = document.getElementById('letterbox'), cineBtn = document.getElementById('vcine');
 const P = (x, y, h) => new THREE.Vector3(wx(x), h, wz(y));
-const camPath = new THREE.CatmullRomCurve3([P(-150, 160, 120), P(-60, 150, 40), P(-35, 120, 8), P(-30, 70, 6), P(-30, 20, 8), P(-25, -20, 25), P(30, -40, 45), P(80, 40, 50), P(75, 120, 60), P(20, 200, 70), P(-90, 190, 100)], true);
-const lookPath = new THREE.CatmullRomCurve3([P(12, 70, 6), P(6, 120, 12), P(0, 110, 12), P(0, 70, 10), P(0, 40, 10), P(10, 30, 10), P(20, 50, 10), P(30, 70, 10), P(20, 90, 10), P(12, 100, 10), P(12, 80, 6)], true);
+const camPath = new THREE.CatmullRomCurve3([P(-150, 160, 120), P(-60, 150, 40), P(-35, 120, 8), P(-30, 70, 6), P(-30, 20, 8), P(-25, -20, 25), P(30, -40, 45), P(80, 40, 50), P(75, 120, 60), P(20, 200, 70), P(-90, 190, 100),
+  P(-60, 240, 62), P(60, 250, 56), P(135, 150, 66), P(135, 0, 60), P(40, -115, 55), P(-110, -70, 55), P(-155, 70, 75)], true);
+const lookPath = new THREE.CatmullRomCurve3([P(12, 70, 6), P(6, 120, 12), P(0, 110, 12), P(0, 70, 10), P(0, 40, 10), P(10, 30, 10), P(20, 50, 10), P(30, 70, 10), P(20, 90, 10), P(12, 100, 10), P(12, 80, 6),
+  P(11, 100, 22), P(11, 80, 24), P(11, 60, 22), P(11, 40, 24), P(11, 60, 22), P(11, 90, 24), P(11, 110, 22)], true);
 let cine = null;
-function startCinema(){ goLevelSilent('all'); cine = {t0: performance.now(), dur: 50000}; lb.classList.add('on'); cineBtn.classList.add('on'); window.__cineOn = true; controls.enabled = false; info.classList.remove('show'); if (lightKey === 'day') setLight('dusk'); }
-function stopCinema(){ if (!cine) return; cine = null; lb.classList.remove('on'); cineBtn.classList.remove('on'); window.__cineOn = false; controls.enabled = v3active; controls.target.copy(lookPath.getPointAt(0)); }
+function startCinema(){ goLevelSilent('all'); cine = {t0: performance.now(), dur: 85000}; lb.classList.add('on'); cineBtn.classList.add('on'); window.__cineOn = true; controls.enabled = false; info.classList.remove('show'); if (lightKey === 'day') setLight('dusk'); }
+function stopCinema(){ if (!cine) return; cine = null; lb.classList.remove('on'); cineBtn.classList.remove('on'); window.__cineOn = false; controls.enabled = v3active; controls.target.copy(lookPath.getPoint(0)); }
 function goLevelSilent(l){ level = l; apply(); }
 cineBtn.onclick = () => cine ? stopCinema() : startCinema();
 canvas.addEventListener('wheel', stopCinema, {passive: true});
@@ -486,7 +505,7 @@ new IntersectionObserver(es => { running = es[0].isIntersecting; if (running && 
 const ease = k => k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
 function loop(t){
   requestAnimationFrame(loop); if (!running) return;
-  if (cine) { const k = Math.max(0, (t - cine.t0) / cine.dur); if (k >= 1) stopCinema(); else { camera.position.copy(camPath.getPointAt(k)); controls.target.copy(lookPath.getPointAt(k)); camera.lookAt(controls.target); } }
+  if (cine) { const k = Math.max(0, (t - cine.t0) / cine.dur); if (k >= 1) stopCinema(); else { camera.position.copy(camPath.getPoint(k)); controls.target.copy(lookPath.getPoint(k)); camera.lookAt(controls.target); } }
   else { if (tw) { const k = Math.min(1, (t - tw.t0) / tw.ms), e = ease(k); camera.position.lerpVectors(tw.p0, tw.p1, e); controls.target.lerpVectors(tw.q0, tw.q1, e); if (k >= 1) tw = null; } controls.update(); }
   composer.render();
 }
