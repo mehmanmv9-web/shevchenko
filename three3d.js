@@ -211,7 +211,7 @@ function polyMesh(pts, h, mat){
 }
 const gr = new THREE.PlaneGeometry(460, 460, 1, 46); gr.rotateX(-Math.PI / 2);
 { const gp = gr.attributes.position; for (let i = 0; i < gp.count; i++) gp.setY(i, ground(YM - gp.getZ(i)) - 0.3); gr.computeVertexNormals(); }
-grassMat.map.repeat.set(460 / 8, 460 / 8); grassMat.color.set(0xf2ecd2);
+grassMat.map.repeat.set(460 / 8, 460 / 8); grassMat.color.set(0xd9d6bb);
 const groundM = new THREE.Mesh(gr, grassMat); groundM.receiveShadow = true; site.add(groundM);
 const sy = y => ground(y);
 function flat(pts, mat, dy = 0){ const cy = pts.reduce((s, p) => s + p[1], 0) / pts.length; return polyMesh(pts, sy(cy) + dy, mat); }
