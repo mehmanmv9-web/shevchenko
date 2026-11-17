@@ -133,12 +133,14 @@ function floorQuad(x0, x1, y0, y1, h, mat, uv){
 const planUV = (x, y) => [(G.Y1 - y) / (G.Y1 - G.Y0), 1 - x / G.D];
 for (const s of G.sects) {
   const z = SECZ[s.n], ya = s.y0, yb = s.y0 + s.L, rep = 1;
+  const joinLo = G.sects.some(o => o !== s && Math.abs(o.y0 + o.L - ya) < 0.4), joinHi = G.sects.some(o => o !== s && Math.abs(o.y0 - yb) < 0.4);   // стык двух подъездов в одном блоке
   for (const f of SHELLS) {
     const grp = new THREE.Group(), yb0 = z + LV[f], h = FH(f);
     grp.add(quadV(wx(0), wz(yb), wx(0), wz(ya), yb0, h, photoMat('long', f, rep)));
     grp.add(quadV(wx(G.D), wz(ya), wx(G.D), wz(yb), yb0, h, photoMat('long', f, rep)));
     if (s.sgn > 0) grp.add(quadV(wx(0), wz(ya), wx(G.D), wz(ya), yb0, h, photoMat('short', f)));
     else grp.add(quadV(wx(G.D), wz(yb), wx(0), wz(yb), yb0, h, photoMat('short', f)));
+    if (joinLo) for (const xx of [0, G.D]) { const pl = new THREE.Mesh(new THREE.BoxGeometry(0.34, h, 1.3), stone); pl.position.set(wx(xx) + (xx ? 0.12 : -0.12), yb0 + h / 2, wz(ya)); grp.add(pl); }   // пилястра закрывает шов фасада
     const slab = new THREE.Mesh(new THREE.BoxGeometry(G.D - 0.1, 0.3, s.L - 0.1), stone); slab.position.set(wx(G.D / 2), yb0 + h - 0.16, wz((ya + yb) / 2)); slab.receiveShadow = true; grp.add(slab);
     grp.traverse(o => { if (o.isMesh) o.castShadow = true; });
     bld.add(grp); shells.push({o: grp, fl: f});
@@ -154,7 +156,7 @@ for (const s of G.sects) {
   }
   const c = s.core, hd = new THREE.Mesh(new THREE.BoxGeometry(c[1] - c[0], 3.6, c[3] - c[2]), stoneDark); hd.position.set(wx((c[0] + c[1]) / 2), yr + 1.8, wz((c[2] + c[3]) / 2)); roof.add(hd);
   for (let yy = ya + 2; yy < yb - 1; yy += 3) for (const xx of [1.3, G.D - 1.3]) roof.add(at(new THREE.Mesh(new THREE.IcosahedronGeometry(0.9, 0), leafMat), wx(xx), yr + 1.4, wz(yy)));
-  for (const [x0, x1, y0, y1] of [[0, G.D, ya, ya + 0.25], [0, G.D, yb - 0.25, yb], [0, 0.25, ya, yb], [G.D - 0.25, G.D, ya, yb]]) { const b = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0, 1.2, y1 - y0), stone); b.position.set(wx((x0 + x1) / 2), yr + 0.6, wz((y0 + y1) / 2)); roof.add(b); }
+  for (const [x0, x1, y0, y1] of [[0, G.D, ya, ya + 0.25], [0, G.D, yb - 0.25, yb], [0, 0.25, ya, yb], [G.D - 0.25, G.D, ya, yb]].filter((e, i) => !(i === 0 && joinLo) && !(i === 1 && joinHi))) { const b = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0, 1.2, y1 - y0), stone); b.position.set(wx((x0 + x1) / 2), yr + 0.6, wz((y0 + y1) / 2)); roof.add(b); }
   roof.traverse(o => { if (o.isMesh) o.castShadow = true; });
   bld.add(roof); shells.push({o: roof, fl: 10});
 }
