@@ -518,7 +518,7 @@ function select(mesh){
   info.innerHTML = `<h4>Квартира ${u.no} · ${v.rooms}-комнатная</h4><div class="big num">${UI.usd(u.price)}</div>
    <div class="small" style="color:#B9C4BB;margin-top:4px">${UI.nf(u.area, 1)} м² × ${UI.usd(u.pm2)}/м² · ≈ ${UI.nf(u.price * M.DEF.fx / 1e6, 1)} млн ₸</div>
    <table class="num"><tr><td>Тип</td><td>${v.name}</td></tr><tr><td>Этаж / подъезд</td><td>${u.floor} / ${u.section}</td></tr>
-   <tr><td>Диапазон типа</td><td>${v.range[0]}–${v.range[1]} м²</td></tr><tr class="sum"><td>Площадь (расчётная)</td><td>${UI.nf(u.area, 1)} м²</td></tr></table>
+   <tr class="sum"><td>Общая площадь</td><td>${UI.nf(u.area, 1)} м²</td></tr></table>
    <div class="seg" style="margin-top:10px"><button id="vcard">Подробнее</button><button id="vclose">Закрыть</button></div>`;
   info.classList.add('show');
   document.getElementById('vcard').onclick = () => window.SHEV_unitCard(u.no);

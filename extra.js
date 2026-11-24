@@ -18,7 +18,7 @@ function draw(){
   const u=us.find(x=>x.no===no), v=T[u.type];
   stage.className='mf2-stage'; stage.innerHTML=window.SHEV_floorSVG(sec,fl,no);
   $('mfNote').textContent='Подъезд '+sec+' · '+fl+' этаж · отметка пола +'+fmt(LEV[fl])+' м над ±0,000. Нажмите на квартиру, чтобы увидеть цену.';
-  card.innerHTML='<h3 style="color:'+v.color+'">Квартира №'+u.no+' · '+v.rooms+'-комнатная</h3><div class="sub">'+nf(u.area,0)+' м² (расчётная) · диапазон типа '+v.range[0]+'–'+v.range[1]+' м²</div>'+
+  card.innerHTML='<h3 style="color:'+v.color+'">Квартира №'+u.no+' · '+v.rooms+'-комнатная</h3><div class="sub">'+nf(u.area,0)+' м² · '+v.rooms+' комнат</div>'+
   '<table><tr><td>Подъезд / этаж</td><td>'+sec+' / '+fl+'</td></tr><tr><td>Отметка пола</td><td>+'+fmt(LEV[fl])+' м</td></tr>'+
   P.map(p=>'<tr><td>Цена при '+usd(p)+' за м²</td><td><b>'+usd(Math.round(u.area*p))+'</b></td></tr>').join('')+'</table>'+
   '<div class="planbox" style="margin:14px 0">'+window.SHEV_planSVG(u.type)+'</div><button class="btn2" id="mfOpen">Открыть карточку квартиры</button>';

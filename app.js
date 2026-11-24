@@ -119,7 +119,7 @@ function typeHTML(t){
     <div><div class="tt-head"><div><div class="eyebrow" style="margin:0 0 6px;color:${v.color}">${v.name}</div><div class="big num">${m2(v.total)}</div></div>
     <div class="small muted" style="text-align:right">${cnt} квартир в доме<br>${M.PARK_PER_APT} машино-места в паркинге</div></div>
     ${window.SHEV_roomsTable(t)}
-    <p class="small muted" style="margin-top:10px">Диапазон площадей типа — ${v.range[0]}–${v.range[1]} м²; в доме ${cnt} квартир, всего ${m2(tot)}.</p>
+    <p class="small muted" style="margin-top:10px">Площадь по типу: от ${v.range[0]} до ${v.range[1]} м²; в доме ${cnt} квартир, всего ${m2(tot)}.</p>
     <div class="pricebox num"><div><span>Цена за м²</span><b>${J(p=>usd(p))}</b></div><div><span>Цена квартиры</span><b>${J(p=>usd(Math.round(v.total*p)))}</b></div><div><span>В тенге (курс ${nf(M.DEF.fx,0)} ₸)</span><b>${J(p=>nf(Math.round(v.total*p)*M.DEF.fx/1e6,1))} млн ₸</b></div></div>
 </div></div>`;
 }
@@ -144,7 +144,7 @@ window.SHEV_floorSVG=function(sec,fl,act){
   const top=us.slice(0,Math.ceil(us.length/2)), bot=us.slice(top.length);
   const band=(arr,y,h)=>{const tot=arr.reduce((s,u)=>s+u.area,0); let x=0; return arr.map(u=>{const w=W*u.area/tot, x0=x; x+=w; const c=T[u.type].color, on=act===u.no;
     return `<g data-no="${u.no}" style="cursor:pointer"><rect x="${x0+2}" y="${y+2}" width="${w-4}" height="${h-4}" rx="4" fill="${c}" fill-opacity="${on?.95:.55}" stroke="${on?'#1F3A2E':c}" stroke-width="${on?4:1.5}"/><text x="${x0+w/2}" y="${y+h/2-4}" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">${u.no}</text><text x="${x0+w/2}" y="${y+h/2+14}" text-anchor="middle" font-size="12" fill="#fff">${nf(u.area,0)} м²</text></g>`;}).join('');};
-  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;background:#FBF9F5;border-radius:10px">${band(top,0,cy0)}${band(bot,cy1,H-cy1)}<rect x="${cx0}" y="${cy0}" width="${cx1-cx0}" height="${cy1-cy0}" fill="#d9d2c2" stroke="#b9ae96"/><text x="${(cx0+cx1)/2}" y="${(cy0+cy1)/2+5}" text-anchor="middle" font-size="13" fill="#6b6455">ядро · 2 лифта</text></svg><p class="muted small" style="margin:6px 0 0">Условная схема этажа — не в масштабе. Фактическая планировка уточняется проектом.</p>`;
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;background:#FBF9F5;border-radius:10px">${band(top,0,cy0)}${band(bot,cy1,H-cy1)}<rect x="${cx0}" y="${cy0}" width="${cx1-cx0}" height="${cy1-cy0}" fill="#d9d2c2" stroke="#b9ae96"/><text x="${(cx0+cx1)/2}" y="${(cy0+cy1)/2+5}" text-anchor="middle" font-size="13" fill="#6b6455">ядро · 2 лифта</text></svg><p class="muted small" style="margin:6px 0 0">Схема этажа подъезда: квартиры вокруг лифтового ядра.</p>`;
 };
 /* ---------- chess ---------- */
 let filt='all';
