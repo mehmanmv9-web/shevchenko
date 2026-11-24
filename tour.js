@@ -1,7 +1,7 @@
 /* Рум-тур по квартире: проход от входной двери по помещениям плана */
 (function(){
 const M=window.SHEV;
-const PH={h:'tour/img/c-hall.jpg',hall:'tour/img/c-lobby.jpg',liv:'tour/img/c-living.jpg',kit:'img/ph16.jpg',mas:'tour/img/c-master.jpg',bed:'tour/img/c-bed.jpg',bath:'tour/img/c-bath.jpg',ens:'tour/img/c-ens.jpg',ward:'tour/img/c-ens.jpg',lau:'tour/img/c-bath.jpg',off:'img/ph15.jpg'};
+const PH={h:'tour/img/c-hall.jpg',hall:'tour/img/c-lobby.jpg',liv:'tour/img/c-living.jpg',kit:'img/tour/kitchen.jpg',mas:'tour/img/c-master.jpg',bed:'tour/img/c-bed.jpg',bath:'tour/img/c-bath.jpg',ens:'tour/img/c-ens.jpg',ward:'tour/img/c-ens.jpg',lau:'tour/img/c-bath.jpg',off:'img/ph15.jpg'};
 const pic=r=>/Прихож|Входн/.test(r.n)?PH.h:/Холл/.test(r.n)?PH.hall:/Гости/.test(r.n)?PH.liv:/Кухня/.test(r.n)?PH.kit:/Кабинет/.test(r.n)?PH.off:/Мастер/.test(r.n)?PH.mas:r.t==='b'?PH.bed:r.t==='w'?PH.ward:/мастер/.test(r.n)?PH.ens:PH.bath;
 const TXT=r=>({h:'Вход в квартиру: тёплый свет, камень и дерево.',l:'Светлое пространство с панорамными окнами.',b:'Тихая спальня с видом во двор-сад.',w:'Гардеробная с системой хранения до потолка.',t:'Санузел с натуральным камнем и тёплым светом.'})[r.t];
 window.SHEV_tour=function(box){

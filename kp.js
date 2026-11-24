@@ -81,7 +81,7 @@ const urlOf=()=>{ const base=(/(claude|anthropic)/.test(location.hostname)||!/^h
 
 function render(){
   const u=unit(), v=T[u.type], tot=Math.round(u.area*st.price);
-  const imgs=[['ph16-4k','Кухня-гостиная'],['ph15-4k','Мастер-спальня'],['tour/kitchen','Кухня'],['ph04-4k','Прихожая и гостиная'],['tour/bed2','Спальня'],['tour/bath','Ванная']];
+  const imgs=[['ph16-4k','Гостиная'],['ph15-4k','Мастер-спальня'],['tour/kitchen','Кухня'],['ph04-4k','Прихожая и гостиная'],['tour/bed2','Спальня'],['tour/bath','Ванная']];
   $('#kBody').innerHTML=`
   <div class="sel">
     <div class="row"><em>Подъезд</em>${[1,2,3,4].map(n=>`<button data-s="${n}" class="${n===st.sec?'on':''}">${n}</button>`).join('')}</div>
