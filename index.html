@@ -698,6 +698,7 @@ h2{letter-spacing:.005em}h2::after{content:"";display:block;width:84px;height:2p
 .scen-btns button{transition:transform .25s,box-shadow .25s}.scen-btns button:hover{transform:translateY(-3px);box-shadow:0 18px 34px -18px rgba(31,58,46,.55)}
 .scen-btns button.on{background:linear-gradient(135deg,#27473a,#17302a)!important;box-shadow:0 18px 40px -18px rgba(31,58,46,.8),inset 0 0 0 1px rgba(227,200,148,.55)}
 .ttabs button.on,#ttabs button.on{box-shadow:0 8px 20px -10px rgba(31,58,46,.7),inset 0 0 0 1px rgba(227,200,148,.6)}
+.pks{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}.pks div{background:#FBF9F5;border:1px solid #E4DCCB;border-radius:12px;padding:12px 14px}.pks div.x{background:#F8EBC8;border-color:#C9A66B}.pks b{display:block;font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:500}.pks span{font-size:13px;color:#6B6F66}@media(max-width:700px){.pks{grid-template-columns:1fr 1fr}}
 </style>
 <script type="importmap">{"imports":{"three":"./lib/three.module.min.js","three/addons/":"./lib/jsm/"}}</script>
 <style>
@@ -1081,15 +1082,15 @@ nav.top .logo::before,nav.top .logo::after{content:none}
       
       <div class="pair"><img src="img/parking.jpg" alt="Паркинг" data-zoom><img src="img/lift-hall.jpg" alt="Лифтовой холл" data-zoom></div></div>
   </div>
-  <div style="margin-top:40px"><h3 style="margin-bottom:10px">Схема паркинга: нажмите на машино-место</h3><p class="muted">308 мест на трёх уровнях (−1: 98, −2: 132, −3: 78): 8–308 — жителям, 1–7 — гостевые и МГН. На −1 и −2 добавлено 70 мест к 160 по таблице — это +$2.100.000. На <span data-sc="n">85</span> квартир по 2 места нужно <span data-sc="n2">170</span> + 7 гостевых = <span data-sc="n3">177</span>; двух уровней (230 мест) для жителей хватает — уровень −3 даёт дополнительные места на продажу (расчёт ниже). Место 2,55 × 5,30 м при норме РК 2,50 × 5,30 м; проезд 6,0 м.</p><div class="seg" id="pklv" style="margin:14px 0 8px"><button data-l="-1" class="on">Уровень −1</button><button data-l="-2">Уровень −2</button><button data-l="-3">Уровень −3</button></div>
+  <div style="margin-top:40px"><h3 style="margin-bottom:10px">Схема паркинга: нажмите на машино-место</h3><p class="muted">308 мест на трёх уровнях (−1: 98, −2: 132, −3: 78): 8–308 — жителям, 1–7 — гостевые и МГН. На −1 и −2 добавлено 70 мест к 160 по таблице — это +$2.100.000. На <span data-sc="n">85</span> квартир по 2 места нужно <span data-sc="n2">170</span>, плюс 7 гостевых и МГН — всего <span data-sc="n3">177</span>. Остальные <span data-sc="n4">131</span> мест — сверх нормы: на схеме они золотые. Место 2,55 × 5,30 м при норме РК 2,50 × 5,30 м; проезд 6,0 м.</p><div id="pkstat"></div><div class="seg" id="pklv" style="margin:14px 0 8px"><button data-l="-1" class="on">Уровень −1</button><button data-l="-2">Уровень −2</button><button data-l="-3">Уровень −3</button></div>
       <div id="pkmap" class="pkmap" data-noi18n></div><div id="pkinfo" class="small" style="margin-top:8px;min-height:40px"></div></div>
   <div id="park3" style="margin-top:44px"><h3 style="margin-bottom:10px">Дополнительный уровень −3: расчёт</h3>
-    <p class="muted">На <span data-sc="n">85</span> квартир по 2 места нужно <span data-sc="n2">170</span> + 7 гостевых = <span data-sc="n3">177</span> мест, двух уровней (230 мест) для жителей достаточно. Дополнительно рассматривается третий уровень подземного паркинга на отметке −11,4 м. Площадь уровня по эскизному проекту — 2 960 м². Стоимость строительства по справке — от $410 до $430 за м² (в зависимости от геологии грунтов).</p>
+    <p class="muted">На <span data-sc="n">85</span> квартир по 2 места нужно <span data-sc="n2">170</span> + 7 гостевых = <span data-sc="n3">177</span> мест; на двух уровнях (−1 и −2) 230 мест, остальные места — на третьем уровне −3. Всего 308 мест: сверх нормы остаётся <span data-sc="n4">131</span> — они доступны к продаже. Третий уровень подземного паркинга на отметке −11,4 м. Площадь уровня по эскизному проекту — 2 960 м². Стоимость строительства по справке — от $410 до $430 за м² (в зависимости от геологии грунтов).</p>
     <table class="data" id="park3tbl"><thead><tr><th>Показатель</th><th>Значение</th></tr></thead><tbody>
       <tr><td>Площадь уровня −3</td><td>2 960 м²</td></tr>
       <tr><td>Отметка</td><td>−11,4 м</td></tr>
       <tr><td>Новые места (по схеме уровня −3)</td><td>78 мест · № 231–308</td></tr>
-      <tr><td>Всего мест на трёх уровнях</td><td>308 (нужно <span data-sc="n3">177</span>, запас <span data-sc="n4">131</span> — на продажу)</td></tr>
+      <tr><td>Всего мест на трёх уровнях</td><td>308 (по норме <span data-sc="n3">177</span>, сверх нормы <span data-sc="n4">131</span>)</td></tr>
       <tr><td>Затраты на строительство</td><td>$1.213.600 – $1.272.800</td></tr>
       <tr><td>Продажа: 78 мест × $30.000</td><td>$2.340.000</td></tr>
       <tr class="tot"><td>Дополнительная прибыль</td><td>$1.067.200 – $1.126.400</td></tr>
@@ -1233,12 +1234,12 @@ nav.top .logo::before,nav.top .logo::after{content:none}
 
 <div class="modal" id="modal"><button class="x" id="mx">×</button><div id="mbody"></div></div>
 
-<script src="model.js?v=20261124c"></script><script src="plans.js?v=20261124c"></script><script src="tour.js?v=20261124c"></script>
-<script src="kpoly.js"></script><script src="app.js?v=20261124c"></script><script src="album.js?v=20261124c"></script><script src="extra.js?v=20261124c"></script><script src="vault.js"></script><script src="aksumap.js?v=10"></script><script src="kp.js?v=20261124c"></script><script src="whiteout.js"></script><script src="priceformat.js"></script>
-<script type="module" src="three3d.js?v=20261124cj"></script>
+<script src="model.js?v=20261124d"></script><script src="plans.js?v=20261124d"></script><script src="tour.js?v=20261124d"></script>
+<script src="kpoly.js"></script><script src="app.js?v=20261124d"></script><script src="album.js?v=20261124d"></script><script src="extra.js?v=20261124d"></script><script src="vault.js"></script><script src="aksumap.js?v=10"></script><script src="kp.js?v=20261124d"></script><script src="whiteout.js"></script><script src="priceformat.js"></script>
+<script type="module" src="three3d.js?v=20261124dj"></script>
 <script src="map.js"></script>
 <script src="i18n.js"></script>
-<script src="geo3data.js?v=20261124c"></script><script src="parkmap.js?v=20261124c"></script>
+<script src="geo3data.js?v=20261124d"></script><script src="parkmap.js?v=20261124d"></script>
 <script>
 (function(){
   var tabs=document.getElementById('vtabs'), viewer=document.getElementById('viewer'), box=document.getElementById('tourbox'), fr=document.getElementById('tourframe');

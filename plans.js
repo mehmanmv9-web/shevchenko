@@ -42,14 +42,26 @@ function score(out,W,H,S){
     const ext=q.x<e||q.y<e||q.x+q.w>W-e||q.y+q.h>H-e;
     if((q.t==='l'||q.t==='b')&&!ext) p+=120; if(q.t==='t'&&ext&&q.m<14) p+=4; });
   const hall=out.filter(q=>q.t==='h'); if(!hall.some(q=>q.y+q.h>H-e)) p+=80;
-  // мокрые зоны рядом друг с другом и рядом с мастер-спальней — не штрафуем, но связность дверей:
-  const dl=0.9*S; out.forEach(q=>{ let ok=false; out.forEach(o=>{ if(o===q) return; const sx=Math.min(q.x+q.w,o.x+o.w)-Math.max(q.x,o.x), sy=Math.min(q.y+q.h,o.y+o.h)-Math.max(q.y,o.y); if((Math.abs(q.x+q.w-o.x)<2||Math.abs(o.x+o.w-q.x)<2)&&sy>dl+10) ok=true; if((Math.abs(q.y+q.h-o.y)<2||Math.abs(o.y+o.h-q.y)<2)&&sx>dl+10) ok=true; }); if(!ok) p+=100; });
+  const dl=0.9*S, adj=(q,o)=>{ if(q===o) return false; const sx=Math.min(q.x+q.w,o.x+o.w)-Math.max(q.x,o.x), sy=Math.min(q.y+q.h,o.y+o.h)-Math.max(q.y,o.y); return ((Math.abs(q.x+q.w-o.x)<2||Math.abs(o.x+o.w-q.x)<2)&&sy>dl+10)||((Math.abs(q.y+q.h-o.y)<2||Math.abs(o.y+o.h-q.y)<2)&&sx>dl+10); };
+  const nb=q=>out.filter(o=>adj(q,o)); const is={ master:q=>q.t==='b'&&/Мастер/.test(q.n), lau:q=>/Постиро/.test(q.n), gwc:q=>/Гостев/.test(q.n), kit:q=>q.t==='l'&&/Кухня/.test(q.n), liv:q=>q.t==='l'&&/Гости|Кухня-г/.test(q.n), mbath:q=>/мастер-спальни/.test(q.n), wd:q=>q.t==='w' };
+  out.forEach(q=>{ const N=nb(q); if(!N.length){ p+=100; return; }
+    const hasB=N.some(o=>o.t==='b'), hasH=N.some(o=>o.t==='h'), hasL=N.some(o=>o.t==='l');
+    if(is.lau(q)){ if(hasB) p+=320; if(!(hasH||N.some(is.kit))) p+=90; }                         // постирочная — не у спален, у входа/кухни
+    else if(is.gwc(q)){ if(hasB) p+=260; if(!(hasH||hasL)) p+=110; }                               // гостевой санузел — у входа/гостиной
+    else if(is.mbath(q)){ if(!N.some(is.master)) p+=220; }                                           // ванная мастера — только из мастер-спальни
+    else if(is.wd(q)){ if(!N.some(is.master)) p+=220; }
+    else if(q.t==='t'){ if(!hasB) p+=130; if(N.some(is.kit)&&q.m<14) p+=25; }                       // прочие ванные — при спальнях
+    else if(is.master(q)){ if(!N.some(is.mbath)) p+=220; if(!N.some(is.wd)) p+=200; if(N.some(is.liv)||N.some(is.kit)) p+=130; if(hasH&&/Холл|Прихож|Входн/.test(N.find(o=>o.t==='h').n)&&N.filter(o=>o.t==='h').length&&q.m<20) p+=0; }  // мастер — вдали от шума
+    else if(q.t==='b'){ if(N.some(is.kit)) p+=70; if(N.some(is.liv)&&!hasH) p+=15; }
+    else if(is.kit(q)&&!/Кухня-г/.test(q.n)){ if(!N.some(is.liv)) p+=110; }
+    else if(q.t==='h'&&/Прихож|Входн/.test(q.n)){ if(!hasL) p+=70; }
+  });
   return p;
 }
 const CACHE={};
 function best(k){
   if(CACHE[k]) return CACHE[k]; const r=rng(1000+k*7), tot=M.TYPES[k].total; let bestS=1e9,bo=null;
-  for(let i=0;i<9000;i++){ const asp=1.0+r()*0.9, Hm=Math.sqrt(tot/asp), Wm=Hm*asp, S=900/Wm, W=900, H=Hm*S, t=cand(k,r), out=[]; place(t,0,0,W,H,out); const sc=score(out,W,H,S); if(sc<bestS){bestS=sc;bo={out,asp,Wm,Hm,S,W,H};} }
+  for(let i=0;i<16000;i++){ const asp=1.0+r()*0.9, Hm=Math.sqrt(tot/asp), Wm=Hm*asp, S=900/Wm, W=900, H=Hm*S, t=cand(k,r), out=[]; place(t,0,0,W,H,out); const sc=score(out,W,H,S); if(sc<bestS){bestS=sc;bo={out,asp,Wm,Hm,S,W,H};} }
   return CACHE[k]=bo;
 }
 function wrap(t,max){ const w=t.split(' '); const L=[]; let c=''; w.forEach(x=>{ if((c+' '+x).trim().length>max&&c){L.push(c);c=x;} else c=(c+' '+x).trim(); }); if(c)L.push(c); return L; }
@@ -81,8 +93,15 @@ window.SHEV_planSVG=function(k){
   const pr={h:0,l:1,b:2,w:3,t:4}, dl=0.9*S;
   const shared=(a,b)=>{ const T=2; if(Math.abs(a.x+a.w-b.x)<T||Math.abs(b.x+b.w-a.x)<T){ const y1=Math.max(a.y,b.y),y2=Math.min(a.y+a.h,b.y+b.h); if(y2-y1>dl+8) return {v:1,x:Math.abs(a.x+a.w-b.x)<T?a.x+a.w:a.x,a:y1,b:y2}; } if(Math.abs(a.y+a.h-b.y)<T||Math.abs(b.y+b.h-a.y)<T){ const x1=Math.max(a.x,b.x),x2=Math.min(a.x+a.w,b.x+b.w); if(x2-x1>dl+8) return {v:0,y:Math.abs(a.y+a.h-b.y)<T?a.y+a.h:a.y,a:x1,b:x2}; } return null; };
   const hall=out.filter(r=>r.t==='h');
+  const prio=(r,o)=>{ const T=o.t, nm=r.n;
+    if(/мастер-спальни/.test(nm)||r.t==='w') return /Мастер/.test(o.n)?0:T==='b'?3:T==='h'?4:5;
+    if(/Постиро|Гостев/.test(nm)) return T==='h'?0:T==='l'?1:T==='t'?4:5;
+    if(r.t==='t') return T==='b'?0:T==='h'?1:T==='l'?2:5;
+    if(r.t==='b') return T==='h'?0:T==='l'?2:T==='b'?4:3;
+    if(r.t==='l') return o.t==='l'?0:o.t==='h'?1:3;
+    return T==='h'?1:T==='l'?0:3; };
   out.forEach(r=>{ if(r.t==='h'&&r===hall[0]) return; let best=null;
-    out.forEach(o=>{ if(o===r) return; const sh=shared(r,o); if(!sh) return; let sc=(r.t==='t'||r.t==='w')?(o.t==='b'?0:o.t==='h'?1:2):(o.t==='h'?0:o.t==='l'?1:2); if(r.t==='l'&&o.t==='l') sc=0; if(!best||sc<best.sc) best={sc,sh}; });
+    out.forEach(o=>{ if(o===r) return; const sh=shared(r,o); if(!sh) return; const sc=prio(r,o)+(r.t==='h'&&o.t==='h'?0:0); if(!best||sc<best.sc) best={sc,sh}; });
     if(!best) return; const sh=best.sh, mid=(sh.a+sh.b)/2;
     if(sh.v){ dr+=`<line x1="${sh.x}" y1="${mid-dl/2}" x2="${sh.x}" y2="${mid+dl/2}" stroke="#fff" stroke-width="7"/><path d="M${sh.x} ${mid-dl/2} L${sh.x+dl*0.9} ${mid-dl/2} A${dl*0.9} ${dl*0.9} 0 0 1 ${sh.x} ${mid+dl*0.4}" fill="none" stroke="#9A8A66" stroke-width="1.2"/>`; }
     else { dr+=`<line x1="${mid-dl/2}" y1="${sh.y}" x2="${mid+dl/2}" y2="${sh.y}" stroke="#fff" stroke-width="7"/><path d="M${mid-dl/2} ${sh.y} L${mid-dl/2} ${sh.y+dl*0.9} A${dl*0.9} ${dl*0.9} 0 0 0 ${mid+dl*0.4} ${sh.y}" fill="none" stroke="#9A8A66" stroke-width="1.2"/>`; } });
@@ -97,6 +116,17 @@ window.SHEV_planSVG=function(k){
 };
 window.SHEV_planOrder=function(k){ const o=best(k).out.map((r,i)=>({i,n:r.n,m:r.m,t:r.t,x:r.x,y:r.y,w:r.w,h:r.h})); const pr=r=>{ if(r.t==='h') return /Холл|Входн|Прихож/.test(r.n)&&/Прихож|Входн/.test(r.n)?0:1; if(r.t==='l') return /Гости/.test(r.n)?2:/Кухня/.test(r.n)?3:4; if(r.t==='b') return /Мастер/.test(r.n)?5:8; if(r.t==='w') return 6; if(r.t==='t') return /мастер/.test(r.n)?7:/Гостев/.test(r.n)?9:10; return 11; };
   return o.sort((a,b)=>pr(a)-pr(b)||a.i-b.i); };
+window.SHEV_planCheck=function(k){ const B=best(k), out=B.out, S=B.S, dl=0.9*S, v=[];
+  const adj=(q,o)=>{ if(q===o) return false; const sx=Math.min(q.x+q.w,o.x+o.w)-Math.max(q.x,o.x), sy=Math.min(q.y+q.h,o.y+o.h)-Math.max(q.y,o.y); return ((Math.abs(q.x+q.w-o.x)<2||Math.abs(o.x+o.w-q.x)<2)&&sy>dl+10)||((Math.abs(q.y+q.h-o.y)<2||Math.abs(o.y+o.h-q.y)<2)&&sx>dl+10); };
+  out.forEach(q=>{ const N=out.filter(o=>adj(q,o));
+    if(/Постиро/.test(q.n)&&N.some(o=>o.t==='b')) v.push('постирочная рядом со спальней');
+    if(/Гостев/.test(q.n)&&N.some(o=>o.t==='b')) v.push('гостевой санузел рядом со спальней');
+    if(/мастер-спальни/.test(q.n)&&!N.some(o=>/Мастер/.test(o.n))) v.push('ванная не при мастер-спальне');
+    if(q.t==='w'&&!N.some(o=>/Мастер/.test(o.n))) v.push('гардеробная не при мастер-спальне');
+    if(/Мастер/.test(q.n)&&N.some(o=>o.t==='l')) v.push('мастер-спальня рядом с гостиной/кухней');
+    if(q.t==='t'&&!/Постиро|Гостев/.test(q.n)&&!/мастер-спальни/.test(q.n)&&!N.some(o=>o.t==='b')) v.push('ванная '+q.n+' без спальни');
+    if(q.t==='b'&&N.some(o=>o.t==='l'&&/Кухня/.test(o.n)&&!/Кухня-г/.test(o.n))) v.push(q.n+' рядом с кухней'); });
+  return v; };
 window.SHEV_roomsTable=function(k){ const r=R[k], t=r.reduce((p,q)=>p+q[1],0); return '<table class="rooms num">'+r.map(x=>`<tr><td>${x[0]}</td><td>${x[1].toFixed(1).replace('.',',')} м²</td></tr>`).join('')+`<tr class="sum"><td>Общая площадь квартиры</td><td>${t.toFixed(1).replace('.',',')} м²</td></tr></table>`; };
 window.SHEV_PLAN_NOTE='Планировка и экспликация помещений. Площади помещений в сумме дают общую площадь квартиры.';
 })();

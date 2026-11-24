@@ -86,7 +86,22 @@ function run1(a,p){ return run(Object.assign({},a,{price:p})).devNet; }
 function breakEven(inp){ // price where developer net profit = 0
   let lo=500,hi=20000; for(let i=0;i<100;i++){const mid=(lo+hi)/2; if(run(Object.assign({},inp,{price:mid})).devNet>0) hi=mid; else lo=mid;} return (lo+hi)/2; }
 function scenarioStats(sc){ const us=units(sc), area=r1(us.reduce((t,x)=>t+x.area,0)), by={}; us.forEach(x=>by[x.type]=(by[x.type]||0)+1); const res={}; PRICES.forEach(p=>{ const r=run({price:p,aptM2:area}); res[p]={G:r.G,devNet:r.devNet,partnerNet:r.partnerNet,revApt:area*p}; }); return {n:us.length,area,by,res,avg:r1(area/us.length),maxFloorSec:Math.max(...Object.values(us.reduce((m,x)=>{const k=x.section+'-'+x.floor; m[k]=(m[k]||0)+x.area; return m;},{})))}; }
+
+/* распределение машино-мест: 2 на квартиру (ближайшие к своему подъезду), 7 гостевых, остальные — сверх нормы */
+function parkAssign(){
+  const G=(typeof window!=='undefined'&&window.GEO3)||null; if(!G) return null;
+  const us=units(), need={}; us.forEach(u=>need[u.section]=(need[u.section]||0)+PARK_PER_APT);
+  const cat={}, taken=new Set(), res=G.stalls.filter(s=>s.cat!=='guest');
+  G.stalls.filter(s=>s.cat==='guest').forEach(s=>cat[s.no]='guest');
+  const SY={1:110.5,2:83.9,3:42.4,4:15.8}, secY=n=>SY[n]+13.3, short={};
+  Object.keys(need).map(Number).sort((a,b)=>a-b).forEach(n=>{
+    const cy=secY(n), cand=res.filter(s=>!taken.has(s.no)).map(s=>({s,c:Math.abs((s.r[2]+s.r[3])/2-cy)+30*(-s.lv-1)})).sort((a,b)=>a.c-b.c);
+    let k=0; for(const c of cand){ if(k>=need[n]) break; taken.add(c.s.no); cat[c.s.no]='apt'; k++; } short[n]=need[n]-k; });
+  res.forEach(s=>{ if(!taken.has(s.no)) cat[s.no]='extra'; });
+  const nApt=us.length*PARK_PER_APT, nGuest=G.stalls.filter(s=>s.cat==='guest').length, total=G.stalls.length;
+  return {cat,nApt,nGuest,total,extra:total-nApt-nGuest,flats:us.length,short:Object.values(short).reduce((a,b)=>a+b,0)};
+}
 function setScenario(sc){ try{localStorage.setItem('shevScen',sc);}catch(e){} const u=new URL(location.href); u.search=''; u.hash=''; location.href=u.pathname+'?v='+sc; }
-const API={SCEN,LAYOUTS,scenarioStats,setScenario,LAYOUT,COMM,PARK,aptArea,PER_FLOOR,PARK_PER_APT,TYPES,TYPE_KEYS,FLOORS,SECTIONS,PRICES,STATE,GROUND,AREA,DEF,BASIS,run,breakEven,units,inner};
+const API={parkAssign,SCEN,LAYOUTS,scenarioStats,setScenario,LAYOUT,COMM,PARK,aptArea,PER_FLOOR,PARK_PER_APT,TYPES,TYPE_KEYS,FLOORS,SECTIONS,PRICES,STATE,GROUND,AREA,DEF,BASIS,run,breakEven,units,inner};
 if(typeof module!=='undefined') module.exports=API; else root.SHEV=API;
 })(this);

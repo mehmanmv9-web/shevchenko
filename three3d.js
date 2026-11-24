@@ -356,10 +356,10 @@ for (const u of UNITS) {
   const box = new THREE.Mesh(new THREE.BoxGeometry(r[1] - r[0], 1.2, r[3] - r[2]), ovMat(M.TYPES[u.type].color));
   box.position.set(wx((r[0] + r[1]) / 2), SECZ[u.section] + LV[u.floor] + 0.6, wz((r[2] + r[3]) / 2)); box.userData = {unit: u, ovs}; ovs.push(box); plates[u.floor].add(box); picks.push(box);
 }
-const stallPicks = [];
+const stallPicks = []; const PAK = (M.parkAssign && M.parkAssign() || {cat: {}}).cat;
 for (const st of G.stalls) {
   const lv = 'P' + (-st.lv), r = st.r;
-  const box = new THREE.Mesh(new THREE.BoxGeometry(r[1] - r[0] - 0.1, 1.4, r[3] - r[2] - 0.1), ovMat(st.cat === 'res' ? 0xB8955A : st.cat === 'com' ? 0x3D6FA8 : 0x2E8B7E));
+  const box = new THREE.Mesh(new THREE.BoxGeometry(r[1] - r[0] - 0.1, 1.4, r[3] - r[2] - 0.1), ovMat((PAK[st.no]||st.cat) === 'extra' ? 0xE0B84A : (PAK[st.no]||st.cat) === 'apt' ? 0xB8955A : (PAK[st.no]||st.cat) === 'com' ? 0x3D6FA8 : 0x2E8B7E));
   box.position.set(wx((r[0] + r[1]) / 2), PK[lv] + 0.7, wz((r[2] + r[3]) / 2)); box.userData = {stall: st}; plates[lv].add(box); stallPicks.push(box);
 }
 const carParts = [], streetCars = [];
@@ -498,13 +498,13 @@ function showPark(){
   info.innerHTML = `<h4>Паркинг ${lv}</h4><div class="big">${n} мест</div><p class="small" style="color:#B9C4BB;margin-top:6px">Всего ${G.stalls.length} мест на 3 уровнях (−1, −2, −3) — таблица считает 160, в проекте больше. ${lv === -3 ? 'Уровень −3 (отм. −11,4 м, 2 960 м²) закрывает нехватку мест на 128 квартир.' : ''} ${lv === -1 ? 'На −1 — торговый цоколь коммерции.' : ''} Нажмите на место — номер, размер, назначение.</p><div class="seg" style="margin-top:10px"><button id="vclose">Закрыть</button></div>`;
   info.classList.add('show'); document.getElementById('vclose').onclick = () => info.classList.remove('show');
 }
-const CAT = {res: 'жителям — по 2 на квартиру', guest: 'гостевое / МГН'};
+const CAT = {res: 'жителям — по 2 на квартиру', apt: 'закреплено за квартирой (2 на квартиру)', extra: 'сверх нормы — свободное, на продажу', guest: 'гостевое / МГН'};
 function selStall(b, silent){
   if (selSt) selSt.material.opacity = 0; selSt = b;
   if (!b) return; b.material.opacity = 0.65; const st = b.userData.stall;
-  info.innerHTML = `<h4>Машино-место № ${st.no}</h4><div class="big num">${st.cat === 'guest' ? 'гостевое' : UI.usd(30000)}</div>
+  info.innerHTML = `<h4>Машино-место № ${st.no}</h4><div class="big num">${(PAK[st.no]||st.cat) === 'guest' ? 'гостевое' : (PAK[st.no]||st.cat) === 'apt' ? 'в составе квартиры' : UI.usd(30000)}</div>
   <table class="num"><tr><td>Уровень</td><td>${{'-1': '−1 · абс. 813,55', '-2': '−2 · абс. 810,25', '-3': '−3 · абс. 806,35'}[st.lv]}</td></tr><tr><td>Размер места</td><td>${UI.nf(st.w, 2)} × ${UI.nf(st.l, 2)} м</td></tr>
-  <tr><td>Норма РК (СП РК 3.03-105)</td><td>≥ 2,50 × 5,30 м</td></tr><tr><td>Назначение</td><td>${CAT[st.cat]}</td></tr><tr><td>Проезд</td><td>6,0 м, двусторонний</td></tr><tr><td>Высота в чистоте</td><td>не менее 2,6 м</td></tr></table>
+  <tr><td>Норма РК (СП РК 3.03-105)</td><td>≥ 2,50 × 5,30 м</td></tr><tr><td>Назначение</td><td>${CAT[PAK[st.no] || st.cat]}</td></tr><tr><td>Проезд</td><td>6,0 м, двусторонний</td></tr><tr><td>Высота в чистоте</td><td>не менее 2,6 м</td></tr></table>
   <div class="seg" style="margin-top:10px"><button id="vclose">Закрыть</button></div>`;
   info.classList.add('show'); document.getElementById('vclose').onclick = () => { info.classList.remove('show'); selStall(null); };
 }
@@ -599,7 +599,7 @@ function pickFrom(ev, arr){ const r = canvas.getBoundingClientRect(); ptr.set(((
   const h = ray.intersectObjects(arr.filter(m => m.parent.visible), false)[0]; return h ? h.object : null; }
 function tipAt(ev, html){ const r = viewer.getBoundingClientRect(); tip.innerHTML = html; tip.style.display = 'block'; tip.style.left = (ev.clientX - r.left + 14) + 'px'; tip.style.top = (ev.clientY - r.top + 14) + 'px'; }
 canvas.addEventListener('pointermove', ev => {
-  if (isPark()) { const o = pickFrom(ev, stallPicks); if (o) { const s = o.userData.stall; tipAt(ev, `<b>№ ${s.no}</b> · ${UI.nf(s.w, 2)} × ${UI.nf(s.l, 2)} м · ${CAT[s.cat]}`); canvas.style.cursor = 'pointer'; } else { tip.style.display = 'none'; canvas.style.cursor = 'grab'; } return; }
+  if (isPark()) { const o = pickFrom(ev, stallPicks); if (o) { const s = o.userData.stall; tipAt(ev, `<b>№ ${s.no}</b> · ${UI.nf(s.w, 2)} × ${UI.nf(s.l, 2)} м · ${CAT[PAK[s.no] || s.cat]}`); canvas.style.cursor = 'pointer'; } else { tip.style.display = 'none'; canvas.style.cursor = 'grab'; } return; }
   if (typeof level !== 'number' || level < 2) { tip.style.display = 'none'; return; }
   const o = pickFrom(ev, picks); if (o === hovered) { if (o) tipAt(ev, tip.innerHTML); return; }
   const sameSel = m => selected && m && m.userData.unit === selected.userData.unit;

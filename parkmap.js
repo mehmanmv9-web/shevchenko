@@ -2,8 +2,10 @@
 (function(){
   const box = document.getElementById('pkmap'); if(!box || !window.GEO3) return;
   const D = window.GEO3, Y0 = D.Y0, Y1 = D.Y1, W = D.WUX;
-  const CAT = {res:'жителям', guest:'гостевое / МГН'};
-  const COLOR = {res:'#ffffff', guest:'#DDEFE9'};
+  const PA = window.SHEV && window.SHEV.parkAssign && window.SHEV.parkAssign();
+  const CAT = {res:'жителям', apt:'закреплено за квартирой (2 на квартиру)', extra:'сверх нормы — свободное, доступно к продаже', guest:'гостевое / МГН'};
+  const COLOR = {res:'#ffffff', apt:'#ffffff', extra:'#F2DDA8', guest:'#DDEFE9'};
+  const kind = s => PA ? PA.cat[s.no] || s.cat : s.cat;
   const ABS = {'-1':'813,55','-2':'810,25','-3':'806,35'};
   const nf = (v,d) => Number(v).toLocaleString('ru-RU',{minimumFractionDigits:d,maximumFractionDigits:d});
   let lv = -1, sel = null;
@@ -32,17 +34,19 @@
     if (lv === -2) D.tech.forEach(t => RR(t.slice(1), '#cfd8e4', t[0].split(' ')[0], 0.9));
     for (const c of D.cells.filter(c => c.lv === lv)) { const [x0,x1,y0,y1] = c.r; h += `<rect x="${X(y1)}" y="${x0}" width="${y1-y0}" height="${x1-x0}" fill="#E8D9BC" stroke="#a88a5a" stroke-width="0.1"/><text x="${X((y0+y1)/2)}" y="${(x0+x1)/2+0.4}" text-anchor="middle" style="font-size:0.9px;fill:#7a5a2a">К${c.no}</text>`; }
     for (const s of D.stalls.filter(s => s.lv === lv)) { const [x0,x1,y0,y1] = s.r;
-      h += `<g class="st${sel===s.no?' on':''}" data-n="${s.no}"><rect x="${X(y1)+0.05}" y="${x0+0.05}" width="${y1-y0-0.1}" height="${x1-x0-0.1}" fill="${COLOR[s.cat]}" stroke="#77736a" stroke-width="0.12"/><text x="${X((y0+y1)/2)}" y="${(x0+x1)/2+0.55}" text-anchor="middle">${s.no}</text></g>`; }
+      h += `<g class="st${sel===s.no?' on':''}" data-n="${s.no}"><rect x="${X(y1)+0.05}" y="${x0+0.05}" width="${y1-y0-0.1}" height="${x1-x0-0.1}" fill="${COLOR[kind(s)]}" stroke="#77736a" stroke-width="0.12"/><text x="${X((y0+y1)/2)}" y="${(x0+x1)/2+0.55}" text-anchor="middle">${s.no}</text></g>`; }
     box.innerHTML = h + '</svg>';
   }
   const intro = () => { const n = D.stalls.filter(s => s.lv === lv).length; return `Уровень ${lv}: ${n} мест${lv === -1 ? ', въезд с ул. Амангельды, торговый цоколь' : lv === -3 ? ', отм. −11,4 м, площадь уровня 2 960 м² (по справке)' : ''}. Нажмите на место — номер, размер и назначение. Белые — жителям, зелёные — гостевые и МГН.`; };
   function show(n){
     const s = D.stalls.find(x => x.no === n); if(!s) return; sel = n; if(s.lv !== lv){ lv = s.lv; setBtns(); } draw();
-    document.getElementById('pkinfo').innerHTML = `<b>Машино-место № ${s.no}</b> · уровень ${s.lv} (абс. ${ABS[s.lv]}) · ${nf(s.w,2)} × ${nf(s.l,2)} м (норма РК ≥ 2,50 × 5,30 м) · ${CAT[s.cat]} · ${s.cat==='guest'?'не продаётся':'$30 000'} ${s.lv === -3 ? '' : '· <a href="#s3d" id="pk3d">показать в 3D</a>'}`;
+    document.getElementById('pkinfo').innerHTML = `<b>Машино-место № ${s.no}</b> · уровень ${s.lv} (абс. ${ABS[s.lv]}) · ${nf(s.w,2)} × ${nf(s.l,2)} м (норма РК ≥ 2,50 × 5,30 м) · ${CAT[kind(s)]} · ${kind(s)==='guest'?'не продаётся':kind(s)==='apt'?'в составе квартиры':'$30 000'} ${s.lv === -3 ? '' : '· <a href="#s3d" id="pk3d">показать в 3D</a>'}`;
     const a = document.getElementById('pk3d'); if(a) a.onclick = () => setTimeout(() => window.SHEV3D && window.SHEV3D.stall(n), 600);
   }
   function setBtns(){ document.querySelectorAll('#pklv button').forEach(b => b.classList.toggle('on', +b.dataset.l === lv)); }
   box.addEventListener('click', e => { const g = e.target.closest('.st'); if(g) show(+g.dataset.n); });
   document.getElementById('pklv').addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; lv = +b.dataset.l; sel = null; setBtns(); draw(); document.getElementById('pkinfo').textContent = intro(); });
   draw(); document.getElementById('pkinfo').textContent = intro();
+  (function(){ const el=document.getElementById('pkstat'); if(!el||!PA) return; const ok=PA.short===0;
+    el.innerHTML=`<div class="pks"><div><b>${PA.flats}</b><span>квартир × 2 = ${PA.nApt} мест закреплено</span></div><div><b>${PA.nGuest}</b><span>гостевых и МГН</span></div><div><b>${PA.total}</b><span>всего мест на 3 уровнях</span></div><div class="${PA.extra>0?'x':''}"><b>${ok?(PA.extra>0?'+'+PA.extra:'0'):'−'+PA.short}</b><span>${ok?(PA.extra>0?'сверх нормы (золотые места на схеме)':'ровно по норме: места в обрез'):'не хватает мест'}</span></div></div>`; })();
 })();
