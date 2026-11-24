@@ -703,7 +703,7 @@ h2{letter-spacing:.005em}h2::after{content:"";display:block;width:84px;height:2p
 .scen-btns button.on{background:linear-gradient(135deg,#27473a,#17302a)!important;box-shadow:0 18px 40px -18px rgba(31,58,46,.8),inset 0 0 0 1px rgba(227,200,148,.55)}
 .ttabs button.on,#ttabs button.on{box-shadow:0 8px 20px -10px rgba(31,58,46,.7),inset 0 0 0 1px rgba(227,200,148,.6)}
 .pks{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}.pks div{background:#FBF9F5;border:1px solid #E4DCCB;border-radius:12px;padding:12px 14px}.pks div.x{background:#F8EBC8;border-color:#C9A66B}.pks b{display:block;font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:500}.pks span{font-size:13px;color:#6B6F66}@media(max-width:700px){.pks{grid-template-columns:1fr 1fr}}
-</style>
+.shplan .pn{font-family:'Cormorant Garamond',Georgia,serif;font-weight:700;text-anchor:middle;text-transform:uppercase;letter-spacing:.12em}.shplan .pa{font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;text-anchor:middle;letter-spacing:.04em}.shplan .pm{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-weight:600;text-anchor:middle;letter-spacing:.03em}.shplan .pr{transition:fill .4s,fill-opacity .4s}.planbox{padding:8px!important}.planbox svg.shplan{background:transparent!important}</style>
 <script type="importmap">{"imports":{"three":"./lib/three.module.min.js","three/addons/":"./lib/jsm/"}}</script>
 <style>
 #myfloor .mf-sel{display:flex;gap:18px;flex-wrap:wrap;margin:18px 0}#myfloor label{font-size:14px;color:#6b6a63}
@@ -1071,7 +1071,7 @@ nav.top .logo::before,nav.top .logo::after{content:none}
   <div class="amen num" id="amen" style="display:none"></div>
   <img class="wide-img" src="img/ep-l1-floor.jpg" alt="1 этаж: коммерция и лобби подъездов" data-zoom loading="lazy" decoding="async">
   <div class="pair"><img src="img/ep-l1-sec.jpg" alt="1 этаж подъезда крупно: магазины, лобби, лифты" data-zoom loading="lazy" decoding="async"><img src="img/lift-hall.jpg" alt="Два лифта" data-zoom loading="lazy" decoding="async"></div>
-  <div class="pair" style="margin-top:24px"><div class="planbox" id="hallplan" role="img" aria-label="План холла этажа: 2 лифта, лестница, 3 двери квартир"></div><img src="img/corridor.jpg" alt="Холл этажа: 3 двери квартир" data-zoom loading="lazy" decoding="async"></div>
+  <div class="pair" style="margin-top:24px"><div class="planbox" id="hallplan" role="img" aria-label="Типовой этаж: 2 лифта, лестница, 3 квартиры на площадке"></div><img src="img/corridor.jpg" alt="Холл этажа: 3 двери квартир" data-zoom loading="lazy" decoding="async"></div>
   <div class="grid2" style="margin-top:40px"><div><h3 style="margin-bottom:10px">Сад на крыше</h3><p class="muted">Деревянный настил, газоны с прогулочной петлёй и ротондой, цветники, шезлонги, пергола-лаунж у выхода из подъезда, деревья в кашпо по периметру. Ограждение — каменная балюстрада 1,2 м.</p><img class="wide-img" src="img/ep-roof.jpg" alt="План руф-гардена" data-zoom loading="lazy" decoding="async"></div>
   <div><h3 style="margin-bottom:10px">Двор-сад</h3><p class="muted">Двор без машин: фонтан, ротонда, детская площадка, тихий сад и аллея цветущих деревьев. Пожарный проезд выполнен газонной решёткой.</p><img class="wide-img" src="img/ep-site.jpg" alt="Генеральный план" data-zoom loading="lazy" decoding="async"></div></div>
   <div style="margin-top:40px"><h3 style="margin-bottom:10px">Посадка на участке и красные линии</h3><p class="muted">Два блока стоят вдоль ул. Амангельды по западной границе участка 20-311-016-133 — в 11,5–12,1 м от красной линии; до красной линии ул. Жамбыла — 25,0 м, ул. Шевченко — 24,9 м. Посадка выполнена на топосъёмку 2020 г. и красные линии ЦГП 2014 г.; координаты углов дома — в местной системе г. Алматы.</p><img class="wide-img" src="img/ep-posadka.jpg" alt="Схема посадки на участке" data-zoom loading="lazy" decoding="async"></div>
@@ -1237,12 +1237,12 @@ nav.top .logo::before,nav.top .logo::after{content:none}
 
 <div class="modal" id="modal"><button class="x" id="mx">×</button><div id="mbody"></div></div>
 
-<script src="model.js?v=20261124v"></script><script src="plans_pre.js?v=20261124v"></script><script src="furn.js?v=20261124v"></script><script src="plans.js?v=20261124v"></script><script src="tour.js?v=20261124v"></script>
-<script src="kpoly.js"></script><script src="app.js?v=20261124v"></script><script src="album.js?v=20261124v"></script><script src="extra.js?v=20261124v"></script><script src="vault.js"></script><script src="aksumap.js?v=10"></script><script src="kp.js?v=20261124v"></script><script src="whiteout.js"></script><script src="priceformat.js"></script>
-<script type="module" src="three3d.js?v=20261124vj"></script>
+<script src="model.js?v=20261125a"></script><script src="plandata.js?v=20261125a"></script><script src="plans.js?v=20261125a"></script><script src="tour.js?v=20261125a"></script>
+<script src="kpoly.js"></script><script src="app.js?v=20261125a"></script><script src="album.js?v=20261125a"></script><script src="extra.js?v=20261125a"></script><script src="vault.js"></script><script src="aksumap.js?v=10"></script><script src="kp.js?v=20261125a"></script><script src="whiteout.js"></script><script src="priceformat.js"></script>
+<script type="module" src="three3d.js?v=20261125aj"></script>
 <script src="map.js"></script>
 <script src="i18n.js"></script>
-<script src="geo3data.js?v=20261124v"></script><script src="parkmap.js?v=20261124v"></script>
+<script src="geo3data.js?v=20261125a"></script><script src="parkmap.js?v=20261125a"></script>
 <script>
 (function(){
   var tabs=document.getElementById('vtabs'), viewer=document.getElementById('viewer'), box=document.getElementById('tourbox'), fr=document.getElementById('tourframe');

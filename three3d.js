@@ -509,6 +509,7 @@ function select(mesh){
    <div class="small" style="color:#B9C4BB;margin-top:4px">${UI.nf(u.area, 1)} м² × ${UI.usd(u.pm2)}/м² · ≈ ${UI.nf(u.price * M.DEF.fx / 1e6, 1)} млн ₸</div>
    <table class="num"><tr><td>Тип</td><td>${v.name}</td></tr><tr><td>Этаж / подъезд</td><td>${u.floor} / ${u.section}</td></tr>
    <tr class="sum"><td>Общая площадь</td><td>${UI.nf(u.area, 1)} м²</td></tr></table>
+   <div class="pplan" style="margin-top:10px;background:#FBF9F5;border-radius:10px;padding:4px;cursor:zoom-in">${window.SHEV_planSVG ? window.SHEV_planSVG(u.type) : ''}</div>
    <div class="seg" style="margin-top:10px"><button id="vcard">Подробнее</button><button id="vclose">Закрыть</button></div>`;
   info.classList.add('show');
   document.getElementById('vcard').onclick = () => window.SHEV_unitCard(u.no);

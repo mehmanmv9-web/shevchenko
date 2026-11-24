@@ -145,7 +145,7 @@ window.SHEV_floorSVG=function(sec,fl,act){
     return `<g data-no="${u.no}" style="cursor:pointer"><rect x="${x0+2}" y="${y+2}" width="${w-4}" height="${h-4}" rx="4" fill="${c}" fill-opacity="${on?.95:.55}" stroke="${on?'#1F3A2E':c}" stroke-width="${on?4:1.5}"/><text x="${x0+w/2}" y="${y+h/2-4}" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">${u.no}</text><text x="${x0+w/2}" y="${y+h/2+14}" text-anchor="middle" font-size="12" fill="#fff">${nf(u.area,0)} м²</text></g>`;}).join('');};
   return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;background:#FBF9F5;border-radius:10px">${band(top,0,cy0)}${band(bot,cy1,H-cy1)}<rect x="${cx0}" y="${cy0}" width="${cx1-cx0}" height="${cy1-cy0}" fill="#d9d2c2" stroke="#b9ae96"/><text x="${(cx0+cx1)/2}" y="${(cy0+cy1)/2+5}" text-anchor="middle" font-size="13" fill="#6b6455">ядро · 2 лифта</text></svg><p class="muted small" style="margin:6px 0 0">Схема этажа подъезда: квартиры вокруг лифтового ядра.</p>`;
 };
-{const hp=document.getElementById('hallplan'); if(hp) hp.innerHTML=window.SHEV_floorSVG(1,3,0);}
+{const hp=document.getElementById('hallplan'); if(hp) hp.innerHTML=window.SHEV_typicalFloor?window.SHEV_typicalFloor():window.SHEV_floorSVG(1,3,0);}
 /* ---------- chess ---------- */
 let filt='all';
 function unitCard(u){
@@ -155,7 +155,7 @@ function unitCard(u){
   <div class="serif" style="font-size:${MODE==='cmp'?32:44}px;line-height:1.1">${J(p=>usd(Math.round(u.area*p)))}</div>
   <p class="muted small" style="margin:6px 0 14px">${PS().map(p=>`${nf(u.area,1)} м² × ${usd(p)}/м² = ${usd(Math.round(u.area*p))} · ≈ ${nf(Math.round(u.area*p)*M.DEF.fx/1e6,2)} млн ₸`).join('<br>')}</p>
   <table class="rooms num"><tr><td>Этаж</td><td>${u.floor}</td></tr><tr><td>Подъезд</td><td>${M.SECTIONS[u.section-1].name}</td></tr><tr><td>Тип</td><td>${v.name}</td></tr>
-  ${v.r.map(r=>`<tr><td>${r[0]}</td><td>${m2(r[1])}</td></tr>`).join('')}<tr class="sum"><td>Общая площадь</td><td>${m2(u.area)}</td></tr></table>
+  ${window.SHEV_planRooms(u.type).map(r=>`<tr><td>${r[0]}</td><td>${m2(r[1])}</td></tr>`).join('')}<tr class="sum"><td>Общая площадь</td><td>${m2(u.area)}</td></tr></table>
   <button class="btn" style="margin-top:16px" onclick="document.getElementById('modal').classList.remove('show');window.SHEV3D&&window.SHEV3D.focus('${u.no}');location.hash='s3d'">Показать в 3D</button></div></div>`;
 }
 window.SHEV_unitCard=no=>{const u=U.find(x=>x.no===no); if(u) openModal(unitCard(u));};
