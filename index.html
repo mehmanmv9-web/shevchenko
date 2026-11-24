@@ -889,7 +889,7 @@ nav.top .logo::before,nav.top .logo::after{content:none}
     <div style="margin-top:30px;display:flex;gap:12px;flex-wrap:wrap">
       <a class="btn" href="javascript:void 0" data-kp>✦ Личная презентация</a>
       <a class="btn" href="#s3d">3D-модель</a>
-      <a class="btn" href="#s3d" onclick="setTimeout(function(){var b=document.querySelector('#vtabs [data-vt=tour]');b&&b.click();},300)">Рум-тур</a>
+      
       <a class="btn ghost" href="#invest">Экономика проекта</a>
     </div>
   </div>
@@ -949,11 +949,11 @@ nav.top .logo::before,nav.top .logo::after{content:none}
 <section id="s3d"><div class="wrap">
   <div class="eyebrow">02 · Интерактивная 3D-модель</div>
   <h2>Дом целиком, этаж за этажом</h2>
-  <p class="lead">Смотрите дом на закате, днём или ночью. Выберите этаж — откроется планировка этажа; нажмите на квартиру, чтобы увидеть комнаты и цену. Этажи −3, −2 и −1 — паркинг (нажмите на машино-место), 1–2 — коммерция и лобби подъездов. Во вкладке «Рум-тур» — прогулка по типовому этажу: от лифтового холла в любую из четырёх квартир.</p>
+  <p class="lead">Смотрите дом на закате, днём или ночью. Выберите этаж — откроется планировка этажа; нажмите на квартиру, чтобы увидеть площадь и цену. Этажи −3, −2 и −1 — паркинг (нажмите на машино-место), 1–2 — коммерция и лобби подъездов.</p>
   <div class="vtabs" id="vtabs">
     <button class="on" data-vt="model"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 22V12M21 7l-9 5-9-5"/></svg>3D-макет дома</button>
-    <button data-vt="tour"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/></svg>Рум-тур по этажу</button>
-    <span class="vt-note">Лифтовой холл и квартиры A, B, C, D · 117,2 м²</span>
+    <button data-vt="tour" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/></svg>Рум-тур по этажу</button>
+    <span class="vt-note">85 квартир · от 80 до 470 м² · условная раскладка по этажам</span>
   </div>
   <div class="tourbox" id="tourbox" hidden><iframe id="tourframe" title="Рум-тур по типовому этажу" allow="fullscreen; autoplay"></iframe><a class="tb-open" href="tour/index.html" target="_blank" rel="noopener">На весь экран ↗</a></div>
   <div class="viewer" id="viewer">
@@ -983,7 +983,7 @@ nav.top .logo::before,nav.top .logo::after{content:none}
   <div class="grid3" style="margin-top:44px">
     <div class="pillar"><h3>Двор-парк без машин</h3><p class="muted">Въезд в подземный паркинг — с ул. Амангельды по рампе между блоками; во дворе — сад, фонтан, площадки и тишина.</p></div>
     <div class="pillar"><h3>Сад на крыше</h3><p class="muted">Сады на кровле всех четырёх подъездов: газоны, прогулочные дорожки, ротонды, перголы и деревья в кашпо. Выход — по лестнице и обоими лифтами подъезда.</p></div>
-    <div class="pillar"><h3>Продуманные планировки</h3><p class="muted">Четыре резиденции по 117,2 м² на этаже подъезда: A и C — угловые, с окнами на две стороны, B и D — у стыка подъездов. Кухня-гостиная в углу этажа, мастер-спальня с гардеробной и ванной, ещё две спальни, постирочная. Лифты и лестница — в центре подъезда.</p></div>
+    <div class="pillar"><h3>Продуманные планировки</h3><p class="muted">85 резиденций от 2 до 6 комнат — от 80 до 470 м²: 18 двухкомнатных, 32 трёхкомнатных, 29 четырёхкомнатных, 5 пятикомнатных и один пентхаус. Лифты и лестница — в центре подъезда, на этаже 2–4 квартиры.</p></div>
   </div>
   <div class="gallery" id="gallery"></div>
   
@@ -991,16 +991,16 @@ nav.top .logo::before,nav.top .logo::after{content:none}
 
 <section id="types"><div class="wrap">
   <div class="eyebrow">04 · Планировки</div>
-  <h2>Четыре премиальные планировки</h2>
-  <p class="lead">Этаж подъезда — 4 резиденции по 117,2 м² вокруг ядра с двумя лифтами: A и B — на ул. Амангельды, C и D — во двор. К каждой квартире — 2 машино-места в паркинге.</p>
+  <h2>Пять форматов резиденций</h2>
+  <p class="lead">От двухкомнатных 80 м² до 470-метрового пентхауса: 85 квартир, 14 000 м². На этаже подъезда — 2–4 резиденции вокруг ядра с двумя лифтами. К каждой квартире — 2 машино-места в паркинге.</p>
   <div class="tabs" id="ttabs"></div>
   <div id="tcard"></div>
 </div></section>
 
 <section id="chess"><div class="wrap">
   <div class="eyebrow">05 · Цены</div>
-  <h2>Все 128 квартир и их цены</h2>
-  <p class="lead">Цена одна для всех этажей — <b data-pm2>$4 500</b> за м². Переключите $4 500 / $5 000 / $6 000 в верхнем меню — пересчитается весь сайт. Нажмите на квартиру, чтобы увидеть её планировку и цену.</p>
+  <h2>Все 85 квартир и их цены</h2>
+  <p class="lead">Цена одна для всех этажей — <b data-pm2>$4 500</b> за м². Переключите $4 500 / $5 000 / «Сравнение» в верхнем меню — пересчитается весь сайт. Нажмите на квартиру, чтобы увидеть её схему и цену.</p>
   <div class="chess-tools" id="chessTools"></div>
   <div class="pxwrap" id="chessWrap"></div>
   <div class="sumbar num" id="chessSum"></div>
@@ -1011,14 +1011,13 @@ nav.top .logo::before,nav.top .logo::after{content:none}
 <section id="myfloor"><div class="wrap">
   <div class="eyebrow">05+ · Ваш этаж</div>
   <h2>Выберите подъезд и этаж</h2>
-  <p class="lead">Нажмите подъезд, этаж и квартиру на плане — справа сразу увидите площадь, отметку пола и цену при трёх тарифах.</p>
+  <p class="lead">Нажмите подъезд, этаж и квартиру на плане — справа сразу увидите площадь, отметку пола и цену при двух тарифах.</p>
   <div class="mf2">
     <div class="mf2-ctrl">
       <div class="mf2-lab">Подъезд</div><div class="mf2-seg" id="mfSeg"></div>
       <div class="mf2-lab">Этаж</div><div class="mf2-fl" id="mfFls"></div>
-      <div class="mf2-lab" style="margin-top:22px">Конструктор</div><div class="mf2-seg" id="mfKon"><button data-v="1">1</button><button data-v="2">2</button><button data-v="3">3</button><button data-v="4">4</button></div>
     </div>
-    <div class="mf2-plan"><div class="mf2-stage" id="mfStage"><img src="img/plan-floor-clean.jpg" alt="План этажа подъезда: квартиры A, B, C, D" draggable="false"></div><p class="muted small" id="mfNote"></p></div>
+    <div class="mf2-plan"><div class="mf2-stage" id="mfStage"></div><p class="muted small" id="mfNote"></p></div>
     <div class="mf2-card" id="mfCard"></div>
   </div>
   <div class="mf-tar" id="mfTar"></div>
@@ -1052,29 +1051,28 @@ nav.top .logo::before,nav.top .logo::after{content:none}
   <div class="pair"><img src="img/roof-real.jpg" alt="Сад на крыше" data-zoom><img src="img/court-real.jpg" alt="Двор-сад" data-zoom></div>
   <div class="pair"><img src="img/lobby.jpg" alt="Входная гостиная" data-zoom><img src="img/lobby2.jpg" alt="Ресепшен" data-zoom></div>
   <div class="grid2" style="margin-top:60px">
-    <div><h3 style="margin-bottom:10px">Типовой этаж: 4 подъезда, 16 квартир</h3>
-      <p class="muted">В каждом подъезде по 4 квартиры на этаже, в центре — два лифта, лифтовой холл и лестница; всё остальное отдано квартирам.</p>
-      <img class="wide-img" src="img/plan-section.jpg" alt="Секция с цветами квартир" data-zoom></div>
+    <div><h3 style="margin-bottom:10px">Этаж подъезда: 2–4 квартиры</h3>
+      <p class="muted">В каждом подъезде на этаже 2–4 квартиры, в центре — два лифта, лифтовой холл и лестница; всё остальное отдано квартирам. Раскладка по этажам — в разделе «Ваш этаж».</p></div>
     <div><h3 style="margin-bottom:10px">Паркинг: 308 мест на трёх уровнях</h3>
-      <p class="muted">Спускаетесь на лифте прямо к машине. Нажмите на место на схеме — номер, размер и назначение. Места расставлены и под самим зданием, и у лифтовых ядер, и во дворе-колодце: на уровнях −1 и −2 стало на 70 мест больше, чем в таблице команды (160), а уровень −3 добавляет ещё 78 мест. Дополнительная выручка — 70 × $30.000 = $2.100.000; расчёт основной таблицы (4.500 / 5.000 / 6.000 $/м²) не меняется.</p>
+      <p class="muted">Спускаетесь на лифте прямо к машине. Нажмите на место на схеме — номер, размер и назначение. Места расставлены и под самим зданием, и у лифтовых ядер, и во дворе-колодце: на уровнях −1 и −2 стало на 70 мест больше, чем в таблице команды (160), а уровень −3 добавляет ещё 78 мест. Дополнительная выручка — 70 × $30.000 = $2.100.000; расчёт основной таблицы (4.500 / 5.000 $/м²) не меняется.</p>
       
       
       <div class="pair"><img src="img/parking.jpg" alt="Паркинг" data-zoom><img src="img/lift-hall.jpg" alt="Лифтовой холл" data-zoom></div></div>
   </div>
-  <div style="margin-top:40px"><h3 style="margin-bottom:10px">Схема паркинга: нажмите на машино-место</h3><p class="muted">308 мест на трёх уровнях (−1: 98, −2: 132, −3: 78): 8–308 — жителям, 1–7 — гостевые и МГН. На −1 и −2 добавлено 70 мест к 160 по таблице — это +$2.100.000. На 128 квартир по 2 места нужно 256 + 7 гостевых = 263; на двух уровнях 230, не хватает 33 — их закрывает уровень −3 (расчёт ниже). Место 2,55 × 5,30 м при норме РК 2,50 × 5,30 м; проезд 6,0 м.</p><div class="seg" id="pklv" style="margin:14px 0 8px"><button data-l="-1" class="on">Уровень −1</button><button data-l="-2">Уровень −2</button><button data-l="-3">Уровень −3</button></div>
+  <div style="margin-top:40px"><h3 style="margin-bottom:10px">Схема паркинга: нажмите на машино-место</h3><p class="muted">308 мест на трёх уровнях (−1: 98, −2: 132, −3: 78): 8–308 — жителям, 1–7 — гостевые и МГН. На −1 и −2 добавлено 70 мест к 160 по таблице — это +$2.100.000. На 85 квартир по 2 места нужно 170 + 7 гостевых = 177; двух уровней (230 мест) для жителей хватает — уровень −3 даёт дополнительные места на продажу (расчёт ниже). Место 2,55 × 5,30 м при норме РК 2,50 × 5,30 м; проезд 6,0 м.</p><div class="seg" id="pklv" style="margin:14px 0 8px"><button data-l="-1" class="on">Уровень −1</button><button data-l="-2">Уровень −2</button><button data-l="-3">Уровень −3</button></div>
       <div id="pkmap" class="pkmap" data-noi18n></div><div id="pkinfo" class="small" style="margin-top:8px;min-height:40px"></div></div>
   <div id="park3" style="margin-top:44px"><h3 style="margin-bottom:10px">Дополнительный уровень −3: расчёт</h3>
-    <p class="muted">На 128 квартир по 2 места нужно 256 + 7 гостевых = 263 места, а на двух уровнях их 230: не хватает 33. Поэтому в проект добавляется третий уровень подземного паркинга на отметке −11,4 м. Площадь уровня по эскизному проекту — 2 960 м². Стоимость строительства по справке — от $410 до $430 за м² (в зависимости от геологии грунтов).</p>
+    <p class="muted">На 85 квартир по 2 места нужно 170 + 7 гостевых = 177 мест, двух уровней (230 мест) для жителей достаточно. Дополнительно рассматривается третий уровень подземного паркинга на отметке −11,4 м. Площадь уровня по эскизному проекту — 2 960 м². Стоимость строительства по справке — от $410 до $430 за м² (в зависимости от геологии грунтов).</p>
     <table class="data" id="park3tbl"><thead><tr><th>Показатель</th><th>Значение</th></tr></thead><tbody>
       <tr><td>Площадь уровня −3</td><td>2 960 м²</td></tr>
       <tr><td>Отметка</td><td>−11,4 м</td></tr>
       <tr><td>Новые места (по схеме уровня −3)</td><td>78 мест · № 231–308</td></tr>
-      <tr><td>Всего мест на трёх уровнях</td><td>308 (нужно 263, запас 45)</td></tr>
+      <tr><td>Всего мест на трёх уровнях</td><td>308 (нужно 177, запас 131 — на продажу)</td></tr>
       <tr><td>Затраты на строительство</td><td>$1.213.600 – $1.272.800</td></tr>
       <tr><td>Продажа: 78 мест × $30.000</td><td>$2.340.000</td></tr>
       <tr class="tot"><td>Дополнительная прибыль</td><td>$1.067.200 – $1.126.400</td></tr>
     </tbody></table>
-    <p class="muted" style="margin-top:12px;font-size:13px">Затраты: 2 960 м² × $410 = $1.213.600 и × $430 = $1.272.800 (справка от 16.11.2026). Выручка: 78 × $30.000 = $2.340.000. Число мест на уровне −3 — по схеме выше, рассчитано по плотности расстановки уровня −2 на той же площади; точное число уточняется рабочим проектом. Расчёт основной таблицы (4.500 / 5.000 / 6.000 $/м²) и 230 мест на уровнях −1 и −2 не меняются.</p></div>
+    <p class="muted" style="margin-top:12px;font-size:13px">Затраты: 2 960 м² × $410 = $1.213.600 и × $430 = $1.272.800 (справка от 16.11.2026). Выручка: 78 × $30.000 = $2.340.000. Число мест на уровне −3 — по схеме выше, рассчитано по плотности расстановки уровня −2 на той же площади; точное число уточняется рабочим проектом. Расчёт основной таблицы (4.500 / 5.000 $/м²) и 230 мест на уровнях −1 и −2 не меняются.</p></div>
 
 </div></section>
 
@@ -1091,7 +1089,7 @@ nav.top .logo::before,nav.top .logo::after{content:none}
 <section id="invest"><div class="wrap">
   <div class="eyebrow">09 · Инвесторам</div>
   <h2>Как устроена сделка и сколько она приносит</h2>
-  <p class="lead">Расчёт по финансовой модели проекта. Выберите цену продажи — $4 500, $5 000 или $6 000 за м²; цифры пересчитаются по всему сайту.</p>
+  <p class="lead">Расчёт по финансовой модели проекта. Выберите цену продажи — $4 500 или $5 000 за м² (или режим «Сравнение»); цифры пересчитаются по всему сайту.</p>
   <div class="deal3">
     <div><div class="eyebrow">1 · Собственник участка</div><h3>Вносит землю</h3><p>Участок 88 соток оценкой <b>$17 000 000</b>. Взамен получает стоимость 6 500 м² и 37 машино-мест.</p></div>
     <div><div class="eyebrow">2 · Застройщик</div><h3>Строит дом</h3><p>Вкладывает около <b>$2 000 000</b>, дальше стройка идёт на деньги покупателей по договорам долевого участия.</p></div>
@@ -1148,7 +1146,7 @@ nav.top .logo::before,nav.top .logo::after{content:none}
     <p>При анализе проекта по адресу г. Алматы, Алмалинский р-н, ул. Амангельды, 78 и учитывая следующие факторы:</p>
     <ol><li>Уникальная локация и отсутствие конкурентов в этом сегменте</li><li>Подтверждённый статус объекта от дома мирового бренда Версаче</li><li>Стабильный спрос на квартиры премиум-класса</li></ol>
     <p>По земельному участку согласован эскизный проект и АПЗ.</p>
-    <p class="big-quote">Можем выдать предварительное заключение, что средняя цена реализации составит — <b>6 000 $ за кв. м</b>.</p>
+    <p class="big-quote">Можем выдать предварительное заключение, что средняя цена реализации составит — <b>5 000 $ за кв. м</b>.</p>
     <h3 style="text-align:center;margin:34px 0 14px">Информационная справка по проекту строительства ультра-премиального ЖК в «золотом квадрате» г. Алматы</h3>
     <p>Земельный участок, расположенный по адресу: г. Алматы, Алмалинский р-н, ул. Амангельды, 78 (южнее ул. Жамбыла, восточнее ул. Амангельды, кадастровый № 20-311-016-133), а также прилегающий к нему соседний земельный участок площадью 0,2286 га, кадастровый № 20-311-016-165.</p>
     <p>Проект реализуется в самом центре делового «золотого квадрата» города Алматы и является одним из последних масштабных проектов реновации в данной уникальной локации. В рамках реализации проекта было расселено более 100 квартир, собственники получили новое жильё, что само по себе подтверждает высокий социальный и инвестиционный уровень проекта.</p>
@@ -1173,7 +1171,7 @@ nav.top .logo::before,nav.top .logo::after{content:none}
   <p class="lead">Основные цифры проекта.</p>
   <div class="grid2" style="margin-top:30px">
     <table class="data num" id="tep"></table>
-    <div><h3 style="margin-bottom:12px">Коротко о проекте</h3><p class="muted">Девять этажей светлого камня в «золотом квадрате» Алматы, рядом отель Rixos и городской парк. Четыре подъезда, 128 резиденций по 117,2 м², закрытый двор-сад без машин, подземный паркинг на 308 мест и сады на крыше.</p></div>
+    <div><h3 style="margin-bottom:12px">Коротко о проекте</h3><p class="muted">Девять этажей светлого камня в «золотом квадрате» Алматы, рядом отель Rixos и городской парк. Четыре подъезда, 85 резиденций от 80 до 470 м², закрытый двор-сад без машин, подземный паркинг на 308 мест и сады на крыше.</p></div>
   </div>
 </div></section>
 
@@ -1213,12 +1211,12 @@ nav.top .logo::before,nav.top .logo::after{content:none}
 
 <div class="modal" id="modal"><button class="x" id="mx">×</button><div id="mbody"></div></div>
 
-<script src="model.js?v=20261117"></script>
-<script src="kpoly.js"></script><script src="app.js?v=20261117"></script><script src="album.js?v=20261117"></script><script src="extra.js"></script><script src="vault.js"></script><script src="aksumap.js?v=10"></script><script src="kp.js?v=20261117"></script><script src="whiteout.js"></script><script src="priceformat.js"></script>
-<script type="module" src="three3d.js?v=20261117j"></script>
+<script src="model.js?v=20261124"></script>
+<script src="kpoly.js"></script><script src="app.js?v=20261124"></script><script src="album.js?v=20261124"></script><script src="extra.js?v=20261124"></script><script src="vault.js"></script><script src="aksumap.js?v=10"></script><script src="kp.js?v=20261124"></script><script src="whiteout.js"></script><script src="priceformat.js"></script>
+<script type="module" src="three3d.js?v=20261124j"></script>
 <script src="map.js"></script>
 <script src="i18n.js"></script>
-<script src="geo3data.js?v=20261117"></script><script src="parkmap.js?v=20261117"></script>
+<script src="geo3data.js?v=20261124"></script><script src="parkmap.js?v=20261124"></script>
 <script>
 (function(){
   var tabs=document.getElementById('vtabs'), viewer=document.getElementById('viewer'), box=document.getElementById('tourbox'), fr=document.getElementById('tourframe');

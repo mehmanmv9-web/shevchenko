@@ -333,17 +333,28 @@ function plate(key, texKey, hOf){
   else for (const s of G.sects) g.add(floorQuad(0, G.D, s.y0, s.y0 + s.L, hOf(s), new THREE.MeshBasicMaterial({map: planTex[texKey], toneMapped: false}), planUV));
   g.visible = false; scene.add(g); plates[key] = g; return g;
 }
-for (let f = 2; f <= 9; f++) plate(f, 'typ', s => LV[f] + 0.02);
+for (let f = 2; f <= 9; f++) { const g = new THREE.Group(); g.visible = false; scene.add(g); plates[f] = g; }
 plate(1, 'L1', s => 0.02); plate(1.5, 'L2', s => LV[1.5] + 0.02);
 plate('P1', 'P1', () => PK.P1 + 0.02); plate('P2', 'P2', () => PK.P2 + 0.02); plate('P3', 'P3', () => PK.P3 + 0.02);
 const ovMat = c => new THREE.MeshBasicMaterial({color: c, transparent: true, opacity: 0, depthWrite: false});
+/* схематичные контуры квартир: этаж подъезда делится на верхнюю и нижнюю зону вокруг ядра, ширина — пропорционально площади */
+function schemRects(u){
+  const sc = G.sects.find(q => q.n === u.section), us = UNITS.filter(q => q.section === u.section && q.floor === u.floor).sort((p, q) => p.pos - q.pos);
+  const nTop = Math.ceil(us.length / 2), top = us.slice(0, nTop), bot = us.slice(nTop), inTop = top.includes(u), arr = inTop ? top : bot;
+  const tot = arr.reduce((a, q) => a + q.area, 0), x0 = 0.5, W = 21.4; let x = x0;
+  for (const q of arr) { const w = W * q.area / tot; if (q === u) { const y0 = inTop ? sc.y0 + 0.4 : sc.core[3] + 0.2, y1 = inTop ? sc.core[2] - 0.2 : sc.y0 + sc.L - 0.4; return [x + 0.12, x + w - 0.12, y0, y1]; } x += w; }
+}
+const flatMat = c => new THREE.MeshBasicMaterial({color: c, transparent: true, opacity: 0.78, depthWrite: false, toneMapped: false});
+for (const f of [2, 3, 4, 5, 6, 7, 8, 9]) for (const s of G.sects) {
+  const core = new THREE.Mesh(new THREE.PlaneGeometry(9.6, s.core[3] - s.core[2]), new THREE.MeshBasicMaterial({color: 0xd9d2c2, toneMapped: false}));
+  core.rotation.x = -Math.PI / 2; core.position.set(wx(11.2), LV[f] + 0.05, wz((s.core[2] + s.core[3]) / 2)); plates[f].add(core);
+}
 for (const u of UNITS) {
-  const idx = ((+u.no.split('-')[1]) - 1) % 4 + 1;
-  const a = G.apts.find(q => q.sec === u.section && q.idx === idx); const ovs = [];
-  for (const r of a.rects) {
-    const box = new THREE.Mesh(new THREE.BoxGeometry(r[1] - r[0], 1.2, r[3] - r[2]), ovMat(M.TYPES[u.type].color));
-    box.position.set(wx((r[0] + r[1]) / 2), SECZ[u.section] + LV[u.floor] + 0.6, wz((r[2] + r[3]) / 2)); box.userData = {unit: u, ovs}; ovs.push(box); plates[u.floor].add(box); picks.push(box);
-  }
+  const r = schemRects(u), ovs = [];
+  const fl = new THREE.Mesh(new THREE.PlaneGeometry(r[1] - r[0], r[3] - r[2]), flatMat(M.TYPES[u.type].color));
+  fl.rotation.x = -Math.PI / 2; fl.position.set(wx((r[0] + r[1]) / 2), LV[u.floor] + 0.06, wz((r[2] + r[3]) / 2)); plates[u.floor].add(fl);
+  const box = new THREE.Mesh(new THREE.BoxGeometry(r[1] - r[0], 1.2, r[3] - r[2]), ovMat(M.TYPES[u.type].color));
+  box.position.set(wx((r[0] + r[1]) / 2), SECZ[u.section] + LV[u.floor] + 0.6, wz((r[2] + r[3]) / 2)); box.userData = {unit: u, ovs}; ovs.push(box); plates[u.floor].add(box); picks.push(box);
 }
 const stallPicks = [];
 for (const st of G.stalls) {
@@ -503,12 +514,12 @@ function select(mesh){
   selected = mesh;
   if (!mesh) { if (typeof level === 'number' && level >= 2) info.classList.remove('show'); return; }
   mesh.userData.ovs.forEach(o => o.material.opacity = 0.45);
-  const u = mesh.userData.unit, v = M.TYPES[u.type], rr = (u.end && v.rEnd) ? v.rEnd : v.r;
-  info.innerHTML = `<h4>Квартира ${u.no} · ${u.type}</h4><div class="big num">${UI.usd(u.price)}</div>
+  const u = mesh.userData.unit, v = M.TYPES[u.type];
+  info.innerHTML = `<h4>Квартира ${u.no} · ${v.rooms}-комнатная</h4><div class="big num">${UI.usd(u.price)}</div>
    <div class="small" style="color:#B9C4BB;margin-top:4px">${UI.nf(u.area, 1)} м² × ${UI.usd(u.pm2)}/м² · ≈ ${UI.nf(u.price * M.DEF.fx / 1e6, 1)} млн ₸</div>
    <table class="num"><tr><td>Тип</td><td>${v.name}</td></tr><tr><td>Этаж / подъезд</td><td>${u.floor} / ${u.section}</td></tr>
-   ${rr.map(r => `<tr><td>${r[0]}</td><td>${UI.nf(r[1], 1)} м²</td></tr>`).join('')}<tr class="sum"><td>Общая площадь квартиры</td><td>${UI.nf(u.area, 1)} м²</td></tr></table>
-   <img src="img/type-${u.type}.jpg" alt=""><div class="seg" style="margin-top:10px"><button id="vcard">Подробнее</button><button id="vclose">Закрыть</button></div>`;
+   <tr><td>Диапазон типа</td><td>${v.range[0]}–${v.range[1]} м²</td></tr><tr class="sum"><td>Площадь (расчётная)</td><td>${UI.nf(u.area, 1)} м²</td></tr></table>
+   <div class="seg" style="margin-top:10px"><button id="vcard">Подробнее</button><button id="vclose">Закрыть</button></div>`;
   info.classList.add('show');
   document.getElementById('vcard').onclick = () => window.SHEV_unitCard(u.no);
   document.getElementById('vclose').onclick = () => select(null);
@@ -528,7 +539,7 @@ const FL = [['P3', '−3'], ['P2', '−2'], ['P1', '−1'], [1, '1'], ...M.FLOOR
 const fb = document.getElementById('vfloors');
 fb.innerHTML = FL.map(f => `<button data-f="${f[0]}" class="${f[0] === 'all' ? 'wide' : ''}">${f[1]}</button>`).join('');
 fb.onclick = e => { const b = e.target.closest('button'); if (!b) return; const v = b.dataset.f; goLevel(/^[\d.]+$/.test(v) ? +v : v); };
-document.getElementById('vlegend').innerHTML = M.TYPE_KEYS.map(t => `<span><i style="background:${M.TYPES[t].color}"></i>${t} · ${UI.nf(M.TYPES[t].total, 1)}</span>`).join('');
+document.getElementById('vlegend').innerHTML = M.TYPE_KEYS.map(t => `<span><i style="background:${M.TYPES[t].color}"></i>${M.TYPES[t].rooms}-к · ${UI.nf(M.TYPES[t].total, 0)} м²</span>`).join('');
 const rotBtn = document.getElementById('vrot');
 setDragMode('pan'); setActive(false);
 document.getElementById('vmode').onclick = e => { const b = e.target.closest('button'); if (b) setDragMode(b.dataset.k); };
