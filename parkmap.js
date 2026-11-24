@@ -48,5 +48,5 @@
   document.getElementById('pklv').addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; lv = +b.dataset.l; sel = null; setBtns(); draw(); document.getElementById('pkinfo').textContent = intro(); });
   draw(); document.getElementById('pkinfo').textContent = intro();
   (function(){ const el=document.getElementById('pkstat'); if(!el||!PA) return; const ok=PA.short===0;
-    el.innerHTML=`<div class="pks"><div><b>${PA.flats}</b><span>квартир × 2 = ${PA.nApt} мест закреплено</span></div><div><b>${PA.nGuest}</b><span>гостевых и МГН</span></div><div><b>${PA.total}</b><span>всего мест на 3 уровнях</span></div><div class="${PA.extra>0?'x':''}"><b>${ok?(PA.extra>0?'+'+PA.extra:'0'):'−'+PA.short}</b><span>${ok?(PA.extra>0?'сверх нормы (золотые места на схеме)':'ровно по норме: места в обрез'):'не хватает мест'}</span></div></div>`; })();
+    el.innerHTML=`<div class="pks"><div><b>${PA.flats}</b><span>квартир × 2 = ${PA.nApt} мест закреплено</span></div><div><b>${PA.nGuest}</b><span>гостевых и МГН</span></div><div><b>${PA.total}</b><span>всего мест на 2 уровнях</span></div><div class="${PA.extra>0?'x':''}"><b>${ok?(PA.extra>0?'+'+PA.extra:'0'):'−'+PA.short}</b><span>${ok?(PA.extra>0?'сверх нормы (золотые места на схеме)':'ровно по норме: места в обрез'):'не хватает мест'}</span></div></div>`; })();
 })();

@@ -363,7 +363,7 @@ for (const st of G.stalls) {
   box.position.set(wx((r[0] + r[1]) / 2), PK[lv] + 0.7, wz((r[2] + r[3]) / 2)); box.userData = {stall: st}; plates[lv].add(box); stallPicks.push(box);
 }
 const carParts = [], streetCars = [];
-for (const lv of ['P1', 'P2', 'P3']) carParts.push({g: plates[lv], pl: G.stalls.filter(s => 'P' + (-s.lv) === lv && (s.no * 7) % 10 < 6).map(s => ({x: wx((s.r[0] + s.r[1]) / 2), y: PK[lv] + 0.02, z: wz((s.r[2] + s.r[3]) / 2), rot: s.r[0] < 15 ? Math.PI / 2 : -Math.PI / 2}))});
+for (const lv of ['P1', 'P2']) carParts.push({g: plates[lv], pl: G.stalls.filter(s => 'P' + (-s.lv) === lv && (s.no * 7) % 10 < 6).map(s => ({x: wx((s.r[0] + s.r[1]) / 2), y: PK[lv] + 0.02, z: wz((s.r[2] + s.r[3]) / 2), rot: s.r[0] < 15 ? Math.PI / 2 : -Math.PI / 2}))});
 
 /* ---------- участок, улицы, двор ---------- */
 const site = new THREE.Group(); scene.add(site);
@@ -472,7 +472,7 @@ const CAR_COLORS = [0x0d0d0f, 0xf2f2f0, 0xa31d1d, 0x1c2a44, 0x9aa0a6, 0x1f3b2c, 
 let level = 'all', selected = null, hovered = null, selSt = null;
 const ghost = new THREE.Group(); ghost.visible = false; scene.add(ghost);
 for (const s of G.sects) { const e = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(G.D, PAR, s.L)), new THREE.LineBasicMaterial({color: 0xE3C894, transparent: true, opacity: 0.55})); e.position.set(wx(G.D / 2), PAR / 2, wz(s.y0 + s.L / 2)); ghost.add(e); }
-const isPark = () => level === 'P1' || level === 'P2' || level === 'P3';
+const isPark = () => level === 'P1' || level === 'P2';
 function apply(){
   document.querySelectorAll('#vfloors button').forEach(b => b.classList.toggle('on', b.dataset.f === String(level)));
   Object.values(plates).forEach(p => p.visible = false);
@@ -495,7 +495,7 @@ function showCom(f){
 }
 function showPark(){
   const lv = -(+level[1]), n = G.stalls.filter(s => s.lv === lv).length, c = G.cells.filter(s => s.lv === lv);
-  info.innerHTML = `<h4>Паркинг ${lv}</h4><div class="big">${n} мест</div><p class="small" style="color:#B9C4BB;margin-top:6px">Всего ${G.stalls.length} мест на 3 уровнях (−1, −2, −3) — таблица считает 160, в проекте больше. ${lv === -3 ? 'Уровень −3 (отм. −11,4 м, 2 960 м²) закрывает нехватку мест на 128 квартир.' : ''} ${lv === -1 ? 'На −1 — торговый цоколь коммерции.' : ''} Нажмите на место — номер, размер, назначение.</p><div class="seg" style="margin-top:10px"><button id="vclose">Закрыть</button></div>`;
+  info.innerHTML = `<h4>Паркинг ${lv}</h4><div class="big">${n} мест</div><p class="small" style="color:#B9C4BB;margin-top:6px">Всего ${G.stalls.length} мест на 2 уровнях (−1, −2) — таблица считает 160, в проекте больше. ${lv === -3 ? 'Уровень −3 (отм. −11,4 м, 2 960 м²) закрывает нехватку мест на 128 квартир.' : ''} ${lv === -1 ? 'На −1 — торговый цоколь коммерции.' : ''} Нажмите на место — номер, размер, назначение.</p><div class="seg" style="margin-top:10px"><button id="vclose">Закрыть</button></div>`;
   info.classList.add('show'); document.getElementById('vclose').onclick = () => info.classList.remove('show');
 }
 const CAT = {res: 'жителям — по 2 на квартиру', apt: 'закреплено за квартирой (2 на квартиру)', extra: 'сверх нормы — свободное, на продажу', guest: 'гостевое / МГН'};
@@ -535,7 +535,7 @@ function goLevel(l){
 }
 
 /* ---------- UI ---------- */
-const FL = [['P3', '−3'], ['P2', '−2'], ['P1', '−1'], [1, '1'], ...M.FLOORS.map(f => [f, String(f)]), ['all', 'Весь дом']];
+const FL = [['P2', '−2'], ['P1', '−1'], [1, '1'], ...M.FLOORS.map(f => [f, String(f)]), ['all', 'Весь дом']];
 const fb = document.getElementById('vfloors');
 fb.innerHTML = FL.map(f => `<button data-f="${f[0]}" class="${f[0] === 'all' ? 'wide' : ''}">${f[1]}</button>`).join('');
 fb.onclick = e => { const b = e.target.closest('button'); if (!b) return; const v = b.dataset.f; goLevel(/^[\d.]+$/.test(v) ? +v : v); };

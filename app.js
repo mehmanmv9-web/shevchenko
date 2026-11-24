@@ -48,7 +48,7 @@ document.addEventListener('click',e=>{const im=e.target.closest('[data-zoom]'); 
 /* ---------- hero ---------- */
 const base=M.run({});
 $('#heroKpis').innerHTML=[
- ['≈88 соток','участок в «золотом квадрате»'],['9','этажей: 1 — коммерция с антресолью, 2–9 — резиденции'],[String(U.length),'резиденций от 80 до 470 м²'],['308','машиномест на 3 уровнях паркинга'],['$4 500 / $5 000','цена за м²'],['3 года','до сдачи дома']
+ ['≈88 соток','участок в «золотом квадрате»'],['9','этажей: 1 — коммерция с антресолью, 2–9 — резиденции'],[String(U.length),'резиденций от 80 до 470 м²'],['230','машиномест на 2 уровнях паркинга'],['$4 500 / $5 000','цена за м²'],['3 года','до сдачи дома']
 ].map(x=>`<div><b>${x[0]}</b><span>${x[1]}</span></div>`).join('');
 
 /* ---------- hero film ---------- */
@@ -176,8 +176,7 @@ function renderExtra(){
       <div class="tot"><span>Паркинг, ${n} мест × ${usd(PP_)}</span><b>${usd(n*PP_)}</b></div></div>`; };
   $('#chessExtra').innerHTML=`<div class="xh">Коммерция и паркинг</div>
     <div class="xcard"><h4>Коммерческие, ${nf(COM,1)} м²</h4><div class="sub">${J(p=>usd(p))} за м²</div><div class="com-blk">${nf(COM,1)} м²</div>
-      <div class="tot"><span>Сумма по прайсу</span><b>${J(p=>usd(Math.round(COM*p)))}</b></div></div>`+lvl(1,LV[0])+lvl(2,LV[1])+`<div class="xcard"><h4>Новые места паркинга</h4><div class="sub">${M.PARK.added} мест сверх таблицы на −1 и −2 · всего ${M.PARK.total} с уровнем −3</div><div class="com-blk">+${M.PARK.added}</div><div class="tot"><span>${M.PARK.added} мест × ${usd(PP_)}</span><b>${usd(M.PARK.addedUsd)}</b></div></div>`+
-    `<div class="xcard"><h4>Паркинг −3 · новый уровень</h4><div class="sub">78 мест · 2 960 м² · отм. −11,4 м</div><div class="com-blk">+78</div><div class="tot"><span>78 мест × ${usd(PP_)}</span><b>${usd(78*PP_)}</b></div><div class="tot"><span>Затраты 2 960 м² × $410–430</span><b>−$1.213.600…1.272.800</b></div><div class="tot"><span>Дополнительная прибыль</span><b>$1.067.200…1.126.400</b></div></div>`+
+      <div class="tot"><span>Сумма по прайсу</span><b>${J(p=>usd(Math.round(COM*p)))}</b></div></div>`+lvl(1,LV[0])+lvl(2,LV[1])+`<div class="xcard"><h4>Новые места паркинга</h4><div class="sub">${M.PARK.added} мест сверх таблицы на −1 и −2</div><div class="com-blk">+${M.PARK.added}</div><div class="tot"><span>${M.PARK.added} мест × ${usd(PP_)}</span><b>${usd(M.PARK.addedUsd)}</b></div></div>`+
     `<div class="xleg"><span><i style="background:#8C9A93"></i><span>Паркинг, ${PN} мест × ${usd(PP_)}</span> = ${usd(PN*PP_)}</span><span><i style="background:#C9A66B"></i><span>Доля собственника участка</span> · <span>Паркинг, ${OWN} мест</span></span></div>`;
 }
 $('#chessTools').onclick=e=>{const b=e.target.closest('button'); if(!b) return; if(b.dataset.s) chSec=+b.dataset.s; if(b.dataset.f) chFl=+b.dataset.f; renderChess();};
@@ -306,7 +305,7 @@ $('#pricesw').onclick=e=>{const b=e.target.closest('button'); if(b) setPrice(b.d
 /* ---------- TEP ---------- */
 (function(){
   const rows=[['Адрес','г. Алматы, Алмалинский р-н, ул. Амангельды, 78 — между ул. Жамбыла и ул. Шевченко'],['Кадастровые номера','20-311-016-133 (0,6560 га, собственность) и 20-311-016-165 (0,2286 га, аренда)'],['Разрешительная стадия','АПЗ KZ32VUA00382944 от 12.03.2021; эскизный проект'],['Участок','8 846 м² (≈ 88 соток)'],['Пятно застройки','2 380,5 м² · 2 блока по 53,14 × 22,40 м, 4 подъезда'],['Этажность','9 этажей: 1 — коммерция с антресолью, 2–9 — квартиры; + 3 этажа паркинга'],
-   ['Общая площадь надземная','23 787,6 м²'],['Продаваемая площадь',nf(M.AREA+4628.4,1)+' м² (квартиры '+nf(M.AREA,1)+' + коммерция 4 628,4)'],['Квартиры на этаже подъезда','1–4 резиденции от 80 до 470 м²'],['Квартир',U.length+': '+K.map(k=>T[k].rooms+'-к — '+U.filter(u=>u.type===k).length).join(', ')+' · сценарий '+M.SCEN+(M.SCEN==='B'?' (3 подъезда Luxury + Private Residence)':' (все подъезды Luxury)')],['Паркинг','3 уровня, 308 мест: '+(U.length*2)+' закреплено за квартирами (2 на квартиру), 7 гостевых, '+(308-U.length*2-7)+' сверх нормы'],['Сад на крыше','сады всех четырёх подъездов'],
+   ['Общая площадь надземная','23 787,6 м²'],['Продаваемая площадь',nf(M.AREA+4628.4,1)+' м² (квартиры '+nf(M.AREA,1)+' + коммерция 4 628,4)'],['Квартиры на этаже подъезда','1–4 резиденции от 80 до 470 м²'],['Квартир',U.length+': '+K.map(k=>T[k].rooms+'-к — '+U.filter(u=>u.type===k).length).join(', ')+' · сценарий '+M.SCEN+(M.SCEN==='B'?' (3 подъезда Luxury + Private Residence)':' (все подъезды Luxury)')],['Паркинг','2 уровня, 230 мест: '+(U.length*2)+' закреплено за квартирами (2 на квартиру), 7 гостевых, '+(230-U.length*2-7)+' сверх нормы'],['Сад на крыше','сады всех четырёх подъездов'],
    ['Подъездов / лифтов','4 / 8 — по 2 лифта и лестнице Н2 в подъезде'],['Цена продажи',null],['Рядом','отель Rixos Almaty, городской парк']];
   window.__renderTEP=()=>{ $('#tep').innerHTML='<tr><th>Показатель</th><th class="r">Значение</th></tr>'+rows.map(r=>`<tr><td>${r[0]}</td><td class="r">${r[1]??J(p=>usd(p))+' за м²'}</td></tr>`).join(''); };
   window.__renderTEP();
@@ -386,7 +385,7 @@ addEventListener('resize',()=>{ const n=matchMedia('(max-width:700px)').matches;
   const nw=n=>({2:'двухкомнатных',3:'трёхкомнатных',4:'четырёхкомнатных',5:'пятикомнатных',6:'шестикомнатных'})[n];
   const by={}; U.forEach(u=>by[u.type]=(by[u.type]||0)+1);
   const mix=K.map(k=>by[k]+' '+nw(k)).join(', ');
-  const v={n:U.length,area:nf(M.AREA,0),mix,n2:U.length*2,n3:U.length*2+7,n4:308-(U.length*2+7)};
+  const v={n:U.length,area:nf(M.AREA,0),mix,n2:U.length*2,n3:U.length*2+7,n4:230-(U.length*2+7)};
   document.querySelectorAll('[data-sc]').forEach(e=>{const x=v[e.dataset.sc]; if(x!=null) e.textContent=x;});
   const box=$('#scenBox'); if(!box) return;
   const S={A:M.scenarioStats('A'),B:M.scenarioStats('B')}, cur=M.SCEN;
