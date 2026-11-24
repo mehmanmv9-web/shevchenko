@@ -13,8 +13,10 @@ const TYPES = {
 const TYPE_KEYS = Object.keys(TYPES);
 const FLOORS = [2,3,4,5,6,7,8,9];
 /* раскладка по подъездам и этажам (сценарий А: все 4 подъезда Luxury): состав этажа — типы по возрастанию номера */
-const LAYOUT = {"1": {"2": "234", "3": "234", "4": "234", "5": "234", "6": "333", "7": "244", "8": "44", "9": "35"}, "2": {"2": "234", "3": "234", "4": "234", "5": "234", "6": "333", "7": "244", "8": "44", "9": "35"}, "3": {"2": "234", "3": "234", "4": "234", "5": "234", "6": "333", "7": "44", "8": "35", "9": "35"}, "4": {"2": "234", "3": "234", "4": "234", "5": "333", "6": "244", "7": "44", "8": "35", "9": "6"}};
-const SECTIONS = [{n:1,name:'Подъезд 1 · блок 1, у ул. Жамбыла'},{n:2,name:'Подъезд 2 · блок 1'},{n:3,name:'Подъезд 3 · блок 2'},{n:4,name:'Подъезд 4 · блок 2, у ул. Шевченко'}];
+const LAYOUTS = {A:{"1": {"2": "234", "3": "234", "4": "234", "5": "234", "6": "333", "7": "244", "8": "44", "9": "35"}, "2": {"2": "234", "3": "234", "4": "234", "5": "234", "6": "333", "7": "244", "8": "44", "9": "35"}, "3": {"2": "234", "3": "234", "4": "234", "5": "234", "6": "333", "7": "44", "8": "35", "9": "35"}, "4": {"2": "234", "3": "234", "4": "234", "5": "333", "6": "244", "7": "44", "8": "35", "9": "6"}},B:{"1": {"2": "234", "3": "234", "4": "234", "5": "234", "6": "333", "7": "244", "8": "44", "9": "35"}, "2": {"2": "234", "3": "234", "4": "234", "5": "234", "6": "333", "7": "244", "8": "44", "9": "35"}, "3": {"2": "234", "3": "234", "4": "234", "5": "234", "6": "333", "7": "44", "8": "35", "9": "35"}, "4": {"2": "44", "3": "44", "4": "44", "5": "44", "6": "5", "7": "5", "8": "5", "9": "6"}}};
+let SCEN='A'; try{ const q=/[?&#]v=([AaBb])/.exec(location.search+location.hash); if(q){SCEN=q[1].toUpperCase(); localStorage.setItem('shevScen',SCEN);} else {SCEN=(localStorage.getItem('shevScen')==='B')?'B':'A';} }catch(e){}
+const LAYOUT = LAYOUTS[SCEN];
+const SECTIONS = [{n:1,name:'Подъезд 1 · блок 1, у ул. Жамбыла'},{n:2,name:'Подъезд 2 · блок 1'},{n:3,name:'Подъезд 3 · блок 2'},{n:4,name:(SCEN==='B'?'Private Residence · ':'')+'Подъезд 4 · блок 2, у ул. Шевченко'}];
 const PRICES = [4500,5000];
 const PER_FLOOR = 3, PARK_PER_APT = 2;
 const STATE = {price:4500};
@@ -24,26 +26,26 @@ const GROUND = [['Коммерция 1 этажа · 8 помещений',1705.
 const r1 = x => Math.round(x*10)/10;
 function inner(t){ return r1(TYPES[t].r.reduce((s,x)=>s+x[1],0)); }
 function aptArea(t,sec){ return TYPES[t].total; }
-function units(){
-  const u=[];
-  for(const f of FLOORS){ let n=0; for(const s of SECTIONS){ const ks=LAYOUT[s.n][f].split(''); ks.forEach((t,i)=>{
+function units(sc){
+  const LAY=sc?LAYOUTS[sc]:LAYOUT; const u=[];
+  for(const f of FLOORS){ let n=0; for(const s of SECTIONS){ const ks=LAY[s.n][f].split(''); ks.forEach((t,i)=>{
     n++; const a=aptArea(t,s.n);
     u.push({no:f+'-'+String(n).padStart(2,'0'),floor:f,section:s.n,pos:i,count:ks.length,type:t,rooms:TYPES[t].rooms,area:a,end:false,get pm2(){return STATE.price;},get price(){return Math.round(this.area*STATE.price);}});
   }); }}
   return u;
 }
-const AREA = r1(units().reduce((s,u)=>s+u.area,0)); // 85 квартир = 14 000,0 м² (рекомендация по квартирографии, Arbat Real Estate)
+const AREA = r1(units().reduce((s,u)=>s+u.area,0)), NUNITS = units().length; // 85 квартир = 14 000,0 м² (рекомендация по квартирографии, Arbat Real Estate)
 /* Финмодель v2 — схема команды проекта (документ от 07.09.2026): партнёр вносит участок, застройщик строит. */
 const DEF = {basis:'team', price:4500, sellHalls:false, parkN:160, parkPrice:30000,
   grossAbove:23787.6, grossPark:5912.0, grossRetB:0, retBCost:1500, constr:1500, parkCost:400, landValue:17000000, partnerArea:6500, partnerPark:37,
   vat:0.16, cit:0.20, fx:457, fxDoc:457, extras:false, design:0.04, superv:0.02, conting:0.05, mgmt:0.02, broker:0.03, guar:0.015,
   citDeduct:'none', partnerPay:'end', partnerMode:'fixed', partnerParkValue:1124567.47, equity:2000000, arbat:10000000, upfront:0.6, salesDelay:0, costAdj:0,
   liftN:0, liftCost:54700};  // 2 лифта в каждом подъезде входят в ставку $1 500/м² (как в модели команды)
-const BASIS = {team:{apt:AREA, com:4628.4, label:'85 квартир 14 000,0 м² + 4 628,4 м² коммерции'},
+const BASIS = {team:{apt:AREA, com:4628.4, label:NUNITS+' квартир '+AREA.toLocaleString('ru-RU',{minimumFractionDigits:1})+' м² + 4 628,4 м² коммерции'},
                draw:{apt:AREA, com:0, label:'Чертежи 31.10.2026 (прежняя раскладка)'}};
 function run(inp){
   const a=Object.assign({},DEF,inp||{});
-  const B=BASIS[a.basis]; const apt=B.apt, com=B.com+(a.basis==='draw'&&a.sellHalls?872:0), sell=apt+com;
+  const B=BASIS[a.basis]; const apt=a.aptM2||B.apt, com=B.com+(a.basis==='draw'&&a.sellHalls?872:0), sell=apt+com;
   const k=1+a.costAdj, vr=a.vat/(1+a.vat);
   const revApt=apt*a.price, revCom=com*a.price, revPark=a.parkN*a.parkPrice, G=revApt+revCom+revPark;
   const cAbove=a.grossAbove*a.constr*k, cPark=a.grossPark*a.parkCost*k, cRetB=(a.grossRetB||0)*(a.retBCost||0)*k, cLift=a.liftN*a.liftCost*k, C=cAbove+cPark+cRetB+cLift;
@@ -83,6 +85,8 @@ function run(inp){
 function run1(a,p){ return run(Object.assign({},a,{price:p})).devNet; }
 function breakEven(inp){ // price where developer net profit = 0
   let lo=500,hi=20000; for(let i=0;i<100;i++){const mid=(lo+hi)/2; if(run(Object.assign({},inp,{price:mid})).devNet>0) hi=mid; else lo=mid;} return (lo+hi)/2; }
-const API={LAYOUT,COMM,PARK,aptArea,PER_FLOOR,PARK_PER_APT,TYPES,TYPE_KEYS,FLOORS,SECTIONS,PRICES,STATE,GROUND,AREA,DEF,BASIS,run,breakEven,units,inner};
+function scenarioStats(sc){ const us=units(sc), area=r1(us.reduce((t,x)=>t+x.area,0)), by={}; us.forEach(x=>by[x.type]=(by[x.type]||0)+1); const res={}; PRICES.forEach(p=>{ const r=run({price:p,aptM2:area}); res[p]={G:r.G,devNet:r.devNet,partnerNet:r.partnerNet,revApt:area*p}; }); return {n:us.length,area,by,res,avg:r1(area/us.length),maxFloorSec:Math.max(...Object.values(us.reduce((m,x)=>{const k=x.section+'-'+x.floor; m[k]=(m[k]||0)+x.area; return m;},{})))}; }
+function setScenario(sc){ try{localStorage.setItem('shevScen',sc);}catch(e){} const u=new URL(location.href); u.search=''; u.hash=''; location.href=u.pathname+'?v='+sc; }
+const API={SCEN,LAYOUTS,scenarioStats,setScenario,LAYOUT,COMM,PARK,aptArea,PER_FLOOR,PARK_PER_APT,TYPES,TYPE_KEYS,FLOORS,SECTIONS,PRICES,STATE,GROUND,AREA,DEF,BASIS,run,breakEven,units,inner};
 if(typeof module!=='undefined') module.exports=API; else root.SHEV=API;
 })(this);

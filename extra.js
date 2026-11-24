@@ -21,7 +21,7 @@ function draw(){
   card.innerHTML='<h3 style="color:'+v.color+'">Квартира №'+u.no+' · '+v.rooms+'-комнатная</h3><div class="sub">'+nf(u.area,0)+' м² (расчётная) · диапазон типа '+v.range[0]+'–'+v.range[1]+' м²</div>'+
   '<table><tr><td>Подъезд / этаж</td><td>'+sec+' / '+fl+'</td></tr><tr><td>Отметка пола</td><td>+'+fmt(LEV[fl])+' м</td></tr>'+
   P.map(p=>'<tr><td>Цена при '+usd(p)+' за м²</td><td><b>'+usd(Math.round(u.area*p))+'</b></td></tr>').join('')+'</table>'+
-  '<button class="btn2" id="mfOpen">Открыть карточку квартиры</button>';
+  '<div class="planbox" style="margin:14px 0">'+window.SHEV_planSVG(u.type)+'</div><button class="btn2" id="mfOpen">Открыть карточку квартиры</button>';
   $('mfOpen').onclick=()=>window.SHEV_unitCard&&window.SHEV_unitCard(u.no);
 }
 seg.onclick=e=>{const b=e.target.closest('button'); if(b){sec=+b.dataset.s; draw();}};
@@ -32,7 +32,7 @@ function tariffs(){
   const tot=U.reduce((a,u)=>a+u.area,0);
   $('mfTar').innerHTML='<table><tr><th>Цена за м²</th>'+P.map(p=>'<th>'+usd(p)+'</th>').join('')+'</tr>'+
   M.TYPE_KEYS.map(k=>'<tr><td>'+T[k].rooms+'-комнатная · '+T[k].total+' м²</td>'+P.map(p=>'<td>'+usd(Math.round(T[k].total*p))+'</td>').join('')+'</tr>').join('')+
-  '<tr><td>Все квартиры · '+nf(tot,1)+' м² (85)</td>'+P.map(p=>'<td>'+usd(Math.round(tot*p))+'</td>').join('')+'</tr></table><p class="muted small">Цена = площадь × тариф. Коммерция и паркинг в расчёт не входят.</p>';
+  '<tr><td>Все квартиры · '+nf(tot,1)+' м² ('+U.length+')</td>'+P.map(p=>'<td>'+usd(Math.round(tot*p))+'</td>').join('')+'</tr></table><p class="muted small">Цена = площадь × тариф. Коммерция и паркинг в расчёт не входят.</p>';
 }
 draw(); tariffs();
 }

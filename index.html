@@ -682,6 +682,8 @@ figure img,.typecard .plan img,.lhead img{border-radius:18px}
 .alb figcaption{position:absolute;left:0;right:0;bottom:0;padding:34px 16px 12px;color:#fff;font-family:'Cormorant Garamond',Georgia,serif;font-size:17px;letter-spacing:.02em;background:linear-gradient(transparent,rgba(20,28,24,.62));opacity:0;transform:translateY(8px);transition:.45s}
 .alb:hover figcaption{opacity:1;transform:none}
 @media(hover:none){.alb figcaption{opacity:1;transform:none;font-size:15px}}
+#variants{padding:56px 0 24px}.scen-btns{display:flex;gap:14px;flex-wrap:wrap;margin:22px 0}.scen-btns button{flex:1 1 260px;text-align:left;padding:18px 22px;border:1.5px solid #C9B48C;border-radius:14px;background:#FBF9F5;cursor:pointer;font:inherit;color:#2B3A31}.scen-btns button b{display:block;font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500}.scen-btns button span{font-size:14px;color:#6B6F66}.scen-btns button.on{background:#1F3A2E;border-color:#1F3A2E;color:#fff}.scen-btns button.on span{color:#d9e2dc}.scen-tab{overflow-x:auto}.scen-tab table{width:100%;border-collapse:collapse;font-size:15px}.scen-tab th,.scen-tab td{padding:10px 12px;border-bottom:1px solid #E4DCCB;text-align:right}.scen-tab th:first-child,.scen-tab td:first-child{text-align:left}.scen-tab td.cur{background:rgba(201,166,107,.16);font-weight:600}.scen-tab .dl{font-size:12px;font-weight:500}.scen-tab .dl.up{color:#2E7D4F}.scen-tab .dl.dn{color:#A8433D}
+.planbox{background:#FFFDF8;border:1px solid #D9C9A3;border-radius:16px;padding:14px;box-shadow:0 18px 40px -22px rgba(31,58,46,.45),inset 0 0 0 1px rgba(201,166,107,.35)}.planbox+.pn{font-size:12.5px;color:#6B6F66;margin:10px 4px 0}
 </style>
 <script type="importmap">{"imports":{"three":"./lib/three.module.min.js","three/addons/":"./lib/jsm/"}}</script>
 <style>
@@ -894,6 +896,12 @@ nav.top .logo::before,nav.top .logo::after{content:none}
     </div>
   </div>
 </header>
+<section id="variants"><div class="wrap">
+  <div class="eyebrow">Сценарии квартирографии</div>
+  <h2>Выберите сценарий дома</h2>
+  <p class="lead">По рекомендации отдела аналитики сравниваем два варианта: <b>А</b> — все четыре подъезда в формате Luxury; <b>Б</b> — три подъезда Luxury и один камерный подъезд Private Residence (1–2 квартиры на этаже, 205–470 м²). Выбор меняет весь сайт: квартиры, шахматку, 3D и финансовый расчёт.</p>
+  <div id="scenBox"></div>
+</div></section>
 
 <section id="location"><div class="wrap">
   <div class="eyebrow">01 · Расположение</div>
@@ -953,7 +961,7 @@ nav.top .logo::before,nav.top .logo::after{content:none}
   <div class="vtabs" id="vtabs">
     <button class="on" data-vt="model"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 22V12M21 7l-9 5-9-5"/></svg>3D-макет дома</button>
     <button data-vt="tour" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/></svg>Рум-тур по этажу</button>
-    <span class="vt-note">85 квартир · от 80 до 470 м² · условная раскладка по этажам</span>
+    <span class="vt-note"><span data-sc="n">85</span> квартир · <span data-sc="area">14 000</span> м² · условная раскладка по этажам</span>
   </div>
   <div class="tourbox" id="tourbox" hidden><iframe id="tourframe" title="Рум-тур по типовому этажу" allow="fullscreen; autoplay"></iframe><a class="tb-open" href="tour/index.html" target="_blank" rel="noopener">На весь экран ↗</a></div>
   <div class="viewer" id="viewer">
@@ -983,7 +991,7 @@ nav.top .logo::before,nav.top .logo::after{content:none}
   <div class="grid3" style="margin-top:44px">
     <div class="pillar"><h3>Двор-парк без машин</h3><p class="muted">Въезд в подземный паркинг — с ул. Амангельды по рампе между блоками; во дворе — сад, фонтан, площадки и тишина.</p></div>
     <div class="pillar"><h3>Сад на крыше</h3><p class="muted">Сады на кровле всех четырёх подъездов: газоны, прогулочные дорожки, ротонды, перголы и деревья в кашпо. Выход — по лестнице и обоими лифтами подъезда.</p></div>
-    <div class="pillar"><h3>Продуманные планировки</h3><p class="muted">85 резиденций от 2 до 6 комнат — от 80 до 470 м²: 18 двухкомнатных, 32 трёхкомнатных, 29 четырёхкомнатных, 5 пятикомнатных и один пентхаус. Лифты и лестница — в центре подъезда, на этаже 2–4 квартиры.</p></div>
+    <div class="pillar"><h3>Продуманные планировки</h3><p class="muted"><span data-sc="n">85</span> резиденций от 2 до 6 комнат — от 80 до 470 м²: <span data-sc="mix">18 двухкомнатных, 32 трёхкомнатных, 29 четырёхкомнатных, 5 пятикомнатных и один пентхаус</span>. Лифты и лестница — в центре подъезда, на этаже 2–4 квартиры.</p></div>
   </div>
   <div class="gallery" id="gallery"></div>
   
@@ -992,14 +1000,14 @@ nav.top .logo::before,nav.top .logo::after{content:none}
 <section id="types"><div class="wrap">
   <div class="eyebrow">04 · Планировки</div>
   <h2>Пять форматов резиденций</h2>
-  <p class="lead">От двухкомнатных 80 м² до 470-метрового пентхауса: 85 квартир, 14 000 м². На этаже подъезда — 2–4 резиденции вокруг ядра с двумя лифтами. К каждой квартире — 2 машино-места в паркинге.</p>
+  <p class="lead">От двухкомнатных 80 м² до 470-метрового пентхауса: <span data-sc="n">85</span> квартир, <span data-sc="area">14 000</span> м². На этаже подъезда — 2–4 резиденции вокруг ядра с двумя лифтами. К каждой квартире — 2 машино-места в паркинге.</p>
   <div class="tabs" id="ttabs"></div>
   <div id="tcard"></div>
 </div></section>
 
 <section id="chess"><div class="wrap">
   <div class="eyebrow">05 · Цены</div>
-  <h2>Все 85 квартир и их цены</h2>
+  <h2>Все <span data-sc="n">85</span> квартир и их цены</h2>
   <p class="lead">Цена одна для всех этажей — <b data-pm2>$4 500</b> за м². Переключите $4 500 / $5 000 / «Сравнение» в верхнем меню — пересчитается весь сайт. Нажмите на квартиру, чтобы увидеть её схему и цену.</p>
   <div class="chess-tools" id="chessTools"></div>
   <div class="pxwrap" id="chessWrap"></div>
@@ -1059,15 +1067,15 @@ nav.top .logo::before,nav.top .logo::after{content:none}
       
       <div class="pair"><img src="img/parking.jpg" alt="Паркинг" data-zoom><img src="img/lift-hall.jpg" alt="Лифтовой холл" data-zoom></div></div>
   </div>
-  <div style="margin-top:40px"><h3 style="margin-bottom:10px">Схема паркинга: нажмите на машино-место</h3><p class="muted">308 мест на трёх уровнях (−1: 98, −2: 132, −3: 78): 8–308 — жителям, 1–7 — гостевые и МГН. На −1 и −2 добавлено 70 мест к 160 по таблице — это +$2.100.000. На 85 квартир по 2 места нужно 170 + 7 гостевых = 177; двух уровней (230 мест) для жителей хватает — уровень −3 даёт дополнительные места на продажу (расчёт ниже). Место 2,55 × 5,30 м при норме РК 2,50 × 5,30 м; проезд 6,0 м.</p><div class="seg" id="pklv" style="margin:14px 0 8px"><button data-l="-1" class="on">Уровень −1</button><button data-l="-2">Уровень −2</button><button data-l="-3">Уровень −3</button></div>
+  <div style="margin-top:40px"><h3 style="margin-bottom:10px">Схема паркинга: нажмите на машино-место</h3><p class="muted">308 мест на трёх уровнях (−1: 98, −2: 132, −3: 78): 8–308 — жителям, 1–7 — гостевые и МГН. На −1 и −2 добавлено 70 мест к 160 по таблице — это +$2.100.000. На <span data-sc="n">85</span> квартир по 2 места нужно <span data-sc="n2">170</span> + 7 гостевых = <span data-sc="n3">177</span>; двух уровней (230 мест) для жителей хватает — уровень −3 даёт дополнительные места на продажу (расчёт ниже). Место 2,55 × 5,30 м при норме РК 2,50 × 5,30 м; проезд 6,0 м.</p><div class="seg" id="pklv" style="margin:14px 0 8px"><button data-l="-1" class="on">Уровень −1</button><button data-l="-2">Уровень −2</button><button data-l="-3">Уровень −3</button></div>
       <div id="pkmap" class="pkmap" data-noi18n></div><div id="pkinfo" class="small" style="margin-top:8px;min-height:40px"></div></div>
   <div id="park3" style="margin-top:44px"><h3 style="margin-bottom:10px">Дополнительный уровень −3: расчёт</h3>
-    <p class="muted">На 85 квартир по 2 места нужно 170 + 7 гостевых = 177 мест, двух уровней (230 мест) для жителей достаточно. Дополнительно рассматривается третий уровень подземного паркинга на отметке −11,4 м. Площадь уровня по эскизному проекту — 2 960 м². Стоимость строительства по справке — от $410 до $430 за м² (в зависимости от геологии грунтов).</p>
+    <p class="muted">На <span data-sc="n">85</span> квартир по 2 места нужно <span data-sc="n2">170</span> + 7 гостевых = <span data-sc="n3">177</span> мест, двух уровней (230 мест) для жителей достаточно. Дополнительно рассматривается третий уровень подземного паркинга на отметке −11,4 м. Площадь уровня по эскизному проекту — 2 960 м². Стоимость строительства по справке — от $410 до $430 за м² (в зависимости от геологии грунтов).</p>
     <table class="data" id="park3tbl"><thead><tr><th>Показатель</th><th>Значение</th></tr></thead><tbody>
       <tr><td>Площадь уровня −3</td><td>2 960 м²</td></tr>
       <tr><td>Отметка</td><td>−11,4 м</td></tr>
       <tr><td>Новые места (по схеме уровня −3)</td><td>78 мест · № 231–308</td></tr>
-      <tr><td>Всего мест на трёх уровнях</td><td>308 (нужно 177, запас 131 — на продажу)</td></tr>
+      <tr><td>Всего мест на трёх уровнях</td><td>308 (нужно <span data-sc="n3">177</span>, запас <span data-sc="n4">131</span> — на продажу)</td></tr>
       <tr><td>Затраты на строительство</td><td>$1.213.600 – $1.272.800</td></tr>
       <tr><td>Продажа: 78 мест × $30.000</td><td>$2.340.000</td></tr>
       <tr class="tot"><td>Дополнительная прибыль</td><td>$1.067.200 – $1.126.400</td></tr>
@@ -1171,7 +1179,7 @@ nav.top .logo::before,nav.top .logo::after{content:none}
   <p class="lead">Основные цифры проекта.</p>
   <div class="grid2" style="margin-top:30px">
     <table class="data num" id="tep"></table>
-    <div><h3 style="margin-bottom:12px">Коротко о проекте</h3><p class="muted">Девять этажей светлого камня в «золотом квадрате» Алматы, рядом отель Rixos и городской парк. Четыре подъезда, 85 резиденций от 80 до 470 м², закрытый двор-сад без машин, подземный паркинг на 308 мест и сады на крыше.</p></div>
+    <div><h3 style="margin-bottom:12px">Коротко о проекте</h3><p class="muted">Девять этажей светлого камня в «золотом квадрате» Алматы, рядом отель Rixos и городской парк. Четыре подъезда, <span data-sc="n">85</span> резиденций от 80 до 470 м², закрытый двор-сад без машин, подземный паркинг на 308 мест и сады на крыше.</p></div>
   </div>
 </div></section>
 
@@ -1211,7 +1219,7 @@ nav.top .logo::before,nav.top .logo::after{content:none}
 
 <div class="modal" id="modal"><button class="x" id="mx">×</button><div id="mbody"></div></div>
 
-<script src="model.js?v=20261124"></script>
+<script src="model.js?v=20261124"></script><script src="plans.js?v=20261124"></script>
 <script src="kpoly.js"></script><script src="app.js?v=20261124"></script><script src="album.js?v=20261124"></script><script src="extra.js?v=20261124"></script><script src="vault.js"></script><script src="aksumap.js?v=10"></script><script src="kp.js?v=20261124"></script><script src="whiteout.js"></script><script src="priceformat.js"></script>
 <script type="module" src="three3d.js?v=20261124j"></script>
 <script src="map.js"></script>

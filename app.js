@@ -48,7 +48,7 @@ document.addEventListener('click',e=>{const im=e.target.closest('[data-zoom]'); 
 /* ---------- hero ---------- */
 const base=M.run({});
 $('#heroKpis').innerHTML=[
- ['≈88 соток','участок в «золотом квадрате»'],['9','этажей: 1 — коммерция с антресолью, 2–9 — резиденции'],['85','резиденций от 80 до 470 м²'],['308','машиномест на 3 уровнях паркинга'],['$4 500 / $5 000','цена за м²'],['3 года','до сдачи дома']
+ ['≈88 соток','участок в «золотом квадрате»'],['9','этажей: 1 — коммерция с антресолью, 2–9 — резиденции'],[String(U.length),'резиденций от 80 до 470 м²'],['308','машиномест на 3 уровнях паркинга'],['$4 500 / $5 000','цена за м²'],['3 года','до сдачи дома']
 ].map(x=>`<div><b>${x[0]}</b><span>${x[1]}</span></div>`).join('');
 
 /* ---------- hero film ---------- */
@@ -115,11 +115,11 @@ function aptPrice(t){return Math.round(T[t].total*PP());}
 function typeHTML(t){
   const v=T[t], pr=aptPrice(t);
   const us=U.filter(u=>u.type===t), cnt=us.length, tot=us.reduce((a,u)=>a+u.area,0);
-  return `<div class="typecard"><div><div class="plan" style="background:linear-gradient(135deg,${v.color},#1F3A2E);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:260px;border-radius:12px"><div class="serif" style="font-size:96px;line-height:1">${v.rooms}</div><div style="font-size:15px;opacity:.9">${v.rooms}-комнатная</div></div></div>
+  return `<div class="typecard"><div><div class="planbox">${window.SHEV_planSVG(t)}</div><p class="pn">${window.SHEV_PLAN_NOTE}</p></div>
     <div><div class="tt-head"><div><div class="eyebrow" style="margin:0 0 6px;color:${v.color}">${v.name}</div><div class="big num">${m2(v.total)}</div></div>
     <div class="small muted" style="text-align:right">${cnt} квартир в доме<br>${M.PARK_PER_APT} машино-места в паркинге</div></div>
-    <table class="rooms num"><tr><td>Диапазон площадей</td><td>${v.range[0]}–${v.range[1]} м²</td></tr><tr><td>Расчётная площадь</td><td>${m2(v.total)}</td></tr><tr><td>Квартир в доме</td><td>${cnt}</td></tr><tr class="sum"><td>Всего по типу</td><td>${m2(tot)}</td></tr></table>
-    <p class="small muted" style="margin-top:10px">Площадь типа — расчётная (по предложению отдела аналитики); поквартирные планировки будут уточнены проектом.</p>
+    ${window.SHEV_roomsTable(t)}
+    <p class="small muted" style="margin-top:10px">Диапазон площадей типа — ${v.range[0]}–${v.range[1]} м²; в доме ${cnt} квартир, всего ${m2(tot)}.</p>
     <div class="pricebox num"><div><span>Цена за м²</span><b>${J(p=>usd(p))}</b></div><div><span>Цена квартиры</span><b>${J(p=>usd(Math.round(v.total*p)))}</b></div><div><span>В тенге (курс ${nf(M.DEF.fx,0)} ₸)</span><b>${J(p=>nf(Math.round(v.total*p)*M.DEF.fx/1e6,1))} млн ₸</b></div></div>
 </div></div>`;
 }
@@ -150,12 +150,12 @@ window.SHEV_floorSVG=function(sec,fl,act){
 let filt='all';
 function unitCard(u){
   const v=T[u.type];
-  return `<div class="card"><div>${window.SHEV_floorSVG(u.section,u.floor,u.no)}</div><div>
+  return `<div class="card"><div><div class="planbox">${window.SHEV_planSVG(u.type)}</div><p class="pn">${window.SHEV_PLAN_NOTE}</p><div style="margin-top:14px">${window.SHEV_floorSVG(u.section,u.floor,u.no)}</div></div><div>
   <div class="eyebrow" style="color:${v.color}">Квартира ${u.no} · ${v.rooms}-комнатная</div>
   <div class="serif" style="font-size:${MODE==='cmp'?32:44}px;line-height:1.1">${J(p=>usd(Math.round(u.area*p)))}</div>
   <p class="muted small" style="margin:6px 0 14px">${PS().map(p=>`${nf(u.area,1)} м² × ${usd(p)}/м² = ${usd(Math.round(u.area*p))} · ≈ ${nf(Math.round(u.area*p)*M.DEF.fx/1e6,2)} млн ₸`).join('<br>')}</p>
   <table class="rooms num"><tr><td>Этаж</td><td>${u.floor}</td></tr><tr><td>Подъезд</td><td>${M.SECTIONS[u.section-1].name}</td></tr><tr><td>Тип</td><td>${v.name}</td></tr>
-  <tr><td>Диапазон типа</td><td>${v.range[0]}–${v.range[1]} м²</td></tr><tr class="sum"><td>Площадь (расчётная)</td><td>${m2(u.area)}</td></tr></table>
+  ${v.r.map(r=>`<tr><td>${r[0]}</td><td>${m2(r[1])}</td></tr>`).join('')}<tr class="sum"><td>Общая площадь</td><td>${m2(u.area)}</td></tr></table>
   <button class="btn" style="margin-top:16px" onclick="document.getElementById('modal').classList.remove('show');window.SHEV3D&&window.SHEV3D.focus('${u.no}');location.hash='s3d'">Показать в 3D</button></div></div>`;
 }
 window.SHEV_unitCard=no=>{const u=U.find(x=>x.no===no); if(u) openModal(unitCard(u));};
@@ -306,7 +306,7 @@ $('#pricesw').onclick=e=>{const b=e.target.closest('button'); if(b) setPrice(b.d
 /* ---------- TEP ---------- */
 (function(){
   const rows=[['Адрес','г. Алматы, Алмалинский р-н, ул. Амангельды, 78 — между ул. Жамбыла и ул. Шевченко'],['Кадастровые номера','20-311-016-133 (0,6560 га, собственность) и 20-311-016-165 (0,2286 га, аренда)'],['Разрешительная стадия','АПЗ KZ32VUA00382944 от 12.03.2021; эскизный проект'],['Участок','8 846 м² (≈ 88 соток)'],['Пятно застройки','2 380,5 м² · 2 блока по 53,14 × 22,40 м, 4 подъезда'],['Этажность','9 этажей: 1 — коммерция с антресолью, 2–9 — квартиры; + 3 этажа паркинга'],
-   ['Общая площадь надземная','23 787,6 м²'],['Продаваемая площадь','18 628,4 м² (квартиры 14 000,0 + коммерция 4 628,4)'],['Квартиры на этаже подъезда','2–4 резиденции от 80 до 470 м² (сценарий А: все подъезды Luxury)'],['Квартир','85: 2-к — 18, 3-к — 32, 4-к — 29, 5-к — 5, 6-к — 1'],['Паркинг','3 уровня, 308 мест (+148 к таблице); 160 в продаже по финмодели'],['Сад на крыше','сады всех четырёх подъездов'],
+   ['Общая площадь надземная','23 787,6 м²'],['Продаваемая площадь',nf(M.AREA+4628.4,1)+' м² (квартиры '+nf(M.AREA,1)+' + коммерция 4 628,4)'],['Квартиры на этаже подъезда','1–4 резиденции от 80 до 470 м²'],['Квартир',U.length+': '+K.map(k=>T[k].rooms+'-к — '+U.filter(u=>u.type===k).length).join(', ')+' · сценарий '+M.SCEN+(M.SCEN==='B'?' (3 подъезда Luxury + Private Residence)':' (все подъезды Luxury)')],['Паркинг','3 уровня, 308 мест (+148 к таблице); 160 в продаже по финмодели'],['Сад на крыше','сады всех четырёх подъездов'],
    ['Подъездов / лифтов','4 / 8 — по 2 лифта и лестнице Н2 в подъезде'],['Цена продажи',null],['Рядом','отель Rixos Almaty, городской парк']];
   window.__renderTEP=()=>{ $('#tep').innerHTML='<tr><th>Показатель</th><th class="r">Значение</th></tr>'+rows.map(r=>`<tr><td>${r[0]}</td><td class="r">${r[1]??J(p=>usd(p))+' за м²'}</td></tr>`).join(''); };
   window.__renderTEP();
@@ -380,3 +380,29 @@ function stackify(t){ const hr=[...t.querySelectorAll('tr')].find(r=>r.querySele
 document.querySelectorAll('table.stack').forEach(t=>{ stackify(t); new MutationObserver(ms=>{ if(ms.some(m=>m.type==='childList' && [...m.addedNodes].some(n=>n.nodeName==='TBODY'||n.nodeName==='TR'))) stackify(t); }).observe(t,{childList:true}); });
 let __narrow=matchMedia('(max-width:700px)').matches;
 addEventListener('resize',()=>{ const n=matchMedia('(max-width:700px)').matches; if(n!==__narrow){ __narrow=n; renderChess(); } });
+/* ---------- сценарии А / Б и динамические подписи ---------- */
+(function(){
+  const M=window.SHEV, T=M.TYPES, K=M.TYPE_KEYS, {nf,usd,U}=window.SHEV_UI, $=q=>document.querySelector(q);
+  const nw=n=>({2:'двухкомнатных',3:'трёхкомнатных',4:'четырёхкомнатных',5:'пятикомнатных',6:'шестикомнатных'})[n];
+  const by={}; U.forEach(u=>by[u.type]=(by[u.type]||0)+1);
+  const mix=K.map(k=>by[k]+' '+nw(k)).join(', ');
+  const v={n:U.length,area:nf(M.AREA,0),mix,n2:U.length*2,n3:U.length*2+7,n4:230-(U.length*2+7)+78};
+  document.querySelectorAll('[data-sc]').forEach(e=>{const x=v[e.dataset.sc]; if(x!=null) e.textContent=x;});
+  const box=$('#scenBox'); if(!box) return;
+  const S={A:M.scenarioStats('A'),B:M.scenarioStats('B')}, cur=M.SCEN;
+  const row=(l,f)=>`<tr><td>${l}</td><td class="${cur==='A'?'cur':''}">${f('A')}</td><td class="${cur==='B'?'cur':''}">${f('B')}</td></tr>`;
+  const d=(a,b,fmt)=>{const x=b-a; return x===0?'':` <small class="dl ${x>0?'up':'dn'}">${x>0?'+':'−'}${fmt(Math.abs(x))}</small>`;};
+  const P=M.PRICES;
+  box.innerHTML=`<div class="scen-btns"><button data-sc-set="A" class="${cur==='A'?'on':''}"><b>Сценарий А</b><span>4 подъезда Luxury</span></button><button data-sc-set="B" class="${cur==='B'?'on':''}"><b>Сценарий Б</b><span>3 подъезда Luxury + Private Residence</span></button></div>
+  <div class="scen-tab"><table class="num"><thead><tr><th></th><th>А · все Luxury</th><th>Б · 3 Luxury + Private</th></tr></thead><tbody>
+  ${row('Квартир',k=>S[k].n+(k==='B'?d(S.A.n,S.B.n,x=>x):''))}
+  ${row('Площадь квартир, м²',k=>nf(S[k].area,1)+(k==='B'?d(S.A.area,S.B.area,x=>nf(x,0)):''))}
+  ${row('Средняя площадь, м²',k=>nf(S[k].avg,1))}
+  ${K.map(t=>row(T[t].rooms+'-комнатные',k=>S[k].by[t]||0)).join('')}
+  ${row('Макс. площадь квартир на этаже подъезда, м² (лимит 500)',k=>nf(S[k].maxFloorSec,0))}
+  ${P.map(p=>row('Выручка с квартир, '+usd(p)+'/м²',k=>usd(Math.round(S[k].res[p].revApt))+(k==='B'?d(S.A.res[p].revApt,S.B.res[p].revApt,x=>usd(Math.round(x))):''))).join('')}
+  ${P.map(p=>row('Прибыль застройщика, '+usd(p)+'/м²',k=>usd(Math.round(S[k].res[p].devNet))+(k==='B'?d(S.A.res[p].devNet,S.B.res[p].devNet,x=>usd(Math.round(x))):''))).join('')}
+  </tbody></table></div>
+  <p class="muted small" style="margin-top:12px">Сценарий Б: подъезд 4 — камерный (этажи 2–5: две квартиры по 205 м², 6–8: одна по 301 м², 9: пентхаус 470 м²). Расчёт Б выполнен по той же финансовой модели: затраты, коммерция, паркинг и доля партнёра не меняются, меняется только площадь квартир. Выбранный сценарий сохраняется в браузере и применяется ко всему сайту.</p>`;
+  box.onclick=e=>{const b=e.target.closest('[data-sc-set]'); if(b&&b.dataset.scSet!==cur) M.setScenario(b.dataset.scSet);};
+})();
