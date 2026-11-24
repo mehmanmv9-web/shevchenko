@@ -34,7 +34,7 @@ let au=null,playing=false,fade=null;const VOL=0.12;
 const css2=document.createElement('style');css2.textContent='#mBtn.on{box-shadow:inset 0 1px 0 #fffaf0,inset 0 -2px 3px rgba(120,92,48,.35),0 0 0 3px #f1e8d2,0 0 0 4px #b49a68,0 0 0 8px rgba(201,168,108,.45),0 6px 16px rgba(30,24,10,.35);animation:mspin 4s linear infinite,mpulse 2.4s ease-in-out infinite}@keyframes mspin{to{transform:rotate(360deg)}}@keyframes mpulse{50%{box-shadow:inset 0 1px 0 #fffaf0,inset 0 -2px 3px rgba(120,92,48,.35),0 0 0 3px #f1e8d2,0 0 0 4px #b49a68,0 0 0 13px rgba(201,168,108,.12),0 6px 16px rgba(30,24,10,.35)}}';document.head.appendChild(css2);
 function ramp(to,done){clearInterval(fade);fade=setInterval(()=>{const d=to-au.volume;if(Math.abs(d)<.02){au.volume=to;clearInterval(fade);done&&done();}else au.volume=Math.max(0,Math.min(1,au.volume+d*.18));},60);}
 let mode='link';
-fetch('audio/song.mp3',{method:'HEAD'}).then(r=>{ if(r.ok){ mode='audio'; mus.removeAttribute('target'); mus.title='Музыка: включить / выключить'; au=new Audio('audio/song.mp3'); au.loop=true; au.preload='none'; au.volume=0; } }).catch(()=>{});
+fetch('audio/song.mp3',{method:'HEAD'}).then(r=>{ if(r.ok){ mode='audio'; mus.removeAttribute('target'); mus.title='Музыка: включить / выключить'; au=new Audio(); au.preload='none'; au.src='audio/song.mp3'; au.loop=true; au.preload='none'; au.volume=0; } }).catch(()=>{});
 const armM=()=>{ if(mode==='link'){ mus.href=SONG; setTimeout(()=>mus.removeAttribute('href'),1500); } };
 ['pointerdown','touchstart','focus','keydown'].forEach(e=>mus.addEventListener(e,armM,{passive:true}));
 mus.addEventListener('click',e=>{ if(mode!=='audio') return; e.preventDefault();
