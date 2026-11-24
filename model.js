@@ -21,7 +21,7 @@ const PRICES = [4500,5000];
 const PER_FLOOR = 3, PARK_PER_APT = 2;
 const STATE = {price:4500};
 const COMM = {"К-1.1": {"L1": 183.59, "MZ": 233.42, "B1": 141.51}, "К-1.2": {"L1": 234.71, "MZ": 240.91, "B1": 141.51}, "К-2.1": {"L1": 199.79, "MZ": 233.42, "B1": 141.51}, "К-2.2": {"L1": 234.71, "MZ": 240.91, "B1": 141.51}, "К-3.1": {"L1": 199.79, "MZ": 233.42, "B1": 141.51}, "К-3.2": {"L1": 234.71, "MZ": 240.91, "B1": 131.97}, "К-4.1": {"L1": 183.59, "MZ": 233.42, "B1": 92.98}, "К-4.2": {"L1": 234.71, "MZ": 240.91, "B1": 92.98}};
-const PARK = {levels:[98, 132], total:230, planned:160, added:70, addedUsd:2100000, residents:301, guest:7};
+const PARK = {levels:[98, 132], total:230, guest:7};
 const GROUND = [['Коммерция 1 этажа · 8 помещений',1705.6],['Антресоль коммерции',1897.32],['Торговый цоколь −1',1025.48],['Итого коммерция',4628.40],['Лобби 4 подъездов',197.28]];
 const r1 = x => Math.round(x*10)/10;
 function inner(t){ return r1(TYPES[t].r.reduce((s,x)=>s+x[1],0)); }
@@ -36,7 +36,7 @@ function units(sc){
 }
 const AREA = r1(units().reduce((s,u)=>s+u.area,0)), NUNITS = units().length; // 85 квартир = 14 000,0 м² (рекомендация по квартирографии, Arbat Real Estate)
 /* Финмодель v2 — схема команды проекта (документ от 07.09.2026): партнёр вносит участок, застройщик строит. */
-const DEF = {basis:'team', price:4500, sellHalls:false, parkN:160, parkPrice:30000,
+const DEF = {basis:'team', price:4500, sellHalls:false, parkN:Math.max(0,230-(NUNITS*2+7)), parkPrice:30000,
   grossAbove:23787.6, grossPark:5912.0, grossRetB:0, retBCost:1500, constr:1500, parkCost:400, landValue:17000000, partnerArea:6500, partnerPark:37,
   vat:0.16, cit:0.20, fx:457, fxDoc:457, extras:false, design:0.04, superv:0.02, conting:0.05, mgmt:0.02, broker:0.03, guar:0.015,
   citDeduct:'none', partnerPay:'end', partnerMode:'fixed', partnerParkValue:1124567.47, equity:2000000, arbat:10000000, upfront:0.6, salesDelay:0, costAdj:0,
@@ -85,7 +85,7 @@ function run(inp){
 function run1(a,p){ return run(Object.assign({},a,{price:p})).devNet; }
 function breakEven(inp){ // price where developer net profit = 0
   let lo=500,hi=20000; for(let i=0;i<100;i++){const mid=(lo+hi)/2; if(run(Object.assign({},inp,{price:mid})).devNet>0) hi=mid; else lo=mid;} return (lo+hi)/2; }
-function scenarioStats(sc){ const us=units(sc), area=r1(us.reduce((t,x)=>t+x.area,0)), by={}; us.forEach(x=>by[x.type]=(by[x.type]||0)+1); const res={}; PRICES.forEach(p=>{ const r=run({price:p,aptM2:area}); res[p]={G:r.G,devNet:r.devNet,partnerNet:r.partnerNet,revApt:area*p}; }); return {n:us.length,area,by,res,avg:r1(area/us.length),maxFloorSec:Math.max(...Object.values(us.reduce((m,x)=>{const k=x.section+'-'+x.floor; m[k]=(m[k]||0)+x.area; return m;},{})))}; }
+function scenarioStats(sc){ const us=units(sc), area=r1(us.reduce((t,x)=>t+x.area,0)), by={}; us.forEach(x=>by[x.type]=(by[x.type]||0)+1); const res={}; PRICES.forEach(p=>{ const r=run({price:p,aptM2:area,parkN:Math.max(0,230-(us.length*2+7))}); res[p]={G:r.G,devNet:r.devNet,partnerNet:r.partnerNet,revApt:area*p}; }); return {n:us.length,area,by,res,avg:r1(area/us.length),maxFloorSec:Math.max(...Object.values(us.reduce((m,x)=>{const k=x.section+'-'+x.floor; m[k]=(m[k]||0)+x.area; return m;},{})))}; }
 
 /* распределение машино-мест: 2 на квартиру (ближайшие к своему подъезду), 7 гостевых, остальные — сверх нормы */
 function parkAssign(){

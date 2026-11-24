@@ -169,15 +169,14 @@ function renderChess(){
 }
 /* коммерция и паркинг (из финансовой модели проекта) */
 function renderExtra(){
-  const COM=4628.4, PN=M.DEF.parkN, PP_=30000, OWN=37, LV=[PN/2,PN/2];
+  const COM=4628.4, PN=M.DEF.parkN, PP_=30000, OWN=37, LV=[Math.ceil(PN/2),Math.floor(PN/2)];
   let ownLeft=OWN;
-  const lvl=(k,n)=>{ let cells=''; for(let i=0;i<n;i++){ const own=ownLeft>0 && k===1 ? (ownLeft--,true) : false; cells+=`<i class="${own?'own':''}" title="P${k}-${String(i+1).padStart(2,'0')} · ${usd(PP_)}"></i>`; }
+  const lvl=(k,n)=>{ ownLeft=Math.min(ownLeft,PN); let cells=''; for(let i=0;i<n;i++){ const own=ownLeft>0 && k===1 ? (ownLeft--,true) : false; cells+=`<i class="${own?'own':''}" title="P${k}-${String(i+1).padStart(2,'0')} · ${usd(PP_)}"></i>`; }
     return `<div class="xcard"><h4>Паркинг −${k}</h4><div class="sub">${n} мест</div><div class="pk">${cells}</div>
       <div class="tot"><span>Паркинг, ${n} мест × ${usd(PP_)}</span><b>${usd(n*PP_)}</b></div></div>`; };
   $('#chessExtra').innerHTML=`<div class="xh">Коммерция и паркинг</div>
     <div class="xcard"><h4>Коммерческие, ${nf(COM,1)} м²</h4><div class="sub">${J(p=>usd(p))} за м²</div><div class="com-blk">${nf(COM,1)} м²</div>
-      <div class="tot"><span>Сумма по прайсу</span><b>${J(p=>usd(Math.round(COM*p)))}</b></div></div>`+lvl(1,LV[0])+lvl(2,LV[1])+`<div class="xcard"><h4>Новые места паркинга</h4><div class="sub">${M.PARK.added} мест сверх таблицы на −1 и −2</div><div class="com-blk">+${M.PARK.added}</div><div class="tot"><span>${M.PARK.added} мест × ${usd(PP_)}</span><b>${usd(M.PARK.addedUsd)}</b></div></div>`+
-    `<div class="xleg"><span><i style="background:#8C9A93"></i><span>Паркинг, ${PN} мест × ${usd(PP_)}</span> = ${usd(PN*PP_)}</span><span><i style="background:#C9A66B"></i><span>Доля собственника участка</span> · <span>Паркинг, ${OWN} мест</span></span></div>`;
+      <div class="tot"><span>Сумма по прайсу</span><b>${J(p=>usd(Math.round(COM*p)))}</b></div></div>`+lvl(1,LV[0])+lvl(2,LV[1])+`<div class="xleg"><span><i style="background:#8C9A93"></i><span>Паркинг, ${PN} мест × ${usd(PP_)}</span> = ${usd(PN*PP_)}</span><span><i style="background:#C9A66B"></i><span>Доля собственника участка</span> · <span>Паркинг, ${OWN} мест</span></span></div>`;
 }
 $('#chessTools').onclick=e=>{const b=e.target.closest('button'); if(!b) return; if(b.dataset.s) chSec=+b.dataset.s; if(b.dataset.f) chFl=+b.dataset.f; renderChess();};
 $('#chessWrap').onclick=e=>{const c=e.target.closest('.px-u'); if(c) window.SHEV_unitCard(c.dataset.no);};
