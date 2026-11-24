@@ -3,7 +3,7 @@
   const box = document.getElementById('pkmap'); if(!box || !window.GEO3) return;
   const D = window.GEO3, Y0 = D.Y0, Y1 = D.Y1, W = D.WUX;
   const PA = window.SHEV && window.SHEV.parkAssign && window.SHEV.parkAssign();
-  const CAT = {res:'жителям', apt:'закреплено за квартирой (2 на квартиру)', extra:'сверх нормы — свободное, доступно к продаже', guest:'гостевое / МГН'};
+  const CAT = {res:'жителям', apt:'закреплено за квартирой (2 на квартиру)', extra:'сверх нормы — в продаже (3-й и 4-й автомобиль семьи) или кладовая', guest:'гостевое / МГН'};
   const COLOR = {res:'#ffffff', apt:'#ffffff', extra:'#F2DDA8', guest:'#DDEFE9'};
   const kind = s => PA ? PA.cat[s.no] || s.cat : s.cat;
   const ABS = {'-1':'813,55','-2':'810,25','-3':'806,35'};
