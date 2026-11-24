@@ -77,10 +77,9 @@ $('#heroKpis').innerHTML=[
    ['ph07-4k','Квартира','Вечерний свет','Мягкое освещение гостиной и спален.'],
    ['ph10-4k','Квартира','Утренний свет','Светлые комнаты с видом на двор.'],
    ['ph17-4k','Квартира','Комнаты квартиры','Гостиная, спальни, кухня и ванная.'],
-   ['ph11-4k','Квартира','Студийная планировка','Свободное пространство для жизни и гостей.'],
    ['fac-long-4k','Фасад','Дом целиком','Девять этажей светлого камня — ровный ритм окон и балконов.']];
   const box=$('#walkbox'), cap=$('#walkcap'), pr=$('#walkprog');
-  const FIT=['fac-long-4k','fac-long-night-4k','ph08-4k','ph06-4k','ph07-4k','ph10-4k','ph11-4k','ph17-4k','ph18-4k'];
+  const FIT=['fac-long-4k','fac-long-night-4k','ph08-4k','ph06-4k','ph07-4k','ph10-4k','ph17-4k','ph18-4k'];
   box.insertAdjacentHTML('afterbegin',S.map(x=>FIT.includes(x[0])?`<div class="sl fit"><img class="bgb" data-src="img/${x[0]}.jpg" alt=""><img class="fg" data-src="img/${x[0]}.jpg" alt="${x[2]}"></div>`:`<div class="sl"><img data-src="img/${x[0]}.jpg" alt="${x[2]}"></div>`).join(''));
   pr.innerHTML=S.map(()=>'<i><b></b></i>').join('');
   (function(){ const fs=document.createElement('button'); fs.id='walkfs'; fs.type='button'; fs.setAttribute('aria-label','На весь экран');
@@ -146,6 +145,7 @@ window.SHEV_floorSVG=function(sec,fl,act){
     return `<g data-no="${u.no}" style="cursor:pointer"><rect x="${x0+2}" y="${y+2}" width="${w-4}" height="${h-4}" rx="4" fill="${c}" fill-opacity="${on?.95:.55}" stroke="${on?'#1F3A2E':c}" stroke-width="${on?4:1.5}"/><text x="${x0+w/2}" y="${y+h/2-4}" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">${u.no}</text><text x="${x0+w/2}" y="${y+h/2+14}" text-anchor="middle" font-size="12" fill="#fff">${nf(u.area,0)} м²</text></g>`;}).join('');};
   return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;background:#FBF9F5;border-radius:10px">${band(top,0,cy0)}${band(bot,cy1,H-cy1)}<rect x="${cx0}" y="${cy0}" width="${cx1-cx0}" height="${cy1-cy0}" fill="#d9d2c2" stroke="#b9ae96"/><text x="${(cx0+cx1)/2}" y="${(cy0+cy1)/2+5}" text-anchor="middle" font-size="13" fill="#6b6455">ядро · 2 лифта</text></svg><p class="muted small" style="margin:6px 0 0">Схема этажа подъезда: квартиры вокруг лифтового ядра.</p>`;
 };
+{const hp=document.getElementById('hallplan'); if(hp) hp.innerHTML=window.SHEV_floorSVG(1,3,0);}
 /* ---------- chess ---------- */
 let filt='all';
 function unitCard(u){
@@ -304,7 +304,7 @@ $('#pricesw').onclick=e=>{const b=e.target.closest('button'); if(b) setPrice(b.d
 /* ---------- TEP ---------- */
 (function(){
   const rows=[['Адрес','г. Алматы, Алмалинский р-н, ул. Амангельды, 78 — между ул. Жамбыла и ул. Шевченко'],['Кадастровые номера','20-311-016-133 (0,6560 га, собственность) и 20-311-016-165 (0,2286 га, аренда)'],['Разрешительная стадия','АПЗ KZ32VUA00382944 от 12.03.2021; эскизный проект'],['Участок','8 846 м² (≈ 88 соток)'],['Пятно застройки','2 380,5 м² · 2 блока по 53,14 × 22,40 м, 4 подъезда'],['Этажность','9 этажей: 1 — коммерция с антресолью, 2–9 — квартиры; + 2 уровня паркинга'],
-   ['Общая площадь надземная','23 787,6 м²'],['Продаваемая площадь',nf(M.AREA+4628.4,1)+' м² (квартиры '+nf(M.AREA,1)+' + коммерция 4 628,4)'],['Квартиры на этаже подъезда','1–4 резиденции от 80 до 470 м²'],['Квартир',U.length+': '+K.map(k=>T[k].rooms+'-к — '+U.filter(u=>u.type===k).length).join(', ')+' · сценарий '+M.SCEN+(M.SCEN==='B'?' (3 подъезда Luxury + Private Residence)':' (все подъезды Luxury)')],['Паркинг','2 уровня, 230 мест: '+(U.length*2)+' закреплено за квартирами (2 на квартиру), 7 гостевых, '+(230-U.length*2-7)+' сверх нормы'],['Сад на крыше','сады всех четырёх подъездов'],
+   ['Общая площадь надземная','23 787,6 м²'],['Продаваемая площадь',nf(M.AREA+4628.4,1)+' м² (квартиры '+nf(M.AREA,1)+' + коммерция 4 628,4)'],['Квартиры на этаже подъезда','1–3 резиденции от 80 до 470 м²'],['Квартир',U.length+': '+K.map(k=>T[k].rooms+'-к — '+U.filter(u=>u.type===k).length).join(', ')+' · сценарий '+M.SCEN+(M.SCEN==='B'?' (3 подъезда Luxury + Private Residence)':' (все подъезды Luxury)')],['Паркинг','2 уровня, 230 мест: '+(U.length*2)+' закреплено за квартирами (2 на квартиру), 7 гостевых, '+(230-U.length*2-7)+' сверх нормы'],['Сад на крыше','сады всех четырёх подъездов'],
    ['Подъездов / лифтов','4 / 8 — по 2 лифта и лестнице Н2 в подъезде'],['Цена продажи',null],['Рядом','отель Rixos Almaty, городской парк']];
   window.__renderTEP=()=>{ $('#tep').innerHTML='<tr><th>Показатель</th><th class="r">Значение</th></tr>'+rows.map(r=>`<tr><td>${r[0]}</td><td class="r">${r[1]??J(p=>usd(p))+' за м²'}</td></tr>`).join(''); };
   window.__renderTEP();

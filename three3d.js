@@ -10,7 +10,7 @@ import CAR from './lib/car.geo.js';
 
 
 import G from './geo3.js';
-/* уровень −3 (78 мест): берём из общей схемы паркинга geo3data.js — те же координаты, что у −1 и −2 */
+/* паркинг: 2 уровня (−1, −2), 230 мест — из общей схемы geo3data.js */
 const D3 = window.GEO3;
 if (D3 && !G.stalls.some(s => s.lv === -3)) { D3.stalls.filter(s => s.lv === -3).forEach(s => G.stalls.push(s)); G.WIN3 = D3.WIN3; G.lifts3 = D3.lifts; G.evac3 = D3.evac; G.gap3 = D3.gap; G.bands3 = D3.bands; G.WU3 = D3.WU; }
 const M = window.SHEV, UI = window.SHEV_UI, UNITS = M.units();
@@ -25,7 +25,7 @@ const SECZ = {1: 0, 2: 0, 3: 0, 4: 0};          // единый уровень �
 const LV = {1: 0, 1.5: 3.9}; for (let f = 2; f <= 9; f++) LV[f] = 7.0 + (f - 2) * 3.3;
 const FH = f => f === 1 ? 3.9 : f === 1.5 ? 3.1 : 3.3, ROOF = 33.4, PAR = 34.6;
 const SHELLS = [1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9];
-const PK = {P1: -4.2, P2: -7.5, P3: -11.4};   // абс. 813,55 / 810,25 / 806,35
+const PK = {P1: -4.2, P2: -7.5};   // абс. 813,55 / 810,25
 
 /* ---------- renderer / scene ---------- */
 const renderer = new THREE.WebGLRenderer({canvas, antialias:true, powerPreference:'high-performance'});
@@ -315,16 +315,6 @@ for (const s of G.sects) {
 
 /* ---------- планы этажей ---------- */
 const planTex = {typ: tex('img/tex3-typ.jpg'), L1: tex('img/tex3-L1.jpg'), L2: tex('img/tex3-L2.jpg'), P1: tex('img/tex3-P1.jpg'), P2: tex('img/tex3-P2.jpg')};
-/* план уровня −3 рисуем сами: контур, рампы, лифты, эвакуация и 78 машино-мест */
-(function(){ if (!G.WIN3) return; const S = 14, pk0 = G.park, cw = Math.round((pk0.YN - pk0.YS) * S), ch = Math.round(pk0.WUX * S), c = document.createElement('canvas'); c.width = cw; c.height = ch; const g = c.getContext('2d');
-  const rr = (r, fill, stroke) => { const px = (pk0.YN - r[3]) * S, py = r[0] * S, w = (r[3] - r[2]) * S, h = (r[1] - r[0]) * S; g.fillStyle = fill; g.fillRect(px, py, w, h); if (stroke) { g.strokeStyle = stroke; g.lineWidth = 1; g.strokeRect(px, py, w, h); } return [px, py, w, h]; };
-  rr([0, G.WU3, G.WIN3[0], G.WIN3[1]], '#e2ddd3', '#2a2f2d'); rr([G.bands3.A1[0], G.bands3.A1[1], G.WIN3[0], G.WIN3[1]], '#d6d2c9');
-  rr([0.4, 24.7, G.gap3[0], G.gap3[1]], '#bdb8ae', '#555');
-  G.lifts3.filter(l => l[2] >= G.WIN3[0] && l[3] <= G.WIN3[1]).forEach(l => rr([l[0], l[1], l[2], l[3]], '#3b3f3c', '#555'));
-  G.evac3.filter(r => r[2] >= G.WIN3[0] && r[3] <= G.WIN3[1]).forEach(r => rr(r, '#cfe3cf', '#555'));
-  g.textAlign = 'center'; g.textBaseline = 'middle';
-  for (const st of G.stalls.filter(q => q.lv === -3)) { const [px, py, w, h] = rr(st.r, '#ffffff', '#77736a'); g.fillStyle = '#222'; g.font = '11px sans-serif'; g.fillText(String(st.no), px + w / 2, py + h / 2); }
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = aniso; planTex.P3 = t; })();
 const plates = {};
 const pk = G.park, parkUV = (x, y) => [(pk.YN - y) / (pk.YN - pk.YS), 1 - x / pk.WUX];
 function plate(key, texKey, hOf){
@@ -335,7 +325,7 @@ function plate(key, texKey, hOf){
 }
 for (let f = 2; f <= 9; f++) { const g = new THREE.Group(); g.visible = false; scene.add(g); plates[f] = g; }
 plate(1, 'L1', s => 0.02); plate(1.5, 'L2', s => LV[1.5] + 0.02);
-plate('P1', 'P1', () => PK.P1 + 0.02); plate('P2', 'P2', () => PK.P2 + 0.02); plate('P3', 'P3', () => PK.P3 + 0.02);
+plate('P1', 'P1', () => PK.P1 + 0.02); plate('P2', 'P2', () => PK.P2 + 0.02);
 const ovMat = c => new THREE.MeshBasicMaterial({color: c, transparent: true, opacity: 0, depthWrite: false});
 /* схематичные контуры квартир: этаж подъезда делится на верхнюю и нижнюю зону вокруг ядра, ширина — пропорционально площади */
 function schemRects(u){
@@ -495,7 +485,7 @@ function showCom(f){
 }
 function showPark(){
   const lv = -(+level[1]), n = G.stalls.filter(s => s.lv === lv).length, c = G.cells.filter(s => s.lv === lv);
-  info.innerHTML = `<h4>Паркинг ${lv}</h4><div class="big">${n} мест</div><p class="small" style="color:#B9C4BB;margin-top:6px">Всего ${G.stalls.length} мест на 2 уровнях (−1, −2) — таблица считает 160, в проекте больше. ${lv === -3 ? 'Уровень −3 (отм. −11,4 м, 2 960 м²) закрывает нехватку мест на 128 квартир.' : ''} ${lv === -1 ? 'На −1 — торговый цоколь коммерции.' : ''} Нажмите на место — номер, размер, назначение.</p><div class="seg" style="margin-top:10px"><button id="vclose">Закрыть</button></div>`;
+  info.innerHTML = `<h4>Паркинг ${lv}</h4><div class="big">${n} мест</div><p class="small" style="color:#B9C4BB;margin-top:6px"><span>Всего ${G.stalls.length} мест на 2 уровнях (−1, −2): по 2 на квартиру и 7 гостевых; места сверх нормы — в продажу или под кладовые.</span> ${lv === -1 ? '<span>На −1 — торговый цоколь коммерции.</span>' : ''} <span>Нажмите на место — номер, размер, назначение.</span></p><div class="seg" style="margin-top:10px"><button id="vclose">Закрыть</button></div>`;
   info.classList.add('show'); document.getElementById('vclose').onclick = () => info.classList.remove('show');
 }
 const CAT = {res: 'жителям — по 2 на квартиру', apt: 'закреплено за квартирой (2 на квартиру)', extra: 'сверх нормы — свободное, на продажу', guest: 'гостевое / МГН'};
@@ -503,7 +493,7 @@ function selStall(b, silent){
   if (selSt) selSt.material.opacity = 0; selSt = b;
   if (!b) return; b.material.opacity = 0.65; const st = b.userData.stall;
   info.innerHTML = `<h4>Машино-место № ${st.no}</h4><div class="big num">${(PAK[st.no]||st.cat) === 'guest' ? 'гостевое' : (PAK[st.no]||st.cat) === 'apt' ? 'в составе квартиры' : UI.usd(30000)}</div>
-  <table class="num"><tr><td>Уровень</td><td>${{'-1': '−1 · абс. 813,55', '-2': '−2 · абс. 810,25', '-3': '−3 · абс. 806,35'}[st.lv]}</td></tr><tr><td>Размер места</td><td>${UI.nf(st.w, 2)} × ${UI.nf(st.l, 2)} м</td></tr>
+  <table class="num"><tr><td>Уровень</td><td>${{'-1': '−1 · абс. 813,55', '-2': '−2 · абс. 810,25'}[st.lv]}</td></tr><tr><td>Размер места</td><td>${UI.nf(st.w, 2)} × ${UI.nf(st.l, 2)} м</td></tr>
   <tr><td>Норма РК (СП РК 3.03-105)</td><td>≥ 2,50 × 5,30 м</td></tr><tr><td>Назначение</td><td>${CAT[PAK[st.no] || st.cat]}</td></tr><tr><td>Проезд</td><td>6,0 м, двусторонний</td></tr><tr><td>Высота в чистоте</td><td>не менее 2,6 м</td></tr></table>
   <div class="seg" style="margin-top:10px"><button id="vclose">Закрыть</button></div>`;
   info.classList.add('show'); document.getElementById('vclose').onclick = () => { info.classList.remove('show'); selStall(null); };
