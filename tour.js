@@ -12,7 +12,7 @@ window.SHEV_tour=function(box){
   document.head.appendChild(css);
   function draw(){
     const ord=M.TYPE_KEYS&&window.SHEV_planOrder(k), r=ord[i];
-    wrap.innerHTML=`<div class="pl">${window.SHEV_planSVG(k)}</div><div class="ph"><img src="${pic(r)}" alt="${r.n}"><div class="ty">${M.TYPE_KEYS.map(t=>`<button data-t="${t}" class="${t===k?'on':''}">${M.TYPES[t].rooms}-к · ${M.TYPES[t].total} м²</button>`).join('')}</div><div class="cap"><p><b>${i+1} / ${ord.length}</b> · ${M.TYPES[k].rooms}-комнатная, ${M.TYPES[k].total} м²</p><h3>${r.n} · ${r.m.toFixed(1).replace('.',',')} м²</h3><p>${TXT(r)}</p></div><div class="ctl"><button data-a="prev">←</button><button data-a="play" class="${timer?'on':''}">${timer?'⏸ Пауза':'▶ Автопрогулка'}</button><button data-a="next">→</button></div></div>`;
+    wrap.innerHTML=`<div class="pl">${window.SHEV_planSVG(k)}</div><div class="ph"><img src="${pic(r)}" alt="${r.n}"><div class="ty">${M.TYPE_KEYS.map(t=>`<button data-t="${t}" class="${t===k?'on':''}">${M.TYPES[t].rooms}-к · ${M.TYPES[t].total} м²</button>`).join('')}</div><div class="cap"><p><b>${i+1} / ${ord.length}</b> · ${M.TYPES[k].rooms}-комнатная, ${M.TYPES[k].total} м²</p><h3><span>${r.n}</span> · ${r.m.toFixed(1).replace('.',',')} м²</h3><p>${TXT(r)}</p></div><div class="ctl"><button data-a="prev">←</button><button data-a="play" class="${timer?'on':''}">${timer?'⏸ Пауза':'▶ Автопрогулка'}</button><button data-a="next">→</button></div></div>`;
     const rect=wrap.querySelector(`.pr[data-i="${r.i}"]`); if(rect) rect.classList.add('on');
   }
   wrap.onclick=e=>{ const b=e.target.closest('button'); if(!b) return; const n=window.SHEV_planOrder(k).length;
