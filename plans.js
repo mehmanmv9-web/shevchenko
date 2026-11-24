@@ -38,7 +38,7 @@ function cand(k,r){
 function score(out,W,H,S){
   let p=0; const e=1.5;
   out.forEach(q=>{ const wm=q.w/S, hm=q.h/S, mn=Math.min(wm,hm), mx=Math.max(wm,hm), ar=mx/mn, need=MINW[q.t]||1.4;
-    if(mn<need) p+=(need-mn)*40; if(ar>(q.t==='h'?4.5:2.3)) p+=(ar-(q.t==='h'?4.5:2.3))*14; if(ar>3.2&&q.t!=='h') p+=40;
+    if(mn<need) p+=(need-mn)*40; if(ar>(q.t==='h'?4:2.0)) p+=(ar-(q.t==='h'?4:2.0))*22; if(ar>2.7&&q.t!=='h') p+=70; if(q.t==='l'&&mn<3.6) p+=(3.6-mn)*30;
     const ext=q.x<e||q.y<e||q.x+q.w>W-e||q.y+q.h>H-e;
     if((q.t==='l'||q.t==='b')&&!ext) p+=120; if(q.t==='t'&&ext&&q.m<14) p+=4; });
   const hall=out.filter(q=>q.t==='h'); if(!hall.some(q=>q.y+q.h>H-e)) p+=80;
@@ -49,7 +49,7 @@ function score(out,W,H,S){
 const CACHE={};
 function best(k){
   if(CACHE[k]) return CACHE[k]; const r=rng(1000+k*7), tot=M.TYPES[k].total; let bestS=1e9,bo=null;
-  for(let i=0;i<4000;i++){ const asp=1.0+r()*0.9, Hm=Math.sqrt(tot/asp), Wm=Hm*asp, S=900/Wm, W=900, H=Hm*S, t=cand(k,r), out=[]; place(t,0,0,W,H,out); const sc=score(out,W,H,S); if(sc<bestS){bestS=sc;bo={out,asp,Wm,Hm,S,W,H};} }
+  for(let i=0;i<9000;i++){ const asp=1.0+r()*0.9, Hm=Math.sqrt(tot/asp), Wm=Hm*asp, S=900/Wm, W=900, H=Hm*S, t=cand(k,r), out=[]; place(t,0,0,W,H,out); const sc=score(out,W,H,S); if(sc<bestS){bestS=sc;bo={out,asp,Wm,Hm,S,W,H};} }
   return CACHE[k]=bo;
 }
 function wrap(t,max){ const w=t.split(' '); const L=[]; let c=''; w.forEach(x=>{ if((c+' '+x).trim().length>max&&c){L.push(c);c=x;} else c=(c+' '+x).trim(); }); if(c)L.push(c); return L; }
@@ -67,7 +67,7 @@ window.SHEV_planSVG=function(k){
   const tot=M.TYPES[k].total, B=best(k), out=B.out, Wm=B.Wm, Hm=B.Hm, S=B.S, W=B.W, H=B.H, pad=40;
   const fs=Math.max(10.5,Math.min(17,W/58)); let rg='',lb='',fu='',wi='',dr='';
   const LAB=new Map(); out.forEach(r=>{ let f1=fs, lines=wrap(r.n,Math.max(5,Math.floor(r.w/(f1*0.52)))); const need=()=>Math.max(...lines.map(l=>l.length))*f1*0.5<=r.w-10 && (lines.length+1.4)*f1*1.1<=r.h-6; while(!need()&&f1>9){ f1-=0.7; lines=wrap(r.n,Math.max(5,Math.floor(r.w/(f1*0.52)))); } LAB.set(r,{f1,lines,ok:need()}); });
-  out.forEach(r=>{ rg+=`<rect x="${r.x.toFixed(1)}" y="${r.y.toFixed(1)}" width="${r.w.toFixed(1)}" height="${r.h.toFixed(1)}" fill="${COL[r.t]}" stroke="#2B2A26" stroke-width="3"/>`; const l=LAB.get(r); fu+=furn(r,S,l.ok?(l.lines.length+1.5)*l.f1*1.1:0); });
+  out.forEach((r,ri)=>{ rg+=`<rect class="pr" data-i="${ri}" x="${r.x.toFixed(1)}" y="${r.y.toFixed(1)}" width="${r.w.toFixed(1)}" height="${r.h.toFixed(1)}" fill="${COL[r.t]}" stroke="#2B2A26" stroke-width="3"/>`; const l=LAB.get(r); fu+=furn(r,S,l.ok?(l.lines.length+1.5)*l.f1*1.1:0); });
   out.forEach(r=>{ // окна на наружных стенах (верх, право, лево) у жилых комнат
     if(r.t==='h'||r.t==='t'||r.t==='w') return;
     const win=(x1,y1,x2,y2)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#fff" stroke-width="9"/><line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#6C8FA6" stroke-width="3"/>`;
@@ -95,6 +95,8 @@ window.SHEV_planSVG=function(k){
   const dim=`<text x="${W/2}" y="-14" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="12" fill="#8A6B2E" letter-spacing="2">${fm(Wm)} м</text><text transform="translate(-14 ${H/2}) rotate(-90)" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="12" fill="#8A6B2E" letter-spacing="2">${fm(Hm)} м</text>`;
   return `<svg viewBox="${-pad} ${-pad} ${W+2*pad} ${H+2*pad+10}" style="width:100%;height:auto;display:block;background:#FFFDF8;border-radius:12px" role="img" aria-label="Планировка ${M.TYPES[k].rooms}-комнатной квартиры, ${fm(tot)} м²"><rect x="${-pad+5}" y="${-pad+5}" width="${W+2*pad-10}" height="${H+2*pad}" fill="none" stroke="#C9A66B" stroke-width="1.2"/>${rg}${fu}${dr}<rect x="0" y="0" width="${W}" height="${H}" fill="none" stroke="#1E1D1A" stroke-width="9"/>${wi}${lb}${dim}</svg>`;
 };
+window.SHEV_planOrder=function(k){ const o=best(k).out.map((r,i)=>({i,n:r.n,m:r.m,t:r.t,x:r.x,y:r.y,w:r.w,h:r.h})); const pr=r=>{ if(r.t==='h') return /Холл|Входн|Прихож/.test(r.n)&&/Прихож|Входн/.test(r.n)?0:1; if(r.t==='l') return /Гости/.test(r.n)?2:/Кухня/.test(r.n)?3:4; if(r.t==='b') return /Мастер/.test(r.n)?5:8; if(r.t==='w') return 6; if(r.t==='t') return /мастер/.test(r.n)?7:/Гостев/.test(r.n)?9:10; return 11; };
+  return o.sort((a,b)=>pr(a)-pr(b)||a.i-b.i); };
 window.SHEV_roomsTable=function(k){ const r=R[k], t=r.reduce((p,q)=>p+q[1],0); return '<table class="rooms num">'+r.map(x=>`<tr><td>${x[0]}</td><td>${x[1].toFixed(1).replace('.',',')} м²</td></tr>`).join('')+`<tr class="sum"><td>Общая площадь квартиры</td><td>${t.toFixed(1).replace('.',',')} м²</td></tr></table>`; };
 window.SHEV_PLAN_NOTE='Планировка и экспликация помещений. Площади помещений в сумме дают общую площадь квартиры.';
 })();
