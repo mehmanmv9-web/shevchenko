@@ -70,7 +70,7 @@ function drawLabels(){
 }
 // ---- zoom / pan
 const HOMEVB = [-175,-150,330,0]; let vb;
-function fit(){ const r = view.getBoundingClientRect(), ar = r.height/Math.max(1,r.width); vb = [HOMEVB[0], HOMEVB[1], HOMEVB[2], HOMEVB[2]*ar]; const need = 260; if(vb[3] < need){ const w = need/ar; vb = [-25.5-w/2, -130, w, need]; } else vb[1] = -5 - vb[3]/2; apply(); }
+function fit(){ const r = view.getBoundingClientRect(), ar = (r.width>1&&r.height>1) ? r.height/r.width : 0.8; vb = [HOMEVB[0], HOMEVB[1], HOMEVB[2], HOMEVB[2]*ar]; const need = 260; if(vb[3] < need){ const w = need/ar; vb = [-25.5-w/2, -130, w, need]; } else vb[1] = -5 - vb[3]/2; apply(); }
 function apply(){ svg.setAttribute('viewBox', vb.join(' ')); drawLabels(); }
 function zoom(f, cx, cy){ const r = view.getBoundingClientRect(); const px = cx==null ? 0.5 : (cx-r.left)/r.width, py = cy==null ? 0.5 : (cy-r.top)/r.height;
   const nw = Math.min(1600, Math.max(40, vb[2]*f)), nh = nw*vb[3]/vb[2]; const wx = vb[0]+px*vb[2], wy = vb[1]+py*vb[3]; vb = [wx-px*nw, wy-py*nh, nw, nh]; apply(); }
@@ -88,7 +88,7 @@ const up = e => { ptrs.delete(e.pointerId); if(ptrs.size<2) pinch = null; if(!pt
 view.addEventListener('pointerup', up); view.addEventListener('pointercancel', up);
 function zoomAnim(f){ const n=9, step=Math.pow(f,1/n); let i=0; const tick=()=>{ zoom(step); if(++i<n) requestAnimationFrame(tick); }; tick(); }
 document.getElementById('mzin').onclick = () => zoomAnim(0.6); document.getElementById('mzout').onclick = () => zoomAnim(1/0.6); document.getElementById('mzreset').onclick = fit;
-new ResizeObserver(() => { if(vb){ const r = view.getBoundingClientRect(); vb[3] = vb[2]*r.height/Math.max(1,r.width); apply(); } }).observe(view);
+new ResizeObserver(() => { if(vb){ const r = view.getBoundingClientRect(); if(r.width<2||r.height<2) return; vb[3] = vb[2]*r.height/Math.max(1,r.width); apply(); } }).observe(view);
 fit();
 // ---- вкладки карт
 const ext = document.getElementById('mapext');

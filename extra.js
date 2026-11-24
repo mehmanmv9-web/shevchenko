@@ -41,5 +41,5 @@ addEventListener('load',()=>init());
 })();
 
 /* кнопка «Открыть скан оригинала» появляется, только если файл img/arbat-letter-scan.jpg загружен на сайт */
-(function(){const b=document.getElementById('lscanBtn'), im=document.getElementById('lscanImg'); if(!b||!im) return;
+(function(){const b=document.getElementById('lscanBtn'), im=document.getElementById('lscanImg'); if(!b||!im||!window.SHEV_HAS_LETTER_SCAN) return; /* файл не загружен: включить, выставив window.SHEV_HAS_LETTER_SCAN=true */
   const p=new Image(); p.onload=()=>{ im.src=p.src; im.hidden=false; im.style.cssText='display:block;max-width:180px;margin-top:10px;border:1px solid #ccc;cursor:zoom-in'; b.hidden=false; b.onclick=ev=>{ev.preventDefault(); im.click();}; }; p.src='img/arbat-letter-scan.jpg';})();
