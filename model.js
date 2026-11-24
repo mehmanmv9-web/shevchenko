@@ -101,7 +101,12 @@ function parkAssign(){
   const nApt=us.length*PARK_PER_APT, nGuest=G.stalls.filter(s=>s.cat==='guest').length, total=G.stalls.length;
   return {cat,nApt,nGuest,total,extra:total-nApt-nGuest,flats:us.length,short:Object.values(short).reduce((a,b)=>a+b,0)};
 }
-function setScenario(sc){ try{localStorage.setItem('shevScen',sc);}catch(e){} const u=new URL(location.href); u.search=''; u.hash=''; location.href=u.pathname+'?v='+sc; }
+function setScenario(sc){ try{localStorage.setItem('shevScen',sc);}catch(e){} try{sessionStorage.setItem('shevKeep',JSON.stringify({y:window.scrollY||0,t:Date.now()}));}catch(e){} const u=new URL(location.href); u.searchParams.set('v',sc); u.hash=''; location.href=u.pathname+u.search; }
+/* после смены сценария возвращаем пользователя на то же место страницы (страница перезагружается) */
+(function(){ let k=null; try{ k=JSON.parse(sessionStorage.getItem('shevKeep')||'null'); sessionStorage.removeItem('shevKeep'); }catch(e){} if(!k||Date.now()-k.t>20000||!(k.y>0)) return;
+  let moved=false; const mv=()=>{moved=true}; ['wheel','touchstart','keydown','mousedown'].forEach(ev=>window.addEventListener(ev,mv,{passive:true,once:true}));
+  const go=()=>{ if(!moved) window.scrollTo(0,k.y); };
+  window.addEventListener('load',()=>{ go(); [400,1200,2500,4500].forEach(t=>setTimeout(go,t)); }); })();
 const API={parkAssign,SCEN,LAYOUTS,scenarioStats,setScenario,LAYOUT,COMM,PARK,aptArea,PER_FLOOR,PARK_PER_APT,TYPES,TYPE_KEYS,FLOORS,SECTIONS,PRICES,STATE,GROUND,AREA,DEF,BASIS,run,breakEven,units,inner};
 if(typeof module!=='undefined') module.exports=API; else root.SHEV=API;
 })(this);
