@@ -2,7 +2,7 @@
    Цена = площадь квартиры × цена м² (та же формула, что и в таблице цен). Ссылка вида …#kp-2-5-A-5000 открывает именно эту квартиру. */
 (function(){
 const M=window.SHEV; if(!M) return;
-const T=M.TYPES, U=M.units(), FX=M.DEF.fx;
+const T=M.TYPES, U=M.units();
 const nf=(x,d=0)=>{const f=Math.abs(x).toFixed(d),[i,r]=f.split('.');return (x<0?'−':'')+i.replace(/\B(?=(\d{3})+(?!\d))/g,' ')+(r?','+r:'');};
 const usd=x=>'$'+nf(Math.round(x));
 const ART='https://mehmanmv9-web.github.io/shevchenko/';
@@ -73,14 +73,14 @@ root.innerHTML='<div class="kbar"><b>ШЕВЧЕНКО</b><span>Личная пр
 document.body.appendChild(root);
 const $=s=>root.querySelector(s);
 
-let st={sec:2,fl:5,ty:0,price:M.STATE.price||4500};
+let st={sec:2,fl:5,ty:0};
 const flU=()=>U.filter(u=>u.section===st.sec&&u.floor===st.fl).sort((a,b)=>a.pos-b.pos);
 const unit=()=>{const a=flU(); return a[Math.min(st.ty,a.length-1)];};
 const hashOf=()=>`kp-${st.sec}-${st.fl}-${Math.min(st.ty,flU().length-1)+1}`;
 const urlOf=()=>{ const base=(/(claude|anthropic)/.test(location.hostname)||!/^https?:/.test(location.protocol))?ART:location.href.split('#')[0]; return base+'#'+hashOf(); };
 
 function render(){
-  const u=unit(), v=T[u.type], tot=Math.round(u.area*st.price);
+  const u=unit(), v=T[u.type], tot=0;
   const imgs=[['ph16-4k','Гостиная'],['ph15-4k','Мастер-спальня'],['tour/kitchen','Кухня'],['ph04-4k','Прихожая и гостиная'],['tour/bed2','Спальня'],['tour/bath','Ванная']];
   $('#kBody').innerHTML=`
   <div class="sel">
@@ -116,7 +116,7 @@ function render(){
 }
 root.addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b||b.id==='kX') return;
   if(b.dataset.s){ st.sec=+b.dataset.s; render(); } else if(b.dataset.f){ st.fl=+b.dataset.f; render(); } else if(b.dataset.t){ st.ty=+b.dataset.t; render(); } else if(b.dataset.p){ st.price=+b.dataset.p; render(); } });
-function open(o){ if(o){ if(o.sec) st.sec=o.sec; if(o.fl) st.fl=o.fl; if(o.ty!=null) st.ty=o.ty; if(o.price) st.price=o.price; }
+function open(o){ if(o){ if(o.sec) st.sec=o.sec; if(o.fl) st.fl=o.fl; if(o.ty!=null) st.ty=o.ty; }
   root.classList.add('on'); document.body.style.overflow='hidden'; render(); root.scrollTop=0; }
 function close(){ root.classList.remove('on'); document.body.style.overflow=''; try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){} }
 $('#kX').onclick=close; addEventListener('keydown',e=>{ if(e.key==='Escape'&&root.classList.contains('on')) close(); });

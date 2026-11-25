@@ -46,7 +46,6 @@ addEventListener('pagehide',()=>{ if(lbSrc){ lbSrc.style.visibility=''; lbx.clas
 document.addEventListener('click',e=>{const im=e.target.closest('[data-zoom]'); if(im){ e.preventDefault(); lbOpen(im); }});
 
 /* ---------- hero ---------- */
-const base=M.run({});
 $('#heroKpis').innerHTML=[
  ['≈88 соток','участок в «золотом квадрате»'],['9','этажей: 1 — коммерция с антресолью, 2–9 — резиденции'],[String(U.length),'резиденций от 80 до 470 м²'],['230','машиномест на 2 уровнях паркинга'],['2','машино-места к каждой квартире'],['3 года','до сдачи дома']
 ].map(x=>`<div><b>${x[0]}</b><span>${x[1]}</span></div>`).join('');
@@ -108,11 +107,8 @@ const gal=[['fac-long','Фасад по ул. Амангельды','g-a'],['mon
 $('#gallery').innerHTML=gal.map(g=>`<figure class="${g[2]}"><img src="img/${g[0]}.jpg" alt="${g[1]}" loading="lazy" data-zoom><figcaption>${g[1]}</figcaption></figure>`).join('');
 
 /* ---------- types ---------- */
-let MODE='cmp';
-const PP=()=>M.STATE.price, PS=()=>MODE==='cmp'?M.PRICES.slice():[MODE], J=fn=>PS().map(fn).join(' / ');
-function aptPrice(t){return Math.round(T[t].total*PP());}
 function typeHTML(t){
-  const v=T[t], pr=aptPrice(t);
+  const v=T[t];
   const us=U.filter(u=>u.type===t), cnt=us.length, tot=us.reduce((a,u)=>a+u.area,0);
   return `<div class="typecard"><div><div class="planbox">${window.SHEV_planSVG(t)}</div><p class="pn">${window.SHEV_PLAN_NOTE}</p></div>
     <div><div class="tt-head"><div><div class="eyebrow" style="margin:0 0 6px;color:${v.color}">${v.name}</div><div class="big num">${m2(v.total)}</div></div>
@@ -167,7 +163,7 @@ function renderChess(){
 }
 /* коммерция и паркинг (из финансовой модели проекта) */
 function renderExtra(){
-  const COM=4628.4, PN=M.DEF.parkN, PP_=30000, OWN=37, LV=[Math.ceil(PN/2),Math.floor(PN/2)];
+  const COM=4628.4, PN=53, PP_=30000, OWN=37, LV=[Math.ceil(PN/2),Math.floor(PN/2)];
   let ownLeft=OWN;
   const lvl=(k,n)=>{ ownLeft=Math.min(ownLeft,PN); let cells=''; for(let i=0;i<n;i++){ const own=ownLeft>0 && k===1 ? (ownLeft--,true) : false; cells+=`<i class="${own?'own':''}" title="P${k}-${String(i+1).padStart(2,'0')}"></i>`; }
     return `<div class="xcard"><h4>Паркинг −${k}</h4><div class="sub">${n} мест</div><div class="pk">${cells}</div></div>`; };
@@ -194,116 +190,6 @@ renderMix();
 
 /* ---------- amenities ---------- */
 $('#amen').innerHTML=M.GROUND.map(g=>`<div><b>${nf(g[1],2)}</b><span class="small muted">м² · ${g[0]}</span></div>`).join('');
-
-/* ---------- investor (simple) ---------- */
-const st=Object.assign({},M.DEF);
-const PR=[...M.PRICES.map(p=>[p,usd(p)+' за м²']),['cmp','Сравнение']];
-function recalc(){
-  const rs=PS().map(p=>M.run({...st,price:p})), JR=fn=>rs.map(fn).join(' / ');
-  $('#scen').innerHTML=PR.map(p=>`<button data-p="${p[0]}" class="${MODE===p[0]?'on':''}">${p[1]}</button>`).join('');
-  $('#kgrid').innerHTML=[
-    [JR(r=>mln(r.G)),'Все продажи проекта','квартиры, коммерция и паркинг'],
-    [JR(r=>mln(r.devNet)),'Чистая прибыль застройщика','после налогов и расчёта с собственником'],
-    [JR(r=>pct(r.devNet/st.equity,0)),'Доходность застройщика','на вложенные $2 млн'],
-    [JR(r=>mln(r.partnerNet)),'Прибыль собственника участка',`<b>${JR(r=>pct(r.partnerRoi,0))}</b> <span>сверх стоимости земли $17 млн</span>`],
-  ].map(x=>`<div><b>${x[0]}</b><span>${x[1]}</span><em>${x[2]}</em></div>`).join('');
-  const L=(n,f,cls='')=>`<tr class="${cls}"><td>${n}</td>${rs.map(r=>`<td class="r">${usd(f(r))}</td>`).join('')}</tr>`;
-  $('#pl').innerHTML=(rs.length>1?`<tr><th>Статья</th>${PS().map(p=>`<th class="r">Цена ${usd(p)} за м²</th>`).join('')}</tr>`:'')+L('Продажи квартир, коммерции и паркинга',r=>r.G,'sub')+L('НДС к оплате',r=>-r.vatPay)+L('Строительство дома и паркинга (без НДС)',r=>-r.costEx)
-    +L('Налог на прибыль 20%',r=>-r.cit)+L('Доля собственника участка',r=>-r.P)+L('Чистая прибыль застройщика',r=>r.devNet,'tot');
-  $('#split').innerHTML=rs.map((r,k)=>{ const parts=[['Строительство',r.C,'#7FA08B'],['Собственник участка',r.P,'#A8864F'],['Налоги (НДС + на прибыль)',r.vatPay+r.cit,'#9AA5B5'],['Прибыль застройщика',r.G-r.C-r.P-r.vatPay-r.cit,'#1F3A2E']];
-    return (rs.length>1?`<div class="eyebrow" style="margin:${k?18:0}px 0 8px">Цена ${usd(PS()[k])} за м²</div>`:'')+'<div style="display:flex;height:34px;margin-bottom:14px">'+parts.map(p=>`<div style="width:${p[1]/r.G*100}%;background:${p[2]}"></div>`).join('')+'</div>'+
-    parts.map(p=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #ECE5D8;font-size:14px"><span><i style="display:inline-block;width:10px;height:10px;background:${p[2]};margin-right:8px"></i>${p[0]}</span><span class="num">${mln(p[1])} · ${pct(p[1]/r.G,0)}</span></div>`).join(''); }).join('');
-  if(window.__renderDoc) window.__renderDoc();
-  if(window.__renderPT) window.__renderPT();
-}
-(function(){
-  const f=v=>typeof v==='number'?usd(v,2):v, tg=v=>nf(v*M.DEF.fx,2)+' ₸', PA=M.DEF.partnerArea, PK=M.DEF.partnerPark;
-  window.__renderDoc=()=>{ const ps=PS(), rs=ps.map(p=>M.run({...st,price:p}));
-    const row=(n,fn,cls='')=>`<tr class="${cls}"><td>${n}</td>${rs.map((r,i)=>`<td class="r">${f(fn(r,ps[i]))}</td>`).join('')}</tr>`;
-    const h=n=>`<tr class="sub"><td colspan="${rs.length+1}"><b>${n}</b></td></tr>`;
-    const r0=rs[0], devArea=r0.sell-PA;
-    $('#docmodel').innerHTML='<tr><th>Статья</th>'+ps.map(p=>`<th class="r">Цена ${usd(p)} за м²</th>`).join('')+'</tr>'
-     +h('Доход')+row(`Квартиры, ${nf(r0.apt,1)} м²`,r=>r.revApt)+row(`Коммерческие, ${nf(r0.com,1)} м²`,r=>r.revCom)+row(`Паркинг, ${r0.a.parkN} мест × ${usd(r0.a.parkPrice)}`,r=>r.revPark)+row('Общий доход',r=>r.G,'tot')
-     +h('Распределение прибыли — Партнёр (собственник участка)')+row(`Общая площадь, минимально ${nf(PA)} м²`,(r,p)=>PA*p)+row(`Паркинг, ${PK} мест`,r=>r.a.partnerParkValue)+row('Реализация доли в УК',r=>r.P)
-     +row('Земельный участок',r=>r.a.landValue)+row('Чистая прибыль, $',r=>r.partnerNet,'tot')+row('Чистая прибыль, ₸',r=>tg(r.partnerNet))
-     +h('Застройщик')+row(`Общая площадь, минимально ${nf(devArea,1)} м²`,(r,p)=>devArea*p)+row(`Паркинг, ${r0.a.parkN-PK} мест`,r=>r.revPark-r.a.partnerParkValue)
-     +row('Доход застройщика до налогообложения',(r,p)=>devArea*p+r.revPark-r.a.partnerParkValue)+row('Приобретение доли в УК',r=>r.P)+row('НДС начисленный 16%',r=>r.vatOut)+row('НДС к возмещению 16%',r=>r.vatIn)
-     +row('НДС к оплате',r=>r.vatPay)+row('Доход за минусом НДС',r=>r.rev)+row('Стоимость строительства',r=>r.costEx)+row('Доход за минусом строительных работ',r=>r.rev-r.costEx)
-     +row('КПН 20%',r=>r.cit)+row('Чистый доход — всего',r=>r.netAll)+row('Чистая прибыль застройщика, $',r=>r.devNet,'tot')+row('Чистая прибыль застройщика, ₸',r=>tg(r.devNet))
-     +h('Доходность')+row('Строительная компания, на $2 млн',r=>'≈'+pct(r.devNet/st.equity,0))+row('Собственник участка, на $17 млн',r=>pct(r.partnerRoi,0));
-  };
-  window.__renderDoc();
-})();
-$('#scen').onclick=e=>{const b=e.target.closest('button'); if(!b) return; setPrice(b.dataset.p);};
-recalc();
-/* ---------- единая цена для всего сайта ---------- */
-function setPrice(v){
-  MODE = (v==='cmp') ? 'cmp' : +v; const p = MODE==='cmp' ? 4500 : MODE;
-  M.STATE.price=p; st.price=p;
-  document.querySelectorAll('#pricesw button').forEach(b=>b.classList.toggle('on',String(b.dataset.p)===String(MODE)));
-  renderTypes(); renderChess(); renderExtra(); renderMix(); recalc(); renderPT();
-  document.querySelectorAll('[data-pm2]').forEach(e=>e.textContent=J(x=>usd(x)));
-  window.dispatchEvent(new CustomEvent('shevprice',{detail:p}));
-}
-/* тексты, зависящие от цены */
-function renderPT(){
-  const fx=M.DEF.fx, ROIf=p=>{const r=M.run({...st,price:p}); return [pct(r.partnerRoi,0),'≈'+pct(r.devNet/st.equity,0)];};
-  const set=(id,h)=>{const e=document.getElementById(id); if(e) e.innerHTML=h;};
-  set('roiOwn', J(p=>ROIf(p)[0])); set('roiDev', J(p=>ROIf(p)[1]));
-  set('atP1', `<span>при цене</span> <b>${J(p=>usd(p))}</b>.`); set('atP2', `<span>при цене</span> <b>${J(p=>usd(p))}</b>.`);
-  set('gP', J(p=>`${usd(p)} (${nf(p*457,0)} ₸)`)); set('dealP', `${J(p=>usd(p))} за м².`); set('methP', `${J(p=>usd(p))} за м²`);
-  set('mktH', `<span>Обоснование цены</span> <span>${J(p=>usd(p))}</span> за м²`);
-  set('docNote', `<span>Курс в документе — 457 ₸ за $1</span> (${J(p=>`${usd(p)} = ${nf(p*457,0)} ₸`)}). <span>С учётом корректировки эскизного проекта на премиальный вариант.</span>`);
-  if(window.__renderMkt) window.__renderMkt();
-  if(window.__renderTEP) window.__renderTEP();
-}
-window.__renderPT=renderPT;
-window.SHEV_setPrice=setPrice;
-$('#pricesw').innerHTML='<span>Цена за м²</span>'+[...M.PRICES.map(p=>[p,usd(p)]),['cmp','Сравнение']].map(p=>`<button data-p="${p[0]}" class="${String(p[0])===String(MODE)?'on':''}">${p[1]}</button>`).join('');
-$('#pricesw').onclick=e=>{const b=e.target.closest('button'); if(b) setPrice(b.dataset.p);};
-
-/* ---------- market ---------- */
-(function(){
-  const fx=M.DEF.fx, MAX=4100000;
-  const team=[['Exclusive Opera · пр. Назарбаева, 124а · реализован ($5 000 на момент продаж)',2300000,null,'от'],['Lumiere · пр. Аль-Фараби, западнее Есентая',null,2500000,'до'],
-   ['Авторский дом · Толе би, 42 / Кунаева · участок 20 соток · первый проект Element A · ~90% продано · паркинг 15 млн ₸',2000000,2400000,''],['Diamond by Kusto Home',2300000,null,'от'],
-   ['MANIFIQUE · пр. Достык, район Royal Tulip',2500000,4000000,''],['1st BI LUXE · паркинг 12 млн ₸',2000000,3000000,''],['Synergy Towers · коммерческая недвижимость премиум, район Esentai',2300000,null,'от'],
-   ['DOSTYQ 300 · пр. Достык · реализован',2200000,3500000,''],['Autograph · ул. Жамакаева, 191 · реализован',2300000,null,'от'],['Selin Residence · ул. Каппарова · реализован',2100000,null,'от']];
-  window.__renderMkt=()=>{ const me=[[`<span>ШЕВЧЕНКО · цена проекта</span> <span>${J(p=>usd(p))}</span>`,PS()[0]*fx,PS().length>1?PS()[PS().length-1]*fx:null,'','me']];
-  const row=it=>{const [n,a,b,p,cls]=it; const lo=a??b, hi=b??a; const l=(a&&b)?a/MAX*100:0, w=(a&&b)?(b-a)/MAX*100:lo/MAX*100;
-    const txt=(a&&b)?`${nf(a/1e6,2)}–${nf(b/1e6,2)}`:`${p?p+' ':''}${nf(lo/1e6,2)}`;
-    const ut=(a&&b)?`${usd(a/fx)}–${usd(b/fx)}`:`${p?p+' ':''}${usd(lo/fx)}`;
-    return `<div class="bar-row ${cls||''}"><div>${n}</div><div class="track"><div class="fill" style="left:${l}%;width:${Math.max(w,0.8)}%;${p==='от'?'background:linear-gradient(90deg,#9AA59C 70%,rgba(154,165,156,.15))':''}"></div></div><div class="num" style="text-align:right">${txt} млн ₸<br><span class="small muted">${ut} за м²</span></div></div>`;};
-  $('#bars1').innerHTML=team.map(row).join('')+me.map(row).join('');
-  $('#mktWarn').innerHTML=`<b>Вывод.</b> <span>Премиальные дома Алматы продаются по 2,0–4,0 млн ₸ за м². «Шевченко» выходит на рынок по</span> <b>${J(p=>nf(p*fx/1e6,2))} млн ₸</b> <span>за м² — это вход в премиум-сегмент по привлекательной цене в одной из самых статусных локаций города, рядом с Rixos и городским парком. Для покупателя — квартира в «золотом квадрате» дешевле большинства аналогов, для инвестора — потенциал роста стоимости к сдаче дома.</span>`; };
-  window.__renderMkt();
-  const tg=v=>v==null?'—':nf(v/1e6,1)+' млн ₸';
-  $('#methodComps').innerHTML='<tr><th>#</th><th>Жилой комплекс</th><th class="r">Цена за м², ₸</th><th class="r">Цена за м², $</th></tr>'+team.map((t,i)=>{const [n,a,b,p]=t;
-    const ts=(a&&b)?`${tg(a)} – ${tg(b)}`:`${p} ${tg(a??b)}`, us=(a&&b)?`${usd(a/fx)} – ${usd(b/fx)}`:`${p} ${usd((a??b)/fx)}`;
-    return `<tr><td>${i+1}</td><td style="font-family:inherit">${n}</td><td class="r">${ts}</td><td class="r">${us}</td></tr>`;}).join('');
-  const C=[['Exclusive Opera','Exclusive Qurylys','+7 705 924 88 03 (колл-центр ЖК)<br>+7 727 339 77 70 · +7 700 777 88 78','ул. Кабанбай батыра, 104 (центральный офис); ЖК — Кабанбай батыра, 81','https://ex-opera.kz/','ex-opera.kz'],
-   ['Lumiere','BAZIS-A','+7 727 2 777-727','пр. Аль-Фараби, 69Б, комплекс LUMIERE','https://lumiere.bazis.kz/','lumiere.bazis.kz'],
-   ['Авторский дом 42','Element A','+7 777 406 56 66','офис: ул. Керей-Жанибек хандар, 109/1; Пн–Пт 10–18, Сб 10–16','https://dom42.kz/','dom42.kz'],
-   ['Diamond','Kusto Home','+7 700 836 97 65','ул. Брауна, 24/4; Пн–Пт 9–20, Сб–Вс 10–20','https://kustohome.kz/en/contacts/','kustohome.kz'],
-   ['MANIFIQUE','BAZIS-A','+7 727 2 777-777','ЖК: пр. Достык, 292/3','https://sales.bazis.kz/contacts','sales.bazis.kz'],
-   ['1st by BI Luxe','BI Group','360 (короткий номер)','ул. Тимирязева, 28в, БЦ «Алатау Гранд»','https://bi.group/ru/contacts/almaty','bi.group'],
-   ['Synergy Towers','Synergy Build','+7 707 88 44 000','пр. Аль-Фараби, 77/2, блок Б, офис 1D; ЖК — ул. Касымова, 31','https://synergytowers.kz/','synergytowers.kz'],
-   ['DOSTYQ 300','Sensata Group','700 (единый колл-центр)','ЖК: пр. Достык, 300','https://sensata.kz/project/dostyq-300','sensata.kz'],
-   ['Autograph','AKAS Development','+7 771 944 40 44','ул. Жамакаева, 191; ежедневно 9–18','https://autograph-akas.kz/','autograph-akas.kz'],
-   ['Selin Residence','EPC Group','+7 727 355 50 61 · +7 727 355 50 62 (центральный офис)','пр. Сейфуллина, 609, БЦ «Forum», 5 этаж; ЖК — ул. Каппарова, 254в','https://epc.group/projects/grazhdanskoe-zhiloe-stroitelstvo/zhiloy-kompleks-selin-residence/','epc.group']];
-  $('#contacts').innerHTML='<tr><th>Проект</th><th>Застройщик</th><th>Телефон отдела продаж</th><th>Офис продаж / адрес</th><th>Источник</th></tr>'+
-    C.map(c=>`<tr><td><b>${c[0]}</b></td><td>${c[1]}</td><td class="num" style="white-space:nowrap">${c[2]}</td><td class="small">${c[3]}</td><td class="small"><a href="${c[4]}">${c[5]}</a></td></tr>`).join('')+
-    '<tr><td colspan="5" class="small muted">Короткие номера 360 и 700 работают с мобильных телефонов в Казахстане.</td></tr>';
-})();
-
-/* ---------- TEP ---------- */
-(function(){
-  const rows=[['Адрес','г. Алматы, Алмалинский р-н, ул. Амангельды, 78 — между ул. Жамбыла и ул. Шевченко'],['Кадастровые номера','20-311-016-133 (0,6560 га, собственность) и 20-311-016-165 (0,2286 га, аренда)'],['Разрешительная стадия','АПЗ KZ32VUA00382944 от 12.03.2021; эскизный проект'],['Участок','8 846 м² (≈ 88 соток)'],['Пятно застройки','2 380,5 м² · 2 блока по 53,14 × 22,40 м, 4 подъезда'],['Этажность','9 этажей: 1 — коммерция с антресолью, 2–9 — квартиры; + 2 уровня паркинга'],
-   ['Общая площадь надземная','23 787,6 м²'],['Продаваемая площадь',nf(M.AREA+4628.4,1)+' м² (квартиры '+nf(M.AREA,1)+' + коммерция 4 628,4)'],['Квартиры на этаже подъезда','1–3 резиденции от 80 до 470 м²'],['Квартир',U.length+': '+K.map(k=>T[k].rooms+'-к — '+U.filter(u=>u.type===k).length).join(', ')+' · сценарий '+M.SCEN+(M.SCEN==='B'?' (3 подъезда Luxury + Private Residence)':' (все подъезды Luxury)')],['Паркинг','2 уровня, 230 мест: '+(U.length*2)+' закреплено за квартирами (2 на квартиру), 7 гостевых, '+(230-U.length*2-7)+' сверх нормы'],['Сад на крыше','сады всех четырёх подъездов'],
-   ['Подъездов / лифтов','4 / 8 — по 2 лифта и лестнице Н2 в подъезде'],['Рядом','отель Rixos Almaty, городской парк']];
-  window.__renderTEP=()=>{ $('#tep').innerHTML='<tr><th>Показатель</th><th class="r">Значение</th></tr>'+rows.map(r=>`<tr><td>${r[0]}</td><td class="r">${r[1]??J(p=>usd(p))+' за м²'}</td></tr>`).join(''); };
-  window.__renderTEP();
-})();
 
 /* reveal */
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.08});
@@ -384,7 +270,6 @@ addEventListener('resize',()=>{ const n=matchMedia('(max-width:700px)').matches;
   const S={A:M.scenarioStats('A'),B:M.scenarioStats('B')}, cur=M.SCEN;
   const row=(l,f)=>`<tr><td>${l}</td><td class="${cur==='A'?'cur':''}">${f('A')}</td><td class="${cur==='B'?'cur':''}">${f('B')}</td></tr>`;
   const d=(a,b,fmt)=>{const x=b-a; return x===0?'':` <small class="dl ${x>0?'up':'dn'}">${x>0?'+':'−'}${fmt(Math.abs(x))}</small>`;};
-  const P=M.PRICES;
   box.innerHTML=`<div class="scen-btns"><button data-sc-set="A" class="${cur==='A'?'on':''}"><b>Сценарий А</b><span>4 подъезда Luxury</span></button><button data-sc-set="B" class="${cur==='B'?'on':''}"><b>Сценарий Б</b><span>3 подъезда Luxury + Private Residence</span></button></div>
   <div class="scen-tab"><table class="num"><thead><tr><th></th><th>А · все Luxury</th><th>Б · 3 Luxury + Private</th></tr></thead><tbody>
   ${row('Квартир',k=>S[k].n+(k==='B'?d(S.A.n,S.B.n,x=>x):''))}

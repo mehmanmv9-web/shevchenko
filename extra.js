@@ -2,7 +2,7 @@
 function init(){
 const M=window.SHEV,UI=window.SHEV_UI; if(!M||!UI||!document.getElementById('mfSeg')) return;
 if(window.__mfInit) return; window.__mfInit=1;
-const {nf,usd,U}=UI, T=M.TYPES, P=M.PRICES;
+const {nf,usd,U}=UI, T=M.TYPES;
 const LEV={2:7.0,3:10.3,4:13.6,5:16.9,6:20.2,7:23.5,8:26.8,9:30.1};
 const $=id=>document.getElementById(id), seg=$('mfSeg'), fls=$('mfFls'), stage=$('mfStage'), card=$('mfCard');
 const fmt=v=>v.toFixed(1).replace('.',',');
