@@ -17,10 +17,10 @@ function draw(){
   if(!us.find(u=>u.no===no)) no=us[0].no;
   const u=us.find(x=>x.no===no), v=T[u.type];
   stage.className='mf2-stage'; stage.innerHTML=window.SHEV_floorSVG(sec,fl,no);
-  $('mfNote').textContent='Подъезд '+sec+' · '+fl+' этаж · отметка пола +'+fmt(LEV[fl])+' м над ±0,000. Нажмите на квартиру, чтобы увидеть цену.';
+  $('mfNote').textContent='Подъезд '+sec+' · '+fl+' этаж · отметка пола +'+fmt(LEV[fl])+' м над ±0,000. Нажмите на квартиру, чтобы увидеть её планировку.';
   card.innerHTML='<h3 style="color:'+v.color+'">Квартира №'+u.no+' · '+v.rooms+'-комнатная</h3><div class="sub">'+nf(u.area,0)+' м² · '+v.rooms+' комнат</div>'+
   '<table><tr><td>Подъезд / этаж</td><td>'+sec+' / '+fl+'</td></tr><tr><td>Отметка пола</td><td>+'+fmt(LEV[fl])+' м</td></tr>'+
-  P.map(p=>'<tr><td>Цена при '+usd(p)+' за м²</td><td><b>'+usd(Math.round(u.area*p))+'</b></td></tr>').join('')+'</table>'+
+  '</table>'+
   '<div class="planbox" style="margin:14px 0">'+window.SHEV_planSVG(u.type)+'</div><button class="btn2" id="mfOpen">Открыть карточку квартиры</button>';
   $('mfOpen').onclick=()=>window.SHEV_unitCard&&window.SHEV_unitCard(u.no);
 }
@@ -28,12 +28,7 @@ seg.onclick=e=>{const b=e.target.closest('button'); if(b){sec=+b.dataset.s; draw
 fls.onclick=e=>{const b=e.target.closest('button'); if(b){fl=+b.dataset.f; draw();}};
 stage.onclick=e=>{const g=e.target.closest('g[data-no]'); if(g){no=g.dataset.no; draw();}};
 addEventListener('keydown',e=>{ if(!document.querySelector('#myfloor:hover')) return; if(e.key==='ArrowUp'&&fl<9){fl++;draw();e.preventDefault()} if(e.key==='ArrowDown'&&fl>2){fl--;draw();e.preventDefault()} if(e.key==='ArrowLeft'&&sec>1){sec--;draw()} if(e.key==='ArrowRight'&&sec<4){sec++;draw()} });
-function tariffs(){
-  const tot=U.reduce((a,u)=>a+u.area,0);
-  $('mfTar').innerHTML='<table><tr><th>Цена за м²</th>'+P.map(p=>'<th>'+usd(p)+'</th>').join('')+'</tr>'+
-  M.TYPE_KEYS.map(k=>'<tr><td>'+T[k].rooms+'-комнатная · '+T[k].total+' м²</td>'+P.map(p=>'<td>'+usd(Math.round(T[k].total*p))+'</td>').join('')+'</tr>').join('')+
-  '<tr><td>Все квартиры · '+nf(tot,1)+' м² ('+U.length+')</td>'+P.map(p=>'<td>'+usd(Math.round(tot*p))+'</td>').join('')+'</tr></table><p class="muted small">Цена = площадь × тариф. Коммерция и паркинг в расчёт не входят.</p>';
-}
+function tariffs(){}
 draw(); tariffs();
 }
 if(document.readyState!=='loading') setTimeout(init,0); else addEventListener('DOMContentLoaded',()=>setTimeout(init,0));

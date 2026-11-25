@@ -492,7 +492,7 @@ const CAT = {res: 'жителям — по 2 на квартиру', apt: 'за�
 function selStall(b, silent){
   if (selSt) selSt.material.opacity = 0; selSt = b;
   if (!b) return; b.material.opacity = 0.65; const st = b.userData.stall;
-  info.innerHTML = `<h4>Машино-место № ${st.no}</h4><div class="big num">${(PAK[st.no]||st.cat) === 'guest' ? 'гостевое' : (PAK[st.no]||st.cat) === 'apt' ? 'в составе квартиры' : UI.usd(30000)}</div>
+  info.innerHTML = `<h4>Машино-место № ${st.no}</h4><div class="big num">${(PAK[st.no]||st.cat) === 'guest' ? 'гостевое' : (PAK[st.no]||st.cat) === 'apt' ? 'в составе квартиры' : 'отдельное место'}</div>
   <table class="num"><tr><td>Уровень</td><td>${{'-1': '−1 · абс. 813,55', '-2': '−2 · абс. 810,25'}[st.lv]}</td></tr><tr><td>Размер места</td><td>${UI.nf(st.w, 2)} × ${UI.nf(st.l, 2)} м</td></tr>
   <tr><td>Норма РК (СП РК 3.03-105)</td><td>≥ 2,50 × 5,30 м</td></tr><tr><td>Назначение</td><td>${CAT[PAK[st.no] || st.cat]}</td></tr><tr><td>Проезд</td><td>6,0 м, двусторонний</td></tr><tr><td>Высота в чистоте</td><td>не менее 2,6 м</td></tr></table>
   <div class="seg" style="margin-top:10px"><button id="vclose">Закрыть</button></div>`;
@@ -505,8 +505,7 @@ function select(mesh){
   if (!mesh) { if (typeof level === 'number' && level >= 2) info.classList.remove('show'); return; }
   mesh.userData.ovs.forEach(o => o.material.opacity = 0.45);
   const u = mesh.userData.unit, v = M.TYPES[u.type];
-  info.innerHTML = `<h4>Квартира ${u.no} · ${v.rooms}-комнатная</h4><div class="big num">${UI.usd(u.price)}</div>
-   <div class="small" style="color:#B9C4BB;margin-top:4px">${UI.nf(u.area, 1)} м² × ${UI.usd(u.pm2)}/м² · ≈ ${UI.nf(u.price * M.DEF.fx / 1e6, 1)} млн ₸</div>
+  info.innerHTML = `<h4>Квартира ${u.no} · ${v.rooms}-комнатная</h4><div class="big num">${UI.nf(u.area, 1)} м²</div>
    <table class="num"><tr><td>Тип</td><td>${v.name}</td></tr><tr><td>Этаж / подъезд</td><td>${u.floor} / ${u.section}</td></tr>
    <tr class="sum"><td>Общая площадь</td><td>${UI.nf(u.area, 1)} м²</td></tr></table>
    <div class="pplan" style="margin-top:10px;background:#FBF9F5;border-radius:10px;padding:4px;cursor:zoom-in">${window.SHEV_planSVG ? window.SHEV_planSVG(u.type) : ''}</div>
@@ -595,7 +594,7 @@ canvas.addEventListener('pointermove', ev => {
   const o = pickFrom(ev, picks); if (o === hovered) { if (o) tipAt(ev, tip.innerHTML); return; }
   const sameSel = m => selected && m && m.userData.unit === selected.userData.unit;
   if (hovered && !sameSel(hovered)) hovered.userData.ovs.forEach(x => x.material.opacity = 0); hovered = o; canvas.style.cursor = o ? 'pointer' : 'grab';
-  if (o) { if (!sameSel(o)) o.userData.ovs.forEach(x => x.material.opacity = 0.22); const u = o.userData.unit; tipAt(ev, `<b>${u.no}</b> · ${M.TYPES[u.type].rooms}-комн. · ${UI.nf(u.area, 1)} м² · ${UI.usd(u.price)}`); }
+  if (o) { if (!sameSel(o)) o.userData.ovs.forEach(x => x.material.opacity = 0.22); const u = o.userData.unit; tipAt(ev, `<b>${u.no}</b> · ${M.TYPES[u.type].rooms}-комн. · ${UI.nf(u.area, 1)} м²`); }
   else tip.style.display = 'none';
 });
 canvas.addEventListener('pointerdown', ev => { downAt = [ev.clientX, ev.clientY]; stopCinema(); controls.autoRotate = false; rotBtn.classList.remove('on'); });

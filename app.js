@@ -1,6 +1,6 @@
 (function(){
 const M=window.SHEV, T=M.TYPES, K=M.TYPE_KEYS;
-const $=s=>document.querySelector(s);
+const $=s=>document.querySelector(s)||document.createElement('div');
 const nf=(x,d=0)=>x.toLocaleString('ru-RU',{minimumFractionDigits:d,maximumFractionDigits:d}).replace(/\u00a0/g,'\u202f');
 const usd=(x,d=0)=>{const r=Math.round(x*Math.pow(10,d))/Math.pow(10,d); return (r<0?'−$':'$')+nf(Math.abs(r),d);};
 const mln=(x,d=2)=>{const r=Math.round(x/1e6*Math.pow(10,d))/Math.pow(10,d); return (r<0?'−$':'$')+nf(Math.abs(r),d)+' млн';};
@@ -48,7 +48,7 @@ document.addEventListener('click',e=>{const im=e.target.closest('[data-zoom]'); 
 /* ---------- hero ---------- */
 const base=M.run({});
 $('#heroKpis').innerHTML=[
- ['≈88 соток','участок в «золотом квадрате»'],['9','этажей: 1 — коммерция с антресолью, 2–9 — резиденции'],[String(U.length),'резиденций от 80 до 470 м²'],['230','машиномест на 2 уровнях паркинга'],['$4 500 / $5 000','цена за м²'],['3 года','до сдачи дома']
+ ['≈88 соток','участок в «золотом квадрате»'],['9','этажей: 1 — коммерция с антресолью, 2–9 — резиденции'],[String(U.length),'резиденций от 80 до 470 м²'],['230','машиномест на 2 уровнях паркинга'],['2','машино-места к каждой квартире'],['3 года','до сдачи дома']
 ].map(x=>`<div><b>${x[0]}</b><span>${x[1]}</span></div>`).join('');
 
 /* ---------- hero film ---------- */
@@ -119,7 +119,7 @@ function typeHTML(t){
     <div class="small muted" style="text-align:right">${cnt} квартир в доме<br>${M.PARK_PER_APT} машино-места в паркинге</div></div>
     ${window.SHEV_roomsTable(t)}
     <p class="small muted" style="margin-top:10px">Площадь по типу: от ${v.range[0]} до ${v.range[1]} м²; в доме ${cnt} квартир, всего ${m2(tot)}.</p>
-    <div class="pricebox num"><div><span>Цена за м²</span><b>${J(p=>usd(p))}</b></div><div><span>Цена квартиры</span><b>${J(p=>usd(Math.round(v.total*p)))}</b></div><div><span>В тенге (курс ${nf(M.DEF.fx,0)} ₸)</span><b>${J(p=>nf(Math.round(v.total*p)*M.DEF.fx/1e6,1))} млн ₸</b></div></div>
+    
 </div></div>`;
 }
 const tt=$('#ttabs');
@@ -152,8 +152,6 @@ function unitCard(u){
   const v=T[u.type];
   return `<div class="card"><div><div class="planbox">${window.SHEV_planSVG(u.type)}</div><p class="pn">${window.SHEV_PLAN_NOTE}</p><div style="margin-top:14px">${window.SHEV_floorSVG(u.section,u.floor,u.no)}</div></div><div>
   <div class="eyebrow" style="color:${v.color}">Квартира ${u.no} · ${v.rooms}-комнатная</div>
-  <div class="serif" style="font-size:${MODE==='cmp'?32:44}px;line-height:1.1">${J(p=>usd(Math.round(u.area*p)))}</div>
-  <p class="muted small" style="margin:6px 0 14px">${PS().map(p=>`${nf(u.area,1)} м² × ${usd(p)}/м² = ${usd(Math.round(u.area*p))} · ≈ ${nf(Math.round(u.area*p)*M.DEF.fx/1e6,2)} млн ₸`).join('<br>')}</p>
   <table class="rooms num"><tr><td>Этаж</td><td>${u.floor}</td></tr><tr><td>Подъезд</td><td>${M.SECTIONS[u.section-1].name}</td></tr><tr><td>Тип</td><td>${v.name}</td></tr>
   ${window.SHEV_planRooms(u.type).map(r=>`<tr><td>${r[0]}</td><td>${m2(r[1])}</td></tr>`).join('')}<tr class="sum"><td>Общая площадь</td><td>${m2(u.area)}</td></tr></table>
   <button class="btn" style="margin-top:16px" onclick="document.getElementById('modal').classList.remove('show');window.SHEV3D&&window.SHEV3D.focus('${u.no}');location.hash='s3d'">Показать в 3D</button></div></div>`;
@@ -163,20 +161,18 @@ let chSec=1, chFl=5;
 function renderChess(){
   const us=U.filter(u=>u.floor===chFl&&u.section===chSec).sort((x,y)=>x.pos-y.pos);
   $('#chessTools').innerHTML=`<div class="px-row"><span class="px-lab">Подъезд</span><div class="px-seg" id="pxSec">${M.SECTIONS.map(s=>`<button data-s="${s.n}" class="${s.n===chSec?'on':''}">${s.n}</button>`).join('')}</div><span class="px-lab">Этаж</span><div class="px-seg" id="pxFl">${M.FLOORS.map(f=>`<button data-f="${f}" class="${f===chFl?'on':''}">${f}</button>`).join('')}</div></div>`;
-  $('#chessWrap').innerHTML=`<div class="px-grid">${us.map(u=>{const v=T[u.type]; return `<button class="px-u" data-no="${u.no}" style="--c:${v.color}"><b>${u.no}</b><span>${v.rooms}-к · ${nf(u.area,0)} м²</span><strong>${J(p=>usd(Math.round(u.area*p)))}</strong>${MODE==='cmp'?'':`<small>≈ ${nf(Math.round(u.area*MODE)*M.DEF.fx/1e6,1)} млн ₸</small>`}</button>`;}).join('')}</div>`;
+  $('#chessWrap').innerHTML=`<div class="px-grid">${us.map(u=>{const v=T[u.type]; return `<button class="px-u" data-no="${u.no}" style="--c:${v.color}"><b>${u.no}</b><span>${v.rooms}-к · ${nf(u.area,0)} м²</span></button>`;}).join('')}</div>`;
   const sel=U, A=sel.reduce((s,u)=>s+u.area,0), Pof=p=>sel.reduce((s,u)=>s+Math.round(u.area*p),0);
-  $('#chessSum').innerHTML=`<div><b>${sel.length}</b><span>квартир в выборке</span></div><div><b>${nf(A,1)}</b><span>м² продаваемой площади</span></div><div><b>${J(p=>mln(Pof(p)))}</b><span>стоимость по прайсу с НДС</span></div><div><b>${J(p=>usd(p))}</b><span>цена за м²</span></div>`;
+  $('#chessSum').innerHTML=`<div><b>${sel.length}</b><span>квартир в выборке</span></div><div><b>${nf(A,1)}</b><span>м² продаваемой площади</span></div>`;
 }
 /* коммерция и паркинг (из финансовой модели проекта) */
 function renderExtra(){
   const COM=4628.4, PN=M.DEF.parkN, PP_=30000, OWN=37, LV=[Math.ceil(PN/2),Math.floor(PN/2)];
   let ownLeft=OWN;
-  const lvl=(k,n)=>{ ownLeft=Math.min(ownLeft,PN); let cells=''; for(let i=0;i<n;i++){ const own=ownLeft>0 && k===1 ? (ownLeft--,true) : false; cells+=`<i class="${own?'own':''}" title="P${k}-${String(i+1).padStart(2,'0')} · ${usd(PP_)}"></i>`; }
-    return `<div class="xcard"><h4>Паркинг −${k}</h4><div class="sub">${n} мест</div><div class="pk">${cells}</div>
-      <div class="tot"><span>Паркинг, ${n} мест × ${usd(PP_)}</span><b>${usd(n*PP_)}</b></div></div>`; };
+  const lvl=(k,n)=>{ ownLeft=Math.min(ownLeft,PN); let cells=''; for(let i=0;i<n;i++){ const own=ownLeft>0 && k===1 ? (ownLeft--,true) : false; cells+=`<i class="${own?'own':''}" title="P${k}-${String(i+1).padStart(2,'0')}"></i>`; }
+    return `<div class="xcard"><h4>Паркинг −${k}</h4><div class="sub">${n} мест</div><div class="pk">${cells}</div></div>`; };
   $('#chessExtra').innerHTML=`<div class="xh">Коммерция и паркинг</div>
-    <div class="xcard"><h4>Коммерческие, ${nf(COM,1)} м²</h4><div class="sub">${J(p=>usd(p))} за м²</div><div class="com-blk">${nf(COM,1)} м²</div>
-      <div class="tot"><span>Сумма по прайсу</span><b>${J(p=>usd(Math.round(COM*p)))}</b></div></div>`+lvl(1,LV[0])+lvl(2,LV[1])+`<div class="xleg"><span><i style="background:#8C9A93"></i><span>Паркинг, ${PN} мест × ${usd(PP_)}</span> = ${usd(PN*PP_)}</span><span><i style="background:#C9A66B"></i><span>Доля собственника участка</span> · <span>Паркинг, ${OWN} мест</span></span></div>`;
+    <div class="xcard"><h4>Коммерческие, ${nf(COM,1)} м²</h4><div class="com-blk">${nf(COM,1)} м²</div></div>`+lvl(1,LV[0])+lvl(2,LV[1])+`<div class="xleg"><span><i style="background:#8C9A93"></i><span>Паркинг, ${PN} мест</span></span><span><i style="background:#C9A66B"></i><span>Доля собственника участка</span> · <span>Паркинг, ${OWN} мест</span></span></div>`;
 }
 $('#chessTools').onclick=e=>{const b=e.target.closest('button'); if(!b) return; if(b.dataset.s) chSec=+b.dataset.s; if(b.dataset.f) chFl=+b.dataset.f; renderChess();};
 $('#chessWrap').onclick=e=>{const c=e.target.closest('.px-u'); if(c) window.SHEV_unitCard(c.dataset.no);};
@@ -188,9 +184,9 @@ function renderMix(){
   const tabs=K.map(t=>`<button data-t="${t}" class="${mixSel===t?'on':''}"><i style="background:${T[t].color}"></i>${T[t].rooms}-к · ${nf(T[t].total,0)} м²</button>`).join('')+`<button data-t="all" class="${mixSel==='all'?'on':''}">Итого</button>`;
   const st=stat(mixSel), cell=(l,v)=>`<div><span>${l}</span><b>${v}</b></div>`;
   let card;
-  if(mixSel==='all') card=`<div class="hd">Итого</div>`+cell('Квартир',st.n)+cell('Всего, м²',nf(st.a,1))+cell('Доля площади','100,0%')+cell('Сумма по прайсу',J(p=>usd(st.sum(p))));
+  if(mixSel==='all') card=`<div class="hd">Итого</div>`+cell('Квартир',st.n)+cell('Всего, м²',nf(st.a,1))+cell('Доля площади','100,0%'); 
   else card=`<div class="hd"><i style="background:${T[mixSel].color}"></i>${mixSel} · <span>${T[mixSel].name}</span></div>`+cell('Комнат',T[mixSel].rooms)+cell('Площадь, м²',nf(T[mixSel].total,1))+cell('Квартир',st.n)+cell('Всего, м²',nf(st.a,1))
-    +cell('Доля площади',pct(st.a/M.AREA))+cell('Цена квартиры',J(p=>usd(Math.round(T[mixSel].total*p))))+cell('В тенге',J(p=>nf(Math.round(T[mixSel].total*p)*M.DEF.fx/1e6,1))+' млн ₸')+cell('Сумма по прайсу',J(p=>usd(st.sum(p))));
+    +cell('Доля площади',pct(st.a/M.AREA));
   $('#mixTable').innerHTML=`<div class="mixtabs">${tabs}</div><div class="mixcard">${card}</div>`;
 }
 $('#mixTable').addEventListener('click',e=>{const b=e.target.closest('.mixtabs button'); if(!b) return; mixSel=b.dataset.t; renderMix();});
@@ -258,7 +254,6 @@ function renderPT(){
   set('gP', J(p=>`${usd(p)} (${nf(p*457,0)} ₸)`)); set('dealP', `${J(p=>usd(p))} за м².`); set('methP', `${J(p=>usd(p))} за м²`);
   set('mktH', `<span>Обоснование цены</span> <span>${J(p=>usd(p))}</span> за м²`);
   set('docNote', `<span>Курс в документе — 457 ₸ за $1</span> (${J(p=>`${usd(p)} = ${nf(p*457,0)} ₸`)}). <span>С учётом корректировки эскизного проекта на премиальный вариант.</span>`);
-  const hk=document.querySelector('#heroKpis div:nth-child(5) b'); if(hk) hk.textContent=J(p=>usd(p));
   if(window.__renderMkt) window.__renderMkt();
   if(window.__renderTEP) window.__renderTEP();
 }
@@ -305,7 +300,7 @@ $('#pricesw').onclick=e=>{const b=e.target.closest('button'); if(b) setPrice(b.d
 (function(){
   const rows=[['Адрес','г. Алматы, Алмалинский р-н, ул. Амангельды, 78 — между ул. Жамбыла и ул. Шевченко'],['Кадастровые номера','20-311-016-133 (0,6560 га, собственность) и 20-311-016-165 (0,2286 га, аренда)'],['Разрешительная стадия','АПЗ KZ32VUA00382944 от 12.03.2021; эскизный проект'],['Участок','8 846 м² (≈ 88 соток)'],['Пятно застройки','2 380,5 м² · 2 блока по 53,14 × 22,40 м, 4 подъезда'],['Этажность','9 этажей: 1 — коммерция с антресолью, 2–9 — квартиры; + 2 уровня паркинга'],
    ['Общая площадь надземная','23 787,6 м²'],['Продаваемая площадь',nf(M.AREA+4628.4,1)+' м² (квартиры '+nf(M.AREA,1)+' + коммерция 4 628,4)'],['Квартиры на этаже подъезда','1–3 резиденции от 80 до 470 м²'],['Квартир',U.length+': '+K.map(k=>T[k].rooms+'-к — '+U.filter(u=>u.type===k).length).join(', ')+' · сценарий '+M.SCEN+(M.SCEN==='B'?' (3 подъезда Luxury + Private Residence)':' (все подъезды Luxury)')],['Паркинг','2 уровня, 230 мест: '+(U.length*2)+' закреплено за квартирами (2 на квартиру), 7 гостевых, '+(230-U.length*2-7)+' сверх нормы'],['Сад на крыше','сады всех четырёх подъездов'],
-   ['Подъездов / лифтов','4 / 8 — по 2 лифта и лестнице Н2 в подъезде'],['Цена продажи',null],['Рядом','отель Rixos Almaty, городской парк']];
+   ['Подъездов / лифтов','4 / 8 — по 2 лифта и лестнице Н2 в подъезде'],['Рядом','отель Rixos Almaty, городской парк']];
   window.__renderTEP=()=>{ $('#tep').innerHTML='<tr><th>Показатель</th><th class="r">Значение</th></tr>'+rows.map(r=>`<tr><td>${r[0]}</td><td class="r">${r[1]??J(p=>usd(p))+' за м²'}</td></tr>`).join(''); };
   window.__renderTEP();
 })();
@@ -330,8 +325,7 @@ document.querySelectorAll('section .wrap > *').forEach(el=>{el.classList.add('re
     return `<div class="card"><div style="position:relative"><img src="img/var-${v}.jpg" style="width:100%;border-radius:10px" alt="">
       <svg viewBox="0 0 ${KP.w} ${KP.h}" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%">${KP.v[v].filter(q=>q.g===g).map(q=>`<polygon points="${q.pts.map(p=>p.join(',')).join(' ')}" style="fill:${GC[g]}33;stroke:${GC[g]};stroke-width:14"/>`).join('')}</svg></div><div>
       <div class="eyebrow" style="color:${GC[g]}">Резиденция ${NM(g)}</div>
-      <div class="serif" style="font-size:44px;line-height:1.1">${J(p=>usd(Math.round(a*p)))}</div>
-      <table class="rooms num" style="margin-top:14px"><tr><td>Площадь</td><td>${m2(a)}</td></tr><tr><td>Объединяемые квартиры</td><td>${NM(g)}</td></tr><tr><td>Спальни</td><td>до ${n*3}</td></tr><tr><td>Машино-места</td><td>${n*2}</td></tr><tr><td>Цена за м²</td><td>${J(p=>usd(p))}</td></tr></table>
+      <table class="rooms num" style="margin-top:14px"><tr><td>Площадь</td><td>${m2(a)}</td></tr><tr><td>Объединяемые квартиры</td><td>${NM(g)}</td></tr><tr><td>Спальни</td><td>до ${n*3}</td></tr><tr><td>Машино-места</td><td>${n*2}</td></tr></table>
       <p class="small muted" style="margin-top:12px">${TX[v]}</p></div></div>`;
   }
   function open(g){ if(g.length===1) openModal(typeHTML(g)); else openModal(groupHTML(g)); }
@@ -339,7 +333,7 @@ document.querySelectorAll('section .wrap > *').forEach(el=>{el.classList.add('re
     b.querySelectorAll('button').forEach(x=>x.classList.toggle('on',+x.dataset.v===v)); img.src='img/var-'+v+'.jpg';
     const c=KP.core;
     svg.innerHTML=KP.v[v].map(q=>`<polygon data-g="${q.g}" points="${q.pts.map(p=>p.join(',')).join(' ')}"/>`).join('')+`<rect x="${c[0][0]}" y="${c[0][1]}" width="${c[1][0]-c[0][0]}" height="${c[1][1]-c[0][1]}"/>`;
-    cards.innerHTML=KP.v[v].map(q=>`<button data-g="${q.g}" style="--c:${GC[q.g]}"><span><i></i>${q.g.length>1?'Резиденция '+NM(q.g):'Квартира '+q.g}</span><b>${m2(area(q.g))}</b><span>${J(p=>usd(Math.round(area(q.g)*p)))}</span></button>`).join('');
+    cards.innerHTML=KP.v[v].map(q=>`<button data-g="${q.g}" style="--c:${GC[q.g]}"><span><i></i>${q.g.length>1?'Резиденция '+NM(q.g):'Квартира '+q.g}</span><b>${m2(area(q.g))}</b></button>`).join('');
     $('#ktxt').textContent=TX[v]+' Машино-мест — по 2 на каждый объединяемый модуль.';
   }
   svg.addEventListener('mouseover',e=>{const p=e.target.closest('polygon'); hov(p?p.dataset.g:'',!!p);});
@@ -398,9 +392,7 @@ addEventListener('resize',()=>{ const n=matchMedia('(max-width:700px)').matches;
   ${row('Средняя площадь, м²',k=>nf(S[k].avg,1))}
   ${K.map(t=>row(T[t].rooms+'-комнатные',k=>S[k].by[t]||0)).join('')}
   ${row('Макс. площадь квартир на этаже подъезда, м² (лимит 500)',k=>nf(S[k].maxFloorSec,0))}
-  ${P.map(p=>row('Выручка с квартир, '+usd(p)+'/м²',k=>usd(Math.round(S[k].res[p].revApt))+(k==='B'?d(S.A.res[p].revApt,S.B.res[p].revApt,x=>usd(Math.round(x))):''))).join('')}
-  ${P.map(p=>row('Прибыль застройщика, '+usd(p)+'/м²',k=>usd(Math.round(S[k].res[p].devNet))+(k==='B'?d(S.A.res[p].devNet,S.B.res[p].devNet,x=>usd(Math.round(x))):''))).join('')}
   </tbody></table></div>
-  <p class="muted small" style="margin-top:12px">Сценарий Б: подъезд 4 — камерный (этажи 2–5: две квартиры по 205 м², 6–8: одна по 301 м², 9: пентхаус 470 м²). Расчёт Б выполнен по той же финансовой модели: затраты, коммерция, паркинг и доля партнёра не меняются, меняется только площадь квартир. Выбранный сценарий сохраняется в браузере и применяется ко всему сайту.</p>`;
+  <p class="muted small" style="margin-top:12px">Сценарий Б: подъезд 4 — камерный (этажи 2–5: две квартиры по 205 м², 6–8: одна по 301 м², 9: пентхаус 470 м²). Выбранный сценарий сохраняется в браузере и применяется ко всему сайту.</p>`;
   box.onclick=e=>{const b=e.target.closest('[data-sc-set]'); if(b&&b.dataset.scSet!==cur) M.setScenario(b.dataset.scSet);};
 })();

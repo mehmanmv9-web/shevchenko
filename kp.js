@@ -76,7 +76,7 @@ const $=s=>root.querySelector(s);
 let st={sec:2,fl:5,ty:0,price:M.STATE.price||4500};
 const flU=()=>U.filter(u=>u.section===st.sec&&u.floor===st.fl).sort((a,b)=>a.pos-b.pos);
 const unit=()=>{const a=flU(); return a[Math.min(st.ty,a.length-1)];};
-const hashOf=()=>`kp-${st.sec}-${st.fl}-${Math.min(st.ty,flU().length-1)+1}-${st.price}`;
+const hashOf=()=>`kp-${st.sec}-${st.fl}-${Math.min(st.ty,flU().length-1)+1}`;
 const urlOf=()=>{ const base=(/(claude|anthropic)/.test(location.hostname)||!/^https?:/.test(location.protocol))?ART:location.href.split('#')[0]; return base+'#'+hashOf(); };
 
 function render(){
@@ -92,7 +92,7 @@ function render(){
     <div class="e">Персональное предложение · ЖК «Шевченко» · Алматы</div>
     <h1>Квартира ${u.no}</h1>
     <div class="sub">${v.name} · подъезд ${st.sec} · ${st.fl} этаж</div>
-    <div class="kp3"><div><small>Площадь</small><b>${nf(u.area,1)} м²</b></div><div><small>Цена</small><b>${usd(tot)}</b></div><div><small>≈ в тенге</small><b>${nf(tot*FX/1e6,1)} млн ₸</b></div></div>
+    <div class="kp3"><div><small>Площадь</small><b>${nf(u.area,1)} м²</b></div><div><small>Этаж</small><b>${st.fl}</b></div><div><small>Подъезд</small><b>${st.sec}</b></div></div>
   </div></div>
   <div class="pg">
     <div class="act" style="margin-top:0"><a class="kb d" href="javascript:void 0" id="kCopy">Копировать ссылку</a><a class="kr" id="kWa" role="link" tabindex="0" aria-label="WhatsApp" title="WhatsApp"><svg viewBox="0 0 448 512" aria-hidden="true"><defs><linearGradient id="kg0" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d4b36a"/><stop offset=".55" stop-color="#a8864f"/><stop offset="1" stop-color="#7a5f2c"/></linearGradient></defs><path fill="url(#kg0)" fill-rule="evenodd" d="M380.9 97.1c-41.9-42-97.7-65.1-157-65.1-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480 117.7 449.1c32.4 17.7 68.9 27 106.1 27l.1 0c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zM325.1 300.5c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8s-14.3 18-17.6 21.8c-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7 .9-6.9-.5-9.7s-12.5-30.1-17.1-41.2c-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2s-9.7 1.4-14.8 6.9c-5.1 5.6-19.4 19-19.4 46.3s19.9 53.7 22.6 57.4c2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4s4.6-24.1 3.2-26.4c-1.3-2.5-5-3.9-10.5-6.6z"/></svg></a><a class="kr" id="kTg" role="link" tabindex="0" aria-label="Telegram" title="Telegram"><svg viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="kg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d4b36a"/><stop offset=".55" stop-color="#a8864f"/><stop offset="1" stop-color="#7a5f2c"/></linearGradient></defs><path fill="url(#kg1)" d="M256 8a248 248 0 1 0 0 496 248 248 0 1 0 0-496zM371 176.7c-3.7 39.2-19.9 134.4-28.1 178.3-3.5 18.6-10.3 24.8-16.9 25.4-14.4 1.3-25.3-9.5-39.3-18.7-21.8-14.3-34.2-23.2-55.3-37.2-24.5-16.1-8.6-25 5.3-39.5 3.7-3.8 67.1-61.5 68.3-66.7 .2-.7 .3-3.1-1.2-4.4s-3.6-.8-5.1-.5c-2.2 .5-37.1 23.5-104.6 69.1-9.9 6.8-18.9 10.1-26.9 9.9-8.9-.2-25.9-5-38.6-9.1-15.5-5-27.9-7.7-26.8-16.3 .6-4.5 6.7-9 18.4-13.7 72.3-31.5 120.5-52.3 144.6-62.3 68.9-28.6 83.2-33.6 92.5-33.8 2.1 0 6.6 .5 9.6 2.9 2 1.7 3.2 4.1 3.5 6.7 .5 3.2 .6 6.5 .4 9.8z"/></svg></a><a class="kr" id="kMl" role="link" tabindex="0" aria-label="Gmail" title="Gmail"><svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="kg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d4b36a"/><stop offset=".55" stop-color="#a8864f"/><stop offset="1" stop-color="#7a5f2c"/></linearGradient></defs><path fill="url(#kg2)" d="M1.6 6.2C1.6 4.5 3.5 3.5 4.9 4.5L12 9.7l7.1-5.2c1.4-1 3.3 0 3.3 1.7v12.2c0 .8-.6 1.4-1.4 1.4h-3.4V11.7L12 15.9l-5.6-4.2v8.1H3c-.8 0-1.4-.6-1.4-1.4z"/></svg></a></div>
@@ -103,18 +103,10 @@ function render(){
       <p style="margin-top:14px;color:#3C443F;font-size:14px">${M.PARK_PER_APT} машино-места в подземном паркинге на квартиру · консьерж · два лифта в подъезде</p></div></div>
     <div class="eb">Как будет выглядеть дом внутри</div><h2>Интерьеры</h2>
     <div class="gal">${imgs.map(x=>`<figure><img src="img/${x[0]}.jpg" alt="${x[1]}" data-zoom loading="lazy"><figcaption>${x[1]}</figcaption></figure>`).join('')}</div>
-    <div class="price"><div class="eb" style="color:#E3C894">Цена</div>
-      <div class="big num" id="kBig">${usd(tot)}</div><div class="m" id="kM">${nf(u.area,1)} м² × ${usd(st.price)}/м² · ≈ ${nf(tot*FX/1e6,2)} млн ₸ (курс ${FX} ₸)</div>
-      <div class="tiers">${M.PRICES.map(p=>`<button data-p="${p}" class="${p===st.price?'on':''}">${usd(p)}/м²</button>`).join('')}</div>
-      <div class="slid"><label for="kRange" style="font-size:13px;color:#ffffffc8">Первый взнос: <b id="kPct">30</b>% (иллюстрация расчёта)</label><input id="kRange" type="range" min="10" max="100" step="5" value="30">
-      <div class="calc"><div><small>Первый взнос</small><b id="kDp"></b></div><div><small>Остаток</small><b id="kRest"></b></div></div></div>
-      <div class="nt">Цены — при 100% оплате. Условия рассрочки и ипотеки уточняйте у отдела продаж. Расчёт выше — арифметика для ориентира, это не оферта.</div></div>
     <div class="loc"><img src="img/mont-zhambyl.jpg" alt="Расположение" data-zoom><div><div class="eb">Расположение</div><h2>«Золотой квадрат» Алматы</h2><ul><li>ул. Амангельды, 78 · между ул. Жамбыла и ул. Шевченко</li><li>Рядом Rixos и городской парк</li><li>Двор без машин, паркинг под домом</li><li>9 этажей, 4 подъезда, 4 квартиры на этаже</li></ul></div></div>
     <div class="ct"><div><div class="eb" style="margin-bottom:4px">Отдел продаж</div><b>Arbat Real Estate · Шалаев Виталий</b><div style="color:#6B6F66;font-size:14px">+7 776 173 73 73 · Алматы, пр. Аль-Фараби, 100</div></div><div style="color:#6B6F66;font-size:12px;max-width:320px">Предложение действительно как ознакомительное. Окончательные условия — в договоре.</div></div>
   </div>`;
-  const pct=()=>{ const p=+$('#kRange').value; $('#kPct').textContent=p; $('#kDp').textContent=usd(tot*p/100); $('#kRest').textContent=usd(tot*(100-p)/100); };
-  $('#kRange').oninput=pct; pct();
-  const txt=`Квартира ${u.no} в ЖК «Шевченко» (Алматы): ${nf(u.area,1)} м², ${usd(tot)}. Личная презентация:`, q=encodeURIComponent;
+  const txt=`Квартира ${u.no} в ЖК «Шевченко» (Алматы): ${nf(u.area,1)} м². Личная презентация:`, q=encodeURIComponent;
   const arm=(el,fn)=>{ const f=()=>{ el.href=fn(); setTimeout(()=>el.removeAttribute('href'),1500); }; ['pointerdown','touchstart','focus','keydown'].forEach(e=>el.addEventListener(e,f,{passive:true})); el.target='_blank'; el.rel='noopener'; };
   arm($('#kWa'),()=>'https://wa.me/?text='+q(txt+' '+urlOf()));
   arm($('#kTg'),()=>'https://t.me/share/url?url='+q(urlOf())+'&text='+q(txt));
@@ -130,6 +122,6 @@ function close(){ root.classList.remove('on'); document.body.style.overflow=''; 
 $('#kX').onclick=close; addEventListener('keydown',e=>{ if(e.key==='Escape'&&root.classList.contains('on')) close(); });
 window.SHEV_openKp=open;
 document.addEventListener('click',e=>{ const a=e.target.closest('[data-kp]'); if(a){ e.preventDefault(); open(); } });
-function fromHash(){ const m=/^#kp-([1-4])-([2-9])-([1-4])-(\d{4})$/.exec(location.hash); if(m&&M.PRICES.includes(+m[4])) open({sec:+m[1],fl:+m[2],ty:+m[3]-1,price:+m[4]}); }
+function fromHash(){ const m=/^#kp-([1-4])-([2-9])-([1-4])-(?:-\d{4})?$/.exec(location.hash); if(m) open({sec:+m[1],fl:+m[2],ty:+m[3]-1,price:+m[4]}); }
 fromHash(); addEventListener('hashchange',()=>{ if(!root.classList.contains('on')) fromHash(); });
 })();
